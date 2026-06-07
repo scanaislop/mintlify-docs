@@ -1,11 +1,15 @@
 {
   "projectType": "cli-tool",
-  "projectName": "aislop",
+  "projectName": "Scanaislop Documentation",
   "projectDescription": "A sub-second, deterministic static analysis CLI that scores your codebase 0–100 by catching the patterns AI coding agents leave behind — narrative comments, swallowed exceptions, dead code, unsafe type casts, and more — across 8 languages with 50+ rules.",
   "theme": "luma",
-  "primaryColor": "#13b881",
-  "lightColor": "#0e0e0e",
-  "darkColor": "#f3f3f3",
+  "primaryColor": "#10b981",
+  "lightColor": "#10b981",
+  "darkColor": "#10b981",
+  "styles": [
+    "./styles/custom.css",
+    "./styles/custom.js"
+  ],
   "navigation": {
     "tabs": [
       {

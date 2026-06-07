@@ -1,11 +1,15 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "luma",
-  "name": "aislop",
+  "theme": "mint",
+  "name": "Scanaislop Documentation",
+  "logo": {
+    "light": "/assets/images/scanaislop_logo.png",
+    "dark": "/assets/images/scanaislop_logo.png"
+  },
   "colors": {
-    "primary": "#13b881",
-    "light": "#0e0e0e",
-    "dark": "#f3f3f3"
+    "primary": "#10b981",
+    "light": "#10b981",
+    "dark": "#10b981"
   },
   "favicon": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg",
   "fonts": {
@@ -25,7 +29,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Docs",
+        "tab": "Get Started",
         "groups": [
           {
             "group": "Get Started",
@@ -42,7 +46,12 @@
               "concepts/scoring",
               "concepts/rules"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "CLI Reference",
+        "groups": [
           {
             "group": "CLI Reference",
             "pages": [
@@ -52,7 +61,12 @@
               "cli/hooks",
               "cli/other-commands"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Integrations",
+        "groups": [
           {
             "group": "Integrations",
             "pages": [
@@ -62,7 +76,12 @@
               "integrations/mcp-server",
               "integrations/vscode"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Configuration",
+        "groups": [
           {
             "group": "Configuration",
             "pages": [
@@ -72,7 +91,12 @@
               "configuration/architecture-rules",
               "configuration/ignoring-code"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
           {
             "group": "Reference",
             "pages": [
