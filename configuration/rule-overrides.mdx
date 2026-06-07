@@ -1,0 +1,152 @@
+---
+title: "Override rule severity or disable rules in aislop"
+sidebarTitle: "Rule Overrides"
+description: "Change the severity of any aislop rule project-wide via config, or silence specific findings inline with suppression comments in any language."
+---
+
+aislop ships with default severities for every rule, but not every rule fits every project. You have two complementary ways to customise how rules behave: project-wide severity overrides in `.aislop/config.yml`, and inline suppression comments placed directly in source code. Both mechanisms are resolved before scoring — the final score reflects only findings that survive your overrides.
+
+## Per-rule severity overrides
+
+Add a `rules:` section to `.aislop/config.yml` to change the severity of any rule by its ID. Each entry maps a rule ID to one of three values:
+
+| Value | Effect |
+|---|---|
+| `error` | Rewrites the finding's severity to **error** before scoring and reporting. |
+| `warning` | Rewrites the finding's severity to **warning** before scoring and reporting. |
+| `off` | Drops all findings for this rule entirely. They do not appear in the report and do not affect the score. |
+
+```yaml
+# .aislop/config.yml
+rules:
+  ai-slop/narrative-comment: warning       # downgrade from error to warning
+  ai-slop/trivial-comment: "off"           # remove this rule entirely
+  security/hardcoded-secret: error         # escalate to error
+  code-quality/function-too-long: warning  # downgrade, don't block CI
+```
+
+<Note>
+  Rule IDs follow the pattern `<engine>/<rule-name>`. Run `aislop rules` to see the full list of IDs available in your project, or use `aislop rules --search` for an interactive explorer.
+</Note>
+
+### Setting a rule to `error`
+
+Escalate a rule to `error` when you want violations to carry the maximum base penalty (3.0 × engine weight) and appear prominently in reports:
+
+```yaml
+rules:
+  security/eval-usage: error
+  ai-slop/swallowed-exception: error
+```
+
+### Setting a rule to `warning`
+
+Downgrade a rule to `warning` when you want visibility without the full score impact of an error:
+
+```yaml
+rules:
+  code-quality/file-too-large: warning
+  ai-slop/narrative-comment: warning
+```
+
+### Setting a rule to `off`
+
+Use `off` to silence a rule completely. This is the right choice for rules that genuinely do not apply to your codebase — for example, a no-console rule in a CLI tool that intentionally writes to stdout:
+
+```yaml
+rules:
+  ai-slop/console-log: "off"
+  lint/no-console: "off"
+```
+
+<Tip>
+  Prefer `warning` over `off` when a rule fires correctly but you're not ready to fix the findings yet. Warnings keep the issue visible and still affect the score, giving your team a clear upgrade path.
+</Tip>
+
+## Inline suppressions
+
+Use inline suppression comments when you know a specific finding is a false positive or has been handled in a way aislop cannot detect. Suppressions are scoped to a line, the line below, or an entire file.
+
+### Directive forms
+
+| Directive | Scope |
+|---|---|
+| `aislop-ignore-next-line` | The line immediately below the comment |
+| `aislop-ignore-line` | The same line the comment is on |
+| `aislop-ignore-file` | Every finding in the entire file (place anywhere) |
+
+### Syntax
+
+Suppression directives work in any comment syntax — `//`, `#`, and `<!-- -->` are all recognised:
+
+```
+// aislop-ignore-next-line
+# aislop-ignore-next-line
+<!-- aislop-ignore-next-line -->
+```
+
+**Scope to specific rules** by listing one or more rule IDs after the directive. Omit rule IDs to silence every rule on that line:
+
+```
+// aislop-ignore-next-line ai-slop/empty-fallback
+// aislop-ignore-next-line ai-slop/narrative-comment security/eval-usage
+// aislop-ignore-line                                    (silences all rules on this line)
+```
+
+**Add an optional reason** after `--` to document why the suppression is justified:
+
+```
+// aislop-ignore-next-line ai-slop/empty-fallback -- options object is validated upstream
+```
+
+Reasons are stored in the run report so reviewers can audit suppressions without reading the source.
+
+### Suppression reporting
+
+Suppressed findings are removed before scoring. The run output reports how many findings were silenced, so you have a clear picture of what you're opting out of:
+
+```
+✓ 3 findings suppressed by inline directives
+```
+
+### TypeScript examples
+
+```typescript
+// aislop-ignore-next-line ai-slop/empty-fallback -- validated upstream before this call
+const opts = { ...defaults, ...(input || {}) };
+
+function parseConfig(raw: unknown) {
+  try {
+    return JSON.parse(raw as string); // aislop-ignore-line ai-slop/unsafe-cast -- raw is pre-validated
+  } catch {
+    // aislop-ignore-next-line ai-slop/swallowed-exception -- intentional no-op: caller checks return value
+    return null;
+  }
+}
+
+// aislop-ignore-file
+// Entire file suppressed: legacy adapter, rewrite tracked in INFRA-412
+```
+
+### Python examples
+
+```python
+# aislop-ignore-next-line ai-slop/narrative-comment -- explains non-obvious stdlib quirk
+# datetime.utcnow() is deprecated but required by this third-party SDK
+
+result = eval(expression)  # aislop-ignore-line security/eval-usage -- sandboxed environment, input is allowlisted
+
+# aislop-ignore-file
+# Generated file: do not edit. Regenerate with `make proto`.
+```
+
+### HTML / template examples
+
+```html
+<!-- aislop-ignore-next-line security/inner-html -- content is sanitised by DOMPurify before assignment -->
+<div id="content"></div>
+```
+
+<Warning>
+  `aislop-ignore-file` silences every rule in the file, not just the rule you specify. Use it sparingly and always include a `--` reason so reviewers understand the intent.
+</Warning>

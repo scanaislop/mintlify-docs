@@ -1,0 +1,194 @@
+---
+title: "aislop scan: score your codebase for AI slop"
+sidebarTitle: "scan"
+description: "Run all analysis engines in parallel, get a 0–100 score, and see exactly which AI-authored patterns are dragging your codebase down."
+---
+
+`aislop scan` is the foundation of everything else in aislop. It runs six deterministic engines in parallel—formatting, linting, code quality, AI slop detection, security, and architecture—across all supported files in your project, then produces a single 0–100 score alongside a prioritised list of findings. The whole thing is sub-second on most codebases and produces identical output every time you run it on the same code.
+
+## Basic usage
+
+```bash
+# Scan the current directory
+aislop scan
+
+# Scan a specific directory
+aislop scan ./src
+
+# One-off run without installing
+npx aislop@latest scan
+```
+
+## Flags
+
+<ParamField query="--changes" type="boolean">
+  Only scan files that have changed since the last commit (diffs against `HEAD` by default). Combine with `--base` to diff against a different ref, such as a PR target branch.
+</ParamField>
+
+<ParamField query="--base" type="string">
+  The git ref to diff against when `--changes` is set. Defaults to `HEAD`. Pass `origin/main` or `FETCH_HEAD` to scope a scan to the files a pull request touches.
+
+  ```bash
+  aislop scan --changes --base origin/main
+  ```
+</ParamField>
+
+<ParamField query="--staged" type="boolean">
+  Only scan files that are currently staged (added to the git index). Useful in a pre-commit hook to catch issues before they land in history.
+
+  ```bash
+  aislop scan --staged
+  ```
+</ParamField>
+
+<ParamField query="-d, --verbose" type="boolean">
+  Show per-file, per-rule detail instead of the summarised output. Use this when you want to understand exactly which lines triggered a finding.
+</ParamField>
+
+<ParamField query="--json" type="boolean">
+  Emit structured JSON to stdout instead of the interactive terminal UI. Ideal for scripting, dashboards, or piping into other tools. See [JSON output format](#json-output-format) below.
+</ParamField>
+
+<ParamField query="--sarif" type="boolean">
+  Emit a SARIF 2.1.0 report to stdout. Upload this to GitHub code scanning to surface findings directly in the Security tab of your repository.
+</ParamField>
+
+<ParamField query="--format" type="string">
+  Alternative way to select `json` or `sarif` output. Equivalent to `--json` or `--sarif` respectively.
+
+  ```bash
+  aislop scan --format json
+  aislop scan --format sarif
+  ```
+</ParamField>
+
+<ParamField query="--include" type="string">
+  Restrict the scan to paths matching a comma-separated list of glob patterns. You can also repeat the flag instead of using commas.
+
+  ```bash
+  aislop scan --include "src/**"
+  aislop scan --include "src/**" --include "lib/**"
+  ```
+</ParamField>
+
+<ParamField query="--exclude" type="string">
+  Skip paths matching a comma-separated list of glob patterns. Merged with any `exclude` entries in `.aislop/config.yml`.
+
+  ```bash
+  aislop scan --exclude "dist,generated"
+  aislop scan --exclude "**/*.snap"
+  ```
+</ParamField>
+
+## Scoping scans with --include and --exclude
+
+Use `--include` and `--exclude` for one-off scoping without touching your config file. For permanent project-wide exclusions, add globs to `.aislop/config.yml`:
+
+```yaml
+# .aislop/config.yml
+exclude:
+  - "**/*.test.ts"
+  - src/generated
+```
+
+Or maintain an `.aislopignore` file at the project root. It follows the same glob semantics as `.gitignore`, with `#` comments supported:
+
+```gitignore
+src/generated
+**/*.snap
+legacy
+```
+
+### Default exclusions
+
+The following directories are always excluded without any configuration:
+
+- `node_modules`
+- `.git`
+- `dist`
+- `build`
+- `coverage`
+
+## JSON output format
+
+When you pass `--json` (or `--format json`), aislop prints a single JSON object to stdout and nothing else. This is the same shape emitted by `aislop ci`. Values are illustrative:
+
+```json
+{
+  "schemaVersion": "1",
+  "cliVersion": "0.10.2",
+  "score": 87,
+  "label": "Healthy",
+  "engines": {
+    "format":       { "issues": 0, "skipped": false, "elapsed": 406 },
+    "lint":         { "issues": 0, "skipped": false, "elapsed": 378 },
+    "code-quality": { "issues": 1, "skipped": false, "elapsed": 812 },
+    "ai-slop":      { "issues": 2, "skipped": false, "elapsed": 455 },
+    "security":     { "issues": 0, "skipped": false, "elapsed": 1103 }
+  },
+  "diagnostics": [ "..." ]
+}
+```
+
+<Note>
+  Score history is **not** written to `.aislop/history.jsonl` when `--json` or `--sarif` is active. Machine output stays clean and deterministic.
+</Note>
+
+## SARIF output and GitHub code scanning
+
+Pass `--sarif` to produce a SARIF 2.1.0 report, then upload it with the GitHub code scanning action so findings appear inline on pull requests and in the Security tab:
+
+```yaml
+# In a GitHub Actions step
+- run: npx aislop@latest scan . --sarif > aislop.sarif
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: aislop.sarif
+```
+
+## Unsupported-language repos
+
+aislop analyses eight language targets: TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, and PHP. If your repository is primarily written in a language outside this set—C, C++, Swift, Kotlin, and so on—scoring a handful of incidental files would misrepresent the codebase.
+
+In that case aislop **withholds the score** and explains why rather than printing a misleading number. When you use `--json`, the response includes `"score": null` and `"scoreable": false` alongside a `coverage` breakdown showing which files were and were not analysed.
+
+## Suppressing individual findings
+
+Silence a specific finding inline when you know it is a false positive. Add an optional reason after `--`:
+
+```ts
+// aislop-ignore-next-line ai-slop/empty-fallback -- options is validated upstream
+const opts = { ...defaults, ...(input || {}) };
+
+const legacy = doThing(); // aislop-ignore-line
+```
+
+| Directive | Scope |
+|---|---|
+| `aislop-ignore-next-line` | The line immediately below the comment |
+| `aislop-ignore-line` | The same line the comment sits on |
+| `aislop-ignore-file` | The entire file (place anywhere) |
+
+Omit the rule ID to silence every rule on that line, or name one or more rule IDs to scope the suppression. The directive works in any comment syntax (`//`, `#`, `<!-- -->`). Suppressed findings are removed before scoring, and the run reports how many were silenced.
+
+## Common examples
+
+```bash
+# Scan with verbose per-file output
+aislop scan -d
+
+# Scan only files changed in this PR
+aislop scan --changes --base origin/main
+
+# Scan staged files in a pre-commit hook
+aislop scan --staged
+
+# Emit JSON for scripting
+aislop scan --json
+
+# Restrict to a subdirectory
+aislop scan --include "packages/api/**"
+
+# Exclude generated files
+aislop scan --exclude "src/generated,**/*.snap"
+```

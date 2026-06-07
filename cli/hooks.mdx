@@ -1,0 +1,204 @@
+---
+title: "aislop hook: real-time quality gates for AI agents"
+sidebarTitle: "hooks"
+description: "Install hooks that run after every AI agent edit and give instant score feedback, blocking regressions before they reach your repository."
+---
+
+aislop hooks plug into your AI coding agent's edit loop. After every change the agent makes, the hook runs a scan and feeds the score and findings straight back into the agent's context—so instead of discovering slop at CI time, the agent sees it immediately and can correct its own output. For agents that support stop hooks, you can also block commits if the score regresses below a baseline.
+
+## Install a hook
+
+Install hooks for the agents you use. The command accepts agent names as positional arguments, as a `--agent` comma-separated list, or as individual shortcut flags:
+
+```bash
+# Install for a single agent
+aislop hook install --claude
+aislop hook install --cursor
+aislop hook install --gemini
+aislop hook install --pi
+
+# Install for multiple agents at once
+aislop hook install claude cursor
+aislop hook install --agent claude,cursor
+
+# Pick agents interactively (no arguments)
+aislop hook install
+```
+
+Natural aliases also work if you prefer them:
+
+```bash
+aislop install claude cursor          # alias for hook install
+aislop install hooks --claude         # alternate natural alias
+```
+
+## Agent types
+
+Not all agents have the same hook capabilities. aislop distinguishes between two types:
+
+<CardGroup cols={2}>
+  <Card title="Runtime adapters" icon="bolt">
+    These agents support a full scan + feedback loop. After every edit, aislop runs, and the score and diagnostics flow back into the agent's context in real time.
+
+    **Supported agents:** `claude`, `cursor`, `gemini`, `pi`
+  </Card>
+  <Card title="Rules-only" icon="book">
+    These agents read the aislop rules at session start and use them to guide their output. There is no live scan loop, but the agent is aware of the patterns it should avoid.
+
+    **Supported agents:** `codex`, `windsurf`, `cline`, `kilocode`, `antigravity`, `copilot`
+  </Card>
+</CardGroup>
+
+## Hook install flags
+
+<ParamField query="--agent" type="string">
+  Comma-separated list of agent names to install hooks for. Equivalent to passing agent names as positional arguments.
+
+  ```bash
+  aislop hook install --agent claude,cursor,gemini
+  ```
+</ParamField>
+
+<ParamField query="-g, --global" type="boolean">
+  Install the hook to your user-scope config so it applies to every project, not just the current one.
+
+  ```bash
+  aislop hook install --claude --global
+  ```
+</ParamField>
+
+<ParamField query="--project" type="boolean">
+  Install the hook to the project-scope config (the default for most agents). Use this to make the hook explicit in your config file.
+</ParamField>
+
+<ParamField query="--dry-run" type="boolean">
+  Print the planned config changes without writing anything. Use this to preview what the install will do before committing to it.
+
+  ```bash
+  aislop hook install --claude --dry-run
+  ```
+</ParamField>
+
+<ParamField query="--yes" type="boolean">
+  Skip the confirmation prompt and apply the install immediately. Useful in scripted environments.
+</ParamField>
+
+<ParamField query="--quality-gate" type="boolean">
+  Add a Claude Stop hook that blocks the agent from completing an edit if the score regresses below the baseline. Requires setting a baseline first with `aislop hook baseline`.
+
+  ```bash
+  aislop hook install --claude --quality-gate
+  ```
+</ParamField>
+
+## Quality-gate mode
+
+Quality-gate mode turns the hook into an active blocker: if the agent's edit causes the score to drop below the baseline, the Stop hook fires and the edit is rejected. The agent sees the regression and must fix it before continuing.
+
+<Steps>
+  <Step title="Install with --quality-gate">
+    ```bash
+    aislop hook install --claude --quality-gate
+    ```
+  </Step>
+
+  <Step title="Capture the current score as the baseline">
+    Run this after your codebase is in the state you want to protect. The baseline is stored locally and used by the Stop hook on every subsequent edit.
+
+    ```bash
+    aislop hook baseline
+    ```
+  </Step>
+
+  <Step title="Work normally — regressions are blocked automatically">
+    From this point on, any agent edit that drops the score below the baseline triggers the Stop hook. The agent sees the finding list and must resolve the regression before the edit is accepted.
+  </Step>
+</Steps>
+
+<Tip>
+  Re-run `aislop hook baseline` after a significant cleanup session to raise the floor and prevent future regressions from the improved score.
+</Tip>
+
+## Managing hooks
+
+```bash
+# See which hooks are installed and their current status
+aislop hook status
+
+# Re-capture the current score as the quality-gate baseline
+aislop hook baseline
+
+# Uninstall a hook for a specific agent
+aislop hook uninstall --claude
+
+# Uninstall for multiple agents
+aislop hook uninstall --agent claude,cursor
+
+# Natural aliases for uninstall
+aislop uninstall claude              # alias for hook uninstall
+aislop uninstall hooks --claude      # alternate natural alias
+```
+
+## Hook uninstall flags
+
+<ParamField query="--agent" type="string">
+  Comma-separated list of agent names to remove hooks for.
+</ParamField>
+
+<ParamField query="-g, --global" type="boolean">
+  Remove the hook from your user-scope config.
+</ParamField>
+
+<ParamField query="--project" type="boolean">
+  Remove the hook from the project-scope config.
+</ParamField>
+
+<ParamField query="--dry-run" type="boolean">
+  Print the planned removal without writing anything.
+</ParamField>
+
+## All agent shortcut flags
+
+Both `hook install` and `hook uninstall` accept these per-agent shortcut flags in addition to `--agent`:
+
+<Accordion title="Runtime adapters (scan + feedback)">
+  | Flag | Agent |
+  |---|---|
+  | `--claude` | Claude Code |
+  | `--cursor` | Cursor |
+  | `--gemini` | Gemini CLI |
+  | `--pi` | pi |
+</Accordion>
+
+<Accordion title="Rules-only agents">
+  | Flag | Agent |
+  |---|---|
+  | `--codex` | Codex |
+  | `--windsurf` | Windsurf |
+  | `--cline` | Cline |
+  | `--kilocode` | Kilocode |
+  | `--antigravity` | Antigravity |
+  | `--copilot` | GitHub Copilot |
+</Accordion>
+
+## Complete examples
+
+```bash
+# Install for Claude Code with quality-gate mode
+aislop hook install --claude --quality-gate
+
+# Install globally for Claude and Cursor
+aislop hook install --agent claude,cursor --global
+
+# Preview what installing for Gemini would do
+aislop hook install --gemini --dry-run
+
+# Capture the current score as baseline
+aislop hook baseline
+
+# Check what's installed
+aislop hook status
+
+# Remove the Claude hook
+aislop hook uninstall --claude
+```

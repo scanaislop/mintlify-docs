@@ -1,0 +1,93 @@
+---
+title: "aislop: Catch AI-generated code slop in your codebase"
+sidebarTitle: "Home"
+description: "aislop scores your codebase 0–100 by catching patterns AI coding agents leave behind — sub-second, deterministic, 50+ rules, 8 languages."
+---
+
+aislop is a free, MIT-licensed static analysis CLI that gives every codebase a single quality score from 0 to 100. It catches the patterns that Claude Code, Cursor, Codex, and other AI coding agents routinely leave behind — narrative comments above self-explanatory code, swallowed exceptions, `as any` casts, hallucinated imports, dead code, and TODO stubs — across TypeScript, JavaScript, Python, Go, Rust, Ruby, PHP, and Expo/React Native. There are no LLMs in the runtime path: the same code always produces the same score, in under a second.
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card
+    title="Introduction"
+    icon="book-open"
+    href="/introduction"
+  >
+    Learn what aislop does, the six engines it runs, and why deterministic scoring matters.
+  </Card>
+  <Card
+    title="Quickstart"
+    icon="bolt"
+    href="/quickstart"
+  >
+    Scan your first project in under a minute — no install required.
+  </Card>
+  <Card
+    title="Scan Command"
+    icon="magnifying-glass"
+    href="/cli/scan"
+  >
+    Full reference for flags, output formats, path scoping, and inline suppressions.
+  </Card>
+  <Card
+    title="GitHub Actions"
+    icon="github"
+    href="/integrations/github-actions"
+  >
+    Add a quality gate to every pull request with a single workflow step.
+  </Card>
+</CardGroup>
+
+## How it works in three steps
+
+Start from zero to a gated, auto-fixing workflow without touching a config file.
+
+<Steps>
+  <Step title="Install aislop">
+    Run aislop instantly with `npx`, or add it to your project for repeated use.
+
+    ```bash
+    # No install — run directly
+    npx aislop@latest scan
+
+    # Or add as a dev dependency
+    npm install --save-dev aislop
+    ```
+
+    <Tip>
+      Homebrew and pipx installs are also available. See the [Installation](/installation) page for every option.
+    </Tip>
+  </Step>
+
+  <Step title="Scan your codebase">
+    Run `aislop scan` from any project root. You get a 0–100 score, a per-engine breakdown, and a list of findings with file locations.
+
+    ```bash
+    aislop scan
+    ```
+
+    Use `--changes` to score only the files you've edited, or `--json` for machine-readable output.
+
+    ```bash
+    aislop scan --changes          # diff against HEAD
+    aislop scan --json             # JSON output for scripting
+    ```
+  </Step>
+
+  <Step title="Fix issues automatically">
+    Auto-fix everything mechanical in one command, then hand the remaining findings to your AI agent with full context.
+
+    ```bash
+    aislop fix           # auto-fix formatting, imports, dead code, comments
+    aislop fix --safe    # only reversible fixes — safe to commit immediately
+    aislop fix --claude  # hand off remaining issues to Claude Code
+    ```
+
+    Add `aislop ci` to your CI pipeline to enforce a minimum score on every push.
+
+    ```bash
+    aislop ci            # exits 1 if score < threshold
+    ```
+  </Step>
+</Steps>

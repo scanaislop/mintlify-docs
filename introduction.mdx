@@ -1,0 +1,90 @@
+---
+title: "aislop: AI Code Quality Gate for Every Language"
+sidebarTitle: "Introduction"
+description: "Understand what aislop is, the problem it solves, its six analysis engines, supported languages, and the key properties that make it reliable in CI."
+---
+
+AI coding tools generate code that compiles, passes tests, and clears lint — yet ships with patterns no experienced engineer would write. Narrative comments above self-explanatory code. Swallowed exceptions. `as any` casts. Hallucinated imports. Duplicated helpers. Dead code. TODO stubs left in production. Over time these patterns accumulate, and no standard tool catches them because they are not syntax errors or style violations — they are quality anti-patterns specific to how AI agents write code. aislop is the quality gate built to catch exactly this class of problem.
+
+## What aislop is
+
+aislop is a free, MIT-licensed static analysis CLI that scores any codebase from 0 to 100. It runs six deterministic engines in parallel across eight language targets, reports findings with file and line locations, auto-fixes what is mechanical, and exits with a non-zero code in CI when the score falls below your threshold. There are no LLMs in the runtime path: the score is computed from regex, AST analysis, and standard open-source tooling, so the same code always produces the same result.
+
+## The problem it solves
+
+Every major AI coding agent — Claude Code, Cursor, Codex, OpenCode, Gemini CLI — generates code that satisfies local correctness checks but introduces patterns that degrade long-term maintainability. These patterns are consistent enough across agents and projects to define as rules. aislop encodes more than 50 of them, weighted so that high-severity slop (swallowed exceptions, unsafe casts, eval) hits the score harder than style noise (trailing whitespace, comment capitalization). You get one number, one gate, and a clear fix list.
+
+## The six engines
+
+aislop runs six engines on every scan. Each engine targets a different quality dimension and maps to a share of the overall 0–100 score.
+
+<CardGroup cols={2}>
+  <Card title="Formatting" icon="paintbrush">
+    Code style consistency checked by **Biome** (TypeScript/JavaScript), **ruff** (Python), **gofmt** (Go), **cargo fmt** (Rust), **rubocop** (Ruby), and **php-cs-fixer** (PHP).
+  </Card>
+  <Card title="Linting" icon="triangle-exclamation">
+    Language-specific correctness checked by **oxlint** (JS/TS), **ruff** (Python), **golangci-lint** (Go), **clippy** (Rust), and **expo-doctor** (Expo/React Native).
+  </Card>
+  <Card title="Code Quality" icon="gauge-high">
+    Complexity and dead code: function and file size limits, deep nesting detection, unused files and dependencies via **knip**, and AST-based unused-declaration removal.
+  </Card>
+  <Card title="AI Slop" icon="robot">
+    Patterns specific to AI-generated code: narrative comments, trivial comments, dead patterns, unused imports, `as any` casts, `console.log` leftovers, TODO stubs, and generic names.
+  </Card>
+  <Card title="Security" icon="shield-halved">
+    Vulnerabilities and risky code: `eval`, `innerHTML`, SQL and shell injection patterns, and dependency audits via **npm audit**, **pip-audit**, **cargo audit**, and **govulncheck**.
+  </Card>
+  <Card title="Architecture" icon="sitemap">
+    Structural rules (opt-in): custom import bans, layering rules, and required patterns configured in `.aislop/config.yml`.
+  </Card>
+</CardGroup>
+
+## Supported languages
+
+aislop analyses eight language targets with full engine coverage. Files in other languages are excluded from scoring rather than partially scored — you always know exactly what the number represents.
+
+| Language | Target identifier |
+|---|---|
+| TypeScript | `typescript` |
+| JavaScript | `javascript` |
+| Expo / React Native | `expo` |
+| Python | `python` |
+| Go | `go` |
+| Rust | `rust` |
+| Ruby | `ruby` |
+| PHP | `php` |
+
+<Note>
+  If a repository is primarily written in an unsupported language (C, C#, Swift, Kotlin, etc.), aislop withholds the score and reports `scoreable: false` rather than printing a number based on a handful of incidental files.
+</Note>
+
+## Key differentiators
+
+**Deterministic, no LLM at runtime.** aislop uses regex, AST analysis, and standard open-source tooling — never an API call to a language model. The same code in always produces the same score out. This makes the score reliable enough to enforce as a hard CI gate.
+
+**Sub-second.** All six engines run in parallel. For most projects, a full scan completes in well under a second, making it practical as a pre-commit hook and as a post-edit hook inside your coding agent.
+
+**50+ rules, language-specific.** Rules are tuned per language and weighted by severity. Sloppy patterns that indicate deeper problems (swallowed exceptions, unsafe type casts) carry more weight than style findings.
+
+**Zero-config start.** `npx aislop@latest scan` works on any repository without any configuration. Add `.aislop/config.yml` when you want to tune thresholds, override rule severity, or enable the Architecture engine.
+
+**Auto-fix and agent handoff.** `aislop fix` resolves mechanical issues — formatting, unused imports, dead code, narrative comments — without human intervention. For findings that require context, `aislop fix --claude` (or `--cursor`, `--codex`, etc.) sends a structured prompt to your coding agent with full diagnostic detail.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="bolt"
+    href="/quickstart"
+  >
+    Scan your first project in under a minute with a single npx command.
+  </Card>
+  <Card
+    title="How It Works"
+    icon="gears"
+    href="/concepts/how-it-works"
+  >
+    Deep dive into the scoring model, engine weights, and rule evaluation order.
+  </Card>
+</CardGroup>

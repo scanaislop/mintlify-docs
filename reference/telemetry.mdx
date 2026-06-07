@@ -1,0 +1,128 @@
+---
+title: "aislop telemetry: what's collected and how to opt out"
+sidebarTitle: "Telemetry"
+description: "aislop collects anonymous usage analytics to prioritize improvements. No code, file paths, project names, or secrets are ever collected."
+---
+
+aislop collects anonymous usage analytics to help the team understand which commands are used, how long scans take, and where issues are found most often. This data never includes your source code, file paths, project or repo names, branch names, raw diagnostic messages, or secrets of any kind. This page describes exactly what is collected, how your anonymous identity works, and how to turn telemetry off completely.
+
+## What is collected
+
+aislop emits six named events across the CLI and MCP server lifecycle.
+
+| Event | When it fires |
+|---|---|
+| `cli_installed` | First-ever run on a machine, when `~/.aislop/install_id` is created |
+| `cli_command_started` | At the beginning of any command (`scan`, `fix`, `ci`, `init`, `doctor`, `rules`, `badge`, `hook install/uninstall/status/baseline`) |
+| `cli_command_completed` | At the end of any command — success or failure — carrying `exit_code`, `duration_ms`, score, finding counts, and per-engine stats |
+| `mcp_server_started` | After the `aislop-mcp` stdio transport connects |
+| `mcp_tool_called` | Each invocation of `aislop_scan`, `aislop_fix`, `aislop_why`, or `aislop_baseline` through the MCP server |
+| `hook_scan_completed` | After a Claude, Cursor, Gemini, or pi agent hook finishes a scoped scan |
+
+### Properties sent with every event
+
+Every event always includes the following fields:
+
+| Property | Value |
+|---|---|
+| `aislop_version` | The installed aislop version string |
+| `node_version` | The Node.js runtime version |
+| `os` | Operating system platform |
+| `arch` | CPU architecture |
+| `schema_version` | Payload schema version (currently `"v2"`) |
+| `anonymous_install_id` | Random UUID stored in `~/.aislop/install_id` |
+| `package_manager` | One of `npm` / `pnpm` / `yarn` / `bun` / `npx` / `unknown` |
+| `is_ci` | `true` only when `CI=true` **and** you have explicitly opted in via config |
+
+Command events (`cli_command_started`, `cli_command_completed`) additionally include: `command`, `language_summary`, per-language flags (`lang_typescript`, `lang_javascript`, `lang_python`, `lang_java`), `file_count_bucket` (`0-10` / `10-50` / `50-100` / `100-500` / `500-1000` / `1000+`), `score_bucket`, the final score, finding counts, and per-engine timings.
+
+<Note>
+  All properties are filtered through an allowlist before being sent. Anything not on that list is dropped automatically, even if a future caller passes it.
+</Note>
+
+## What is never collected
+
+aislop is explicitly designed so that none of the following ever leaves your machine:
+
+- Source code or file contents
+- File paths or directory names
+- Project names or repository names
+- Branch names or commit hashes
+- Raw diagnostic messages or rule match text
+- Secrets, credentials, or environment variable values
+
+## Anonymous identity
+
+Telemetry uses a random UUID stored at `~/.aislop/install_id` (or `$XDG_STATE_HOME/aislop/install_id` on Linux systems that respect XDG). This file is created with `0600` permissions on first run. There is no account, no login, and no way to connect the UUID to you or your organization.
+
+<Tip>
+  If you delete `~/.aislop/install_id`, aislop generates a new UUID the next time you run a command. Your old identity is gone permanently — no data is linked across UUIDs.
+</Tip>
+
+The file is **never created** when telemetry is disabled, so opting out before the first run means the identifier is never written to disk at all.
+
+## Opting out
+
+You can disable telemetry at any level of your stack. The following list is ordered by precedence — higher entries always win.
+
+<Accordion title="1. Environment variables (highest precedence)">
+  Set either of these environment variables to disable telemetry for the duration of that process, regardless of any config file:
+
+  ```bash
+  AISLOP_NO_TELEMETRY=1 aislop scan
+  DO_NOT_TRACK=1 aislop scan
+  ```
+
+  `DO_NOT_TRACK=1` follows the [Console Do Not Track](https://consoledonottrack.com/) standard, so tools that already set it will automatically opt out of aislop telemetry too.
+</Accordion>
+
+<Accordion title="2. Config file — disabled">
+  Set `telemetry.enabled: false` in `.aislop/config.yml` to disable telemetry for everyone using that project:
+
+  ```yaml
+  # .aislop/config.yml
+  telemetry:
+    enabled: false
+  ```
+</Accordion>
+
+<Accordion title="3. Config file — explicitly enabled">
+  Set `telemetry.enabled: true` to opt in. This also overrides the automatic CI default (see below), so you can explicitly keep telemetry on in CI pipelines:
+
+  ```yaml
+  # .aislop/config.yml
+  telemetry:
+    enabled: true
+  ```
+</Accordion>
+
+<Accordion title="4. CI environments (no config)">
+  When `CI=true` is set in the environment and there is no explicit `telemetry.enabled` value in config, aislop disables telemetry automatically. This means standard CI providers (GitHub Actions, CircleCI, GitLab CI, etc.) are opted out by default without any configuration.
+</Accordion>
+
+<Accordion title="5. Default behavior">
+  When none of the above conditions apply, telemetry is **on** by default. The `~/.aislop/install_id` file is created on first run with `0600` permissions.
+</Accordion>
+
+### Precedence summary
+
+| Precedence | Condition | Result |
+|---|---|---|
+| 1 (highest) | `AISLOP_NO_TELEMETRY=1` or `DO_NOT_TRACK=1` | Off — always |
+| 2 | `telemetry.enabled: false` in config | Off |
+| 3 | `telemetry.enabled: true` in config | On (overrides CI default) |
+| 4 | `CI=true` with no explicit config | Off by default |
+| 5 (lowest) | Default | On |
+
+## Inspecting what gets sent
+
+If you want to see the exact JSON payload before it is transmitted, use the debug and dry-run flags together:
+
+```bash
+AISLOP_TELEMETRY_DEBUG=1 AISLOP_TELEMETRY_DRY_RUN=1 aislop scan
+```
+
+- **`AISLOP_TELEMETRY_DEBUG=1`** — prints every outgoing event to stderr as formatted JSON.
+- **`AISLOP_TELEMETRY_DRY_RUN=1`** — suppresses the actual network request so nothing is sent.
+
+Using both together is the safest way to audit what would be transmitted without sending anything.

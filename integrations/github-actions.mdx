@@ -1,0 +1,133 @@
+---
+title: "Add aislop to GitHub Actions as a quality gate"
+sidebarTitle: "GitHub Actions"
+description: "Gate every pull request and push with aislop's 0–100 quality score in GitHub Actions, with optional SARIF upload to the Security tab."
+---
+
+GitHub Actions is the fastest way to enforce aislop's quality gate on every pull request and push to your main branch. You can choose between a self-contained workflow that calls `npx` directly — always running the latest CLI with nothing to update — or the Marketplace Action (`scanaislop/aislop@v1`) that wraps Node setup and the CLI in a single step.
+
+## Fastest path: `aislop init`
+
+Run the interactive setup command and accept the GitHub Actions workflow prompt. It writes both the policy file and the workflow file for you, then you commit and push.
+
+```bash
+npx aislop@latest init
+```
+
+aislop creates `.aislop/config.yml` (your thresholds and engine config) and `.github/workflows/aislop.yml` (the workflow). Your quality gate is live after the first push.
+
+## Approach 1: Self-contained workflow (npx)
+
+The `npx --yes aislop@latest ci` form always fetches the latest published CLI at runtime. There is no version pin to keep up to date.
+
+```yaml
+# .github/workflows/aislop.yml
+name: aislop
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npx --yes aislop@latest ci
+```
+
+## Approach 2: Marketplace Action (`scanaislop/aislop@v1`)
+
+The Marketplace Action wraps `actions/setup-node` and the CLI run into a single `uses:` step. `@v1` tracks the latest action release; set `version: latest` to keep the CLI current too, or pin both for fully reproducible builds.
+
+```yaml
+# .github/workflows/aislop.yml
+name: aislop
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: scanaislop/aislop@v1        # or pin: @v0.10.2
+        with:
+          version: latest                 # CLI version; pin e.g. "0.10.2" for reproducibility
+```
+
+### Action inputs
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `directory` | No | `"."` | Directory to scan. |
+| `node-version` | No | `"24"` | Node.js version to install before running aislop. |
+| `format` | No | `"json"` | Output format — `"json"` (CI-friendly) or `"human"`. |
+| `version` | No | `"latest"` | npm aislop CLI version to run, e.g. `"0.10.2"`. Independent of the action ref in `uses:`. |
+
+## PR-scoped gating
+
+By default, `aislop ci` scores the entire codebase. To gate a PR on only the files it changes — a stricter signal with less noise — pass `--changes --base origin/main`. The score gate and exit code apply to just those files.
+
+```bash
+npx aislop@latest ci --changes --base origin/main
+```
+
+Add it to your workflow step:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0           # full history required for branch diffs
+- uses: actions/setup-node@v4
+  with:
+    node-version: 24
+- run: npx --yes aislop@latest ci --changes --base origin/main
+```
+
+<Warning>
+`--changes` diffs the working tree against `HEAD`. In CI the PR changes are already committed, so you must supply `--base <ref>` to diff against the target branch. A full clone (`fetch-depth: 0`) is required so `origin/main` exists locally.
+</Warning>
+
+## SARIF upload for GitHub code scanning
+
+Emit a SARIF 2.1.0 report and upload it to the Security tab so findings appear alongside CodeQL results.
+
+```yaml
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    node-version: 24
+- name: Run aislop (SARIF)
+  run: npx aislop@latest scan . --sarif > aislop.sarif
+- name: Upload SARIF to GitHub
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: aislop.sarif
+```
+
+<Note>
+SARIF upload requires the repository to have GitHub Advanced Security enabled, or for the repository to be public.
+</Note>
+
+## Setting a minimum score threshold
+
+Configure your quality gate threshold in `.aislop/config.yml`. aislop exits with code `1` whenever the score drops below `failBelow` or any error-severity diagnostic is present.
+
+```yaml
+# .aislop/config.yml
+ci:
+  failBelow: 70
+  format: json
+```
+
+<Tip>
+Run `npx aislop@latest init --strict` to scaffold an enterprise-grade config with `failBelow: 85` and all engines enabled from the start.
+</Tip>

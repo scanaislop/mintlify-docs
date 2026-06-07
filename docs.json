@@ -1,0 +1,87 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "aislop",
+  "colors": {
+    "primary": "#13b881",
+    "light": "#0e0e0e",
+    "dark": "#f3f3f3"
+  },
+  "favicon": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg",
+  "fonts": {
+    "heading": {
+      "family": "Space Grotesk"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/scanaislop/aislop"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Docs",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/how-it-works",
+              "concepts/scoring",
+              "concepts/rules"
+            ]
+          },
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "cli/scan",
+              "cli/fix",
+              "cli/ci",
+              "cli/hooks",
+              "cli/other-commands"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/github-actions",
+              "integrations/pre-commit",
+              "integrations/ci-cd",
+              "integrations/mcp-server",
+              "integrations/vscode"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/config-file",
+              "configuration/engines",
+              "configuration/rule-overrides",
+              "configuration/architecture-rules",
+              "configuration/ignoring-code"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/rules-reference",
+              "reference/telemetry"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "aislop",
+  "projectDescription": "A sub-second, deterministic static analysis CLI that scores your codebase 0–100 by catching the patterns AI coding agents leave behind — narrative comments, swallowed exceptions, dead code, unsafe type casts, and more — across 8 languages with 50+ rules.",
+  "theme": "luma",
+  "primaryColor": "#13b881",
+  "lightColor": "#0e0e0e",
+  "darkColor": "#f3f3f3",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Docs",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/how-it-works",
+              "concepts/scoring",
+              "concepts/rules"
+            ]
+          },
+          {
+            "group": "CLI Reference",
+            "pages": [
+              "cli/scan",
+              "cli/fix",
+              "cli/ci",
+              "cli/hooks",
+              "cli/other-commands"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/github-actions",
+              "integrations/pre-commit",
+              "integrations/ci-cd",
+              "integrations/mcp-server",
+              "integrations/vscode"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/config-file",
+              "configuration/engines",
+              "configuration/rule-overrides",
+              "configuration/architecture-rules",
+              "configuration/ignoring-code"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/rules-reference",
+              "reference/telemetry"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "50+ deterministic rules across TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, and PHP",
+    "0–100 code quality score with AI-slop-first weighting",
+    "Auto-fix command that applies mechanical fixes and hands off remaining issues to any AI coding agent",
+    "CI quality gate with configurable thresholds and SARIF output",
+    "Pre-commit and agent hook integration for real-time feedback",
+    "MCP server exposing scan/fix tools to Claude Desktop, Cursor, and Codex",
+    "No LLM at runtime — fully deterministic, sub-second results",
+    "VS Code extension with inline diagnostics and status-bar score",
+    "Architecture engine for custom import and layering rules (opt-in)",
+    "Config inheritance via `extends:` for monorepo and org-wide baselines"
+  ],
+  "publicApiSurface": [
+    "aislop scan [directory]",
+    "aislop fix [directory]",
+    "aislop ci [directory]",
+    "aislop init [directory]",
+    "aislop doctor [directory]",
+    "aislop rules [directory]",
+    "aislop hook install/uninstall/status/baseline",
+    "aislop badge [directory]",
+    "aislop trend [directory]",
+    "aislop update",
+    "aislop-mcp (MCP server: aislop_scan, aislop_fix, aislop_why, aislop_baseline)",
+    "scanCommand() — programmatic API",
+    "fixCommand() — programmatic API",
+    "loadConfig() — programmatic API",
+    "calculateScore() — programmatic API",
+    "discoverProject() — programmatic API",
+    ".aislop/config.yml (version, engines, quality, scoring, ci, telemetry, rules, exclude, include, extends)",
+    ".aislop/rules.yml (architecture rules: forbid_import, forbid_import_from_path, require_pattern)",
+    ".aislopignore (path ignore patterns)",
+    "aislop-ignore-next-line / aislop-ignore-line / aislop-ignore-file (inline suppressions)",
+    "scanaislop/aislop GitHub Actions Marketplace action"
+  ]
+}

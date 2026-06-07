@@ -1,0 +1,92 @@
+---
+title: "aislop VS Code extension: inline diagnostics and score"
+sidebarTitle: "VS Code"
+description: "See aislop findings as inline squiggles and a live status-bar score in VS Code, with automatic re-scan on save and a one-click workspace scan."
+---
+
+The aislop VS Code extension brings aislop's quality analysis directly into your editor without interrupting your workflow. Findings appear as inline squiggles in the editor gutter — the same way TypeScript errors or ESLint warnings do — and the current score is always visible in the status bar. The extension re-scans open files on save so you see regressions the moment you introduce them, not minutes later when CI runs.
+
+## Requirements
+
+The extension does not bundle a scanner. It shells out to the `aislop` CLI you already have installed and parses the output of `aislop scan <path> --json`. Install the CLI globally before activating the extension:
+
+```bash
+npm i -g aislop
+```
+
+<Note>
+If the CLI is not found on startup, the extension shows a friendly prompt rather than crashing. You can suppress the prompt by pointing `aislop.path` at a local binary instead of relying on a global install.
+</Note>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Inline squiggles" icon="underline">
+    Findings from all engines appear as VS Code diagnostics with the rule ID (`engine/rule`) and message at the reported line and column.
+  </Card>
+  <Card title="Status-bar score" icon="chart-bar">
+    The latest 0–100 score is always visible in the status bar. Click it to trigger an immediate workspace re-scan.
+  </Card>
+  <Card title="Scan on save" icon="floppy-disk">
+    Every time you save a file, the extension re-scans it and refreshes diagnostics. Catch regressions before you commit.
+  </Card>
+  <Card title="Scan Workspace command" icon="terminal">
+    Run **aislop: Scan Workspace** from the Command Palette to score your entire project on demand.
+  </Card>
+</CardGroup>
+
+## Installing the extension
+
+Search for **aislop** in the VS Code Extensions panel (`Ctrl+Shift+X` / `Cmd+Shift+X`) and click **Install**, or install it from the VS Code Marketplace page.
+
+## Settings
+
+Configure the extension in your VS Code settings (`settings.json` or the Settings UI):
+
+| Setting | Default | Description |
+|---|---|---|
+| `aislop.path` | `"aislop"` | Path to the aislop CLI executable. Accepts an absolute path or any name resolvable on `PATH`. |
+| `aislop.scanOnSave` | `true` | Re-scan a file automatically when it is saved. Set to `false` to scan only on demand. |
+
+### Example `settings.json`
+
+```jsonc
+{
+  "aislop.path": "aislop",       // uses the globally installed binary
+  "aislop.scanOnSave": true
+}
+```
+
+## Running a workspace scan
+
+Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`), type **aislop**, and select **aislop: Scan Workspace** (`aislop.scanWorkspace`). The extension runs `aislop scan` against your workspace root, populates the Problems panel with all findings, and updates the status-bar score.
+
+## Using a local binary
+
+If you manage aislop as a project dependency rather than a global install, point `aislop.path` at the local binary:
+
+```jsonc
+{
+  "aislop.path": "./node_modules/.bin/aislop"
+}
+```
+
+Or use an absolute path if the binary lives outside the workspace:
+
+```jsonc
+{
+  "aislop.path": "/usr/local/bin/aislop"
+}
+```
+
+<Tip>
+For monorepos or projects where different roots use different aislop versions, set `aislop.path` to the workspace-relative path so each root picks up its own pinned CLI version.
+</Tip>
+
+## How it works
+
+The extension is a thin shell around the CLI. On activation and on each save, it runs `aislop scan <path> --json`, parses the structured JSON output, and maps each diagnostic to a VS Code `Diagnostic` object in the `aislop` diagnostic collection. Findings are cleared and repopulated on every scan, so stale results never linger after you fix an issue.
+
+<Note>
+Because the extension shells out to the CLI rather than bundling a scanner, you always get the same results in the editor as you would running `aislop scan` in the terminal — including any rules and thresholds configured in `.aislop/config.yml`.
+</Note>

@@ -1,0 +1,302 @@
+---
+title: "Configure aislop with .aislop/config.yml"
+sidebarTitle: "Config File"
+description: "Learn how to create and customise the .aislop/config.yml file that controls every aislop engine, scoring weight, and CI quality gate in your project."
+---
+
+Every aislop project is driven by a single YAML file at `.aislop/config.yml`. Run `aislop init` to generate one with sensible defaults, then edit only the keys you want to change — everything else falls back to the values documented here. The schema is versioned, so future breaking changes will bump `version` and old configs remain valid until you opt in.
+
+## Creating the config file
+
+<Steps>
+  <Step title="Run aislop init">
+    Run the following command at the root of your project. aislop writes `.aislop/config.yml` and, if you accept the prompt, a GitHub Actions workflow.
+
+    ```bash
+    aislop init
+    ```
+
+    For a strict, enterprise-grade starting point with all engines on and a higher CI gate, use the `--strict` flag:
+
+    ```bash
+    aislop init --strict
+    ```
+  </Step>
+  <Step title="Review the generated file">
+    Open `.aislop/config.yml`. Every top-level section is present with its default value. Sections you don't touch need no changes.
+  </Step>
+  <Step title="Enable editor validation (optional)">
+    Add a `# yaml-language-server` modeline at the top of the file to get autocomplete and inline validation in VS Code, JetBrains IDEs, and any editor with YAML Language Server support:
+
+    ```yaml
+    # yaml-language-server: $schema=https://scanaislop.com/schema/aislop.config.schema.json
+    version: 1
+    # ...
+    ```
+
+    The canonical JSON Schema is published at **[https://scanaislop.com/schema/aislop.config.schema.json](https://scanaislop.com/schema/aislop.config.schema.json)**.
+  </Step>
+</Steps>
+
+## Full default config
+
+The file below shows every key with its default value. You do not need to include keys you are not changing.
+
+```yaml
+version: 1
+
+engines:
+  format: true
+  lint: true
+  code-quality: true
+  ai-slop: true
+  architecture: false    # opt-in, needs .aislop/rules.yml
+  security: true
+
+quality:
+  maxFunctionLoc: 80
+  maxFileLoc: 400
+  maxNesting: 5
+  maxParams: 6
+
+lint:
+  typecheck: false       # enable for TypeScript type-checking lint rules
+
+security:
+  audit: true
+  auditTimeout: 25000
+
+scoring:
+  weights:
+    format: 0.3
+    lint: 0.6
+    code-quality: 0.8
+    ai-slop: 2.5
+    architecture: 1.0
+    security: 1.5
+  thresholds:
+    good: 75
+    ok: 50
+  smoothing: 20
+  maxPerRule: 40
+
+ci:
+  failBelow: 70          # fail CI when score drops below this
+  format: json
+
+telemetry:
+  enabled: true          # set to false to opt out
+
+rules: {}                # per-rule severity overrides
+
+exclude:
+  - node_modules
+  - .git
+  - dist
+  - build
+  - coverage
+
+include: []              # restrict scanning to these paths (empty = all)
+```
+
+## Top-level sections
+
+Each section controls a distinct part of the aislop run. You can add, remove, or override any section independently.
+
+<AccordionGroup>
+  <Accordion title="version">
+    The config schema version. Always set this to `1`. aislop rejects configs with an unknown version number so you get a clear error if a future release introduces a breaking change.
+
+    <ParamField body="version" type="number" default="1">
+      Config schema version. Must be `1`.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="engines">
+    Boolean toggles that enable or disable each analysis engine. Disabling an engine removes it from the scan entirely — its findings neither appear in the report nor affect the score.
+
+    <ParamField body="engines.format" type="boolean" default="true">
+      Formatting checks (Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer).
+    </ParamField>
+    <ParamField body="engines.lint" type="boolean" default="true">
+      Language-specific linting (oxlint, ruff, golangci-lint, clippy, expo-doctor).
+    </ParamField>
+    <ParamField body="engines.code-quality" type="boolean" default="true">
+      Complexity and dead code: function/file size, deep nesting, unused files and dependencies.
+    </ParamField>
+    <ParamField body="engines.ai-slop" type="boolean" default="true">
+      AI-authored pattern detection: narrative comments, swallowed exceptions, `as any` casts, TODO stubs, generic names, and more.
+    </ParamField>
+    <ParamField body="engines.architecture" type="boolean" default="false">
+      Custom import bans, layer enforcement, and required patterns. Requires `.aislop/rules.yml`. See [Architecture Rules](/configuration/architecture-rules).
+    </ParamField>
+    <ParamField body="engines.security" type="boolean" default="true">
+      Secrets detection, risky constructs (eval, innerHTML, SQL injection), and dependency audits.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="quality">
+    Numeric thresholds that trigger code-quality warnings. See [Engines → Quality thresholds](/configuration/engines#quality-thresholds) for details.
+
+    <ParamField body="quality.maxFunctionLoc" type="number" default="80">
+      Maximum lines of code per function.
+    </ParamField>
+    <ParamField body="quality.maxFileLoc" type="number" default="400">
+      Maximum lines of code per file.
+    </ParamField>
+    <ParamField body="quality.maxNesting" type="number" default="5">
+      Maximum control-flow nesting depth.
+    </ParamField>
+    <ParamField body="quality.maxParams" type="number" default="6">
+      Maximum number of parameters per function.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="lint">
+    Options that apply to the lint engine only.
+
+    <ParamField body="lint.typecheck" type="boolean" default="false">
+      Enable TypeScript type-checking lint rules. Adds type-aware analysis but increases scan time. Recommended for TypeScript projects that want the strictest coverage.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="security">
+    Options that apply to the security engine only.
+
+    <ParamField body="security.audit" type="boolean" default="true">
+      Run dependency audits (npm audit, pip-audit, cargo audit, govulncheck).
+    </ParamField>
+    <ParamField body="security.auditTimeout" type="number" default="25000">
+      Timeout in milliseconds for dependency audit commands. Increase this on slow networks or large dependency trees.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="scoring">
+    Controls how findings translate into the final 0–100 score.
+
+    <ParamField body="scoring.weights" type="object">
+      A map of engine name to numeric multiplier. Higher values make that engine's findings hurt the score more. See [Engines → Scoring weights](/configuration/engines#scoring-weights).
+    </ParamField>
+    <ParamField body="scoring.thresholds.good" type="number" default="75">
+      Scores at or above this value are labelled **Healthy**.
+    </ParamField>
+    <ParamField body="scoring.thresholds.ok" type="number" default="50">
+      Scores at or above this value (but below `good`) are labelled **Needs Work**. Scores below this are **Critical**.
+    </ParamField>
+    <ParamField body="scoring.smoothing" type="number" default="20">
+      Reduces penalty spikes in large repos by dampening the logarithmic density curve. Increase for legacy codebases.
+    </ParamField>
+    <ParamField body="scoring.maxPerRule" type="number" default="40">
+      Caps the total weighted penalty any single rule family can contribute. Repeated findings still appear in the report, but one noisy rule cannot dominate the score.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="ci">
+    Settings used when you run `aislop ci`.
+
+    <ParamField body="ci.failBelow" type="number" default="70">
+      `aislop ci` exits with code 1 when the score is below this value. Set to `0` to disable the gate while still generating output.
+    </ParamField>
+    <ParamField body="ci.format" type="string" default="json">
+      Output format for `aislop ci`. Currently `"json"` is the only supported value.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="telemetry">
+    Controls anonymous usage telemetry.
+
+    <ParamField body="telemetry.enabled" type="boolean" default="true">
+      Set to `false` to opt out of telemetry entirely. No data is sent when disabled.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="rules">
+    A map of rule ID to severity (`"error"`, `"warning"`, or `"off"`). Use this to tighten, loosen, or silence individual rules project-wide. See [Rule Overrides](/configuration/rule-overrides) for the full guide.
+
+    ```yaml
+    rules:
+      ai-slop/narrative-comment: warning
+      ai-slop/trivial-comment: "off"
+      security/hardcoded-secret: error
+    ```
+  </Accordion>
+
+  <Accordion title="exclude and include">
+    <ParamField body="exclude" type="string[]" default='["node_modules", ".git", "dist", "build", "coverage"]'>
+      Glob patterns for paths to skip during scanning. Replaces the default list entirely when specified — include defaults you want to keep.
+    </ParamField>
+    <ParamField body="include" type="string[]" default="[]">
+      Restrict scanning to only these glob patterns. An empty array (the default) scans everything not excluded.
+    </ParamField>
+
+    See [Ignoring Code](/configuration/ignoring-code) for all three ways to exclude paths.
+  </Accordion>
+
+  <Accordion title="extends">
+    <ParamField body="extends" type="string | string[]">
+      Path (or array of paths) to a parent config file to inherit from. See [Config inheritance](#config-inheritance) below.
+    </ParamField>
+  </Accordion>
+</AccordionGroup>
+
+## Config inheritance
+
+The `extends:` key lets a project inherit a parent config and override only the keys it cares about. This is the recommended pattern for monorepos or org-wide baselines.
+
+### Single parent
+
+```yaml
+# packages/payments/.aislop/config.yml
+extends: ../../.aislop/base.yml
+
+ci:
+  failBelow: 80   # override one key; everything else inherits from base.yml
+```
+
+### Multiple parents
+
+Pass an array when you need more than one base. Later entries in the array win on conflict.
+
+```yaml
+extends:
+  - ../../.aislop/base.yml
+  - ./local-overrides.yml
+```
+
+### Merge semantics
+
+<Note>
+  Understanding how deep-merge works prevents surprises, especially for arrays.
+</Note>
+
+| Value type | Merge behaviour |
+|---|---|
+| Nested objects (`engines`, `scoring.weights`, `quality`) | Deep-merged key by key. The child's keys win on conflict. |
+| Arrays (`exclude`, `include`) | **Replaced wholesale.** The child's array replaces the parent's — values are not concatenated. Include any parent values you want to keep. |
+| Scalars (`ci.failBelow`, `version`, etc.) | The child's value overwrites the parent's. |
+
+### Constraints
+
+- Paths are relative to the config file that declares `extends:`. Absolute paths are also accepted. Package names and URLs are not yet supported and produce a clear error.
+- Chains deeper than **5 levels** are rejected at load time.
+- Circular references are rejected at load time.
+
+## Example configs
+
+The following pre-built configs are available as starting points. Copy one into `.aislop/config.yml` and adjust from there.
+
+<CardGroup cols={3}>
+  <Card title="typescript-strict" icon="shield-check">
+    Tight thresholds for teams that want zero AI slop in production TypeScript code. Raises quality limits, increases all weights, and sets `failBelow: 75`.
+  </Card>
+  <Card title="monorepo-relaxed" icon="boxes-stacked">
+    Looser thresholds for large codebases or early-stage projects adopting aislop incrementally. Sets `failBelow: 0` so CI reports scores without blocking.
+  </Card>
+  <Card title="python-go" icon="server">
+    Tailored for Python and Go backend services. Increases `security` weight to `2.5` and extends `auditTimeout` for slower networks.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Run `aislop doctor` after editing your config to confirm that every enabled engine has the tools it needs installed.
+</Tip>

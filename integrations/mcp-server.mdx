@@ -1,0 +1,141 @@
+---
+title: "aislop MCP server for Claude Desktop and Cursor"
+sidebarTitle: "MCP Server"
+description: "Expose aislop's scan, fix, and explain tools inside Claude Desktop, Cursor, and Codex via the Model Context Protocol with zero install."
+---
+
+The aislop MCP server exposes aislop's core capabilities as Model Context Protocol (MCP) tools, making them available directly inside AI coding environments like Claude Desktop, Cursor, and OpenAI Codex. Once configured, your AI agent can scan files, auto-fix issues, explain individual rules, and capture baselines without leaving the editor or switching to a terminal.
+
+## What the MCP server provides
+
+The server registers four tools that the AI agent can call during a coding session:
+
+<CardGroup cols={2}>
+  <Card title="aislop_scan" icon="magnifying-glass">
+    Runs `aislop scan` on a path and returns structured findings. The agent sees rule IDs, messages, severity, and the overall score.
+  </Card>
+  <Card title="aislop_fix" icon="wrench">
+    Applies mechanical auto-fixes — unused imports, narrative comments, dead code, formatting — and reports what was changed.
+  </Card>
+  <Card title="aislop_why" icon="circle-question">
+    Explains why a specific rule exists, what pattern it catches, and how to resolve a finding, giving the agent full context for non-mechanical fixes.
+  </Card>
+  <Card title="aislop_baseline" icon="flag">
+    Captures the current score as a baseline. Subsequent hook runs or scans compare against this baseline to detect regressions.
+  </Card>
+</CardGroup>
+
+## Quick start (no install)
+
+The fastest way to add the MCP server is with `npx -y aislop-mcp`, which downloads and runs the server on demand without a global install.
+
+```jsonc
+// Claude Desktop config or ~/.cursor/mcp.json
+{
+  "mcpServers": {
+    "aislop": {
+      "command": "npx",
+      "args": ["-y", "aislop-mcp"]
+    }
+  }
+}
+```
+
+## Configuration by environment
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    Open your Claude Desktop configuration file and add the `aislop` entry under `mcpServers`:
+
+    ```jsonc
+    // ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+    // %APPDATA%\Claude\claude_desktop_config.json (Windows)
+    {
+      "mcpServers": {
+        "aislop": {
+          "command": "npx",
+          "args": ["-y", "aislop-mcp"]
+        }
+      }
+    }
+    ```
+
+    Restart Claude Desktop after saving. The aislop tools appear automatically in the tools panel.
+  </Tab>
+  <Tab title="Cursor">
+    Add the server to your Cursor MCP config file:
+
+    ```jsonc
+    // ~/.cursor/mcp.json
+    {
+      "mcpServers": {
+        "aislop": {
+          "command": "npx",
+          "args": ["-y", "aislop-mcp"]
+        }
+      }
+    }
+    ```
+
+    Reload Cursor for the change to take effect.
+  </Tab>
+  <Tab title="Codex CLI">
+    Add the server to your Codex MCP configuration:
+
+    ```jsonc
+    // ~/.codex/config.json
+    {
+      "mcpServers": {
+        "aislop": {
+          "command": "npx",
+          "args": ["-y", "aislop-mcp"]
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Using a globally installed binary
+
+If you have installed `aislop-mcp` globally (`npm i -g aislop-mcp`), reference the binary directly instead of using `npx`. This avoids the package resolution step on every server start.
+
+```jsonc
+{
+  "mcpServers": {
+    "aislop": {
+      "command": "aislop-mcp"
+    }
+  }
+}
+```
+
+<Tip>
+Using `npx -y aislop-mcp` always picks up the latest published version of the MCP server automatically — no version to bump and no global install to maintain.
+</Tip>
+
+## How agents use the tools
+
+Once the server is running, the AI agent can call the tools during a session. A typical workflow looks like this:
+
+<Steps>
+  <Step title="Agent generates or edits code">
+    The agent writes a function, refactors a module, or makes changes across several files.
+  </Step>
+  <Step title="Agent calls aislop_scan">
+    The agent scans the modified path and receives structured findings: rule IDs, line numbers, messages, and the overall score.
+  </Step>
+  <Step title="Agent calls aislop_fix">
+    For mechanical issues (unused imports, narrative comments, dead code), the agent applies auto-fixes directly.
+  </Step>
+  <Step title="Agent calls aislop_why (if needed)">
+    For findings that require context-specific judgment, the agent calls `aislop_why` to understand the rule before deciding how to resolve it.
+  </Step>
+  <Step title="Agent calls aislop_baseline">
+    After resolving issues, the agent captures a new baseline so future runs measure regression against the current state.
+  </Step>
+</Steps>
+
+<Note>
+The MCP server shells out to the `aislop` CLI. Make sure aislop is installed and available on the PATH used by your environment, or install it globally with `npm i -g aislop` before starting the server.
+</Note>

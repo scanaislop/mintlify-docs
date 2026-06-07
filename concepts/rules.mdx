@@ -1,0 +1,198 @@
+---
+title: "aislop rule categories and what they catch"
+sidebarTitle: "Rules"
+description: "Explore aislop's six rule engines — Formatting, Linting, Code Quality, AI Slop, Security, and Architecture — and the 50+ patterns they detect across 8 languages."
+---
+
+aislop organizes its 50+ rules into six engines, each targeting a different class of problem. All six run in parallel on every scan. This page gives you a practical overview of what each engine catches so you can understand your findings, tune severities, and decide which engines matter most for your project.
+
+## Formatting
+
+The Formatting engine enforces consistent code style using the best-in-class formatter for each language. Formatting findings carry the lowest default weight (0.3), so they inform without dominating your score.
+
+| Language | Formatter |
+|---|---|
+| TypeScript / JavaScript | Biome |
+| Expo / React Native | Biome |
+| Python | ruff format |
+| Go | gofmt |
+| Rust | cargo fmt |
+| Ruby | rubocop |
+| PHP | php-cs-fixer |
+
+## Linting
+
+The Linting engine catches language-specific bugs, anti-patterns, and bad practices using established, widely-trusted tools.
+
+| Language | Tool |
+|---|---|
+| TypeScript / JavaScript | oxlint (bundled, with React / Next.js awareness) |
+| Expo / React Native | oxlint + expo-doctor (project health, dependency checks) |
+| Python | ruff |
+| Go | golangci-lint |
+| Rust | clippy |
+| Ruby | rubocop |
+
+## Code Quality
+
+The Code Quality engine measures structural complexity, locates dead code, and identifies unused dependencies. All thresholds are configurable.
+
+<Tabs>
+  <Tab title="Complexity">
+    | Rule | What it checks | Default threshold |
+    |---|---|---|
+    | `complexity/function-too-long` | Functions that exceed a line limit. For Python, only logical body code counts — signatures, docstrings, comments, and blank lines are excluded. | 80 lines |
+    | `complexity/file-too-large` | Files that exceed a line limit | 400 lines |
+    | `complexity/deep-nesting` | Control-flow nesting beyond a depth limit | 5 levels |
+    | `complexity/too-many-params` | Functions with too many parameters. For Python, only required parameters count — `self`/`cls`, `*args`/`**kwargs`, separators, and defaulted params are excluded. | 6 params |
+  </Tab>
+  <Tab title="Duplication & Dead Code">
+    | Rule | What it catches |
+    |---|---|
+    | `code-quality/duplicate-block` | Repeated blocks of implementation code that should be extracted or shared |
+    | `code-quality/repeated-chained-call` | Repeated long call chains on the same receiver that should be cached or factored |
+    | `code-quality/unused-declaration` | Unused top-level declarations safe to remove |
+  </Tab>
+  <Tab title="Knip (JS/TS)">
+    | Rule | What it catches |
+    |---|---|
+    | `knip/files` | Unused files not imported anywhere (fixable with `aislop fix -f`) |
+    | `knip/exports` / `knip/types` | Unused exports and types |
+    | `knip/dependencies` | Unused `package.json` dependencies (fixable with `aislop fix`) |
+    | `knip/devDependencies` | Unused `devDependencies` |
+    | `knip/unlisted` | Packages imported in code but missing from `package.json` |
+    | `knip/unresolved` | Imports that cannot be resolved |
+    | `knip/binaries` | Binaries used but not declared in `package.json` |
+    | `knip/duplicates` | Duplicate exports |
+  </Tab>
+</Tabs>
+
+## AI Slop
+
+The AI Slop engine is what makes aislop unique. It carries the highest default weight (2.5) because these are the patterns AI coding agents — Claude Code, Cursor, Codex, OpenCode — leave behind that pass lint and tests but quietly rot a codebase.
+
+<Accordion title="Comment and naming patterns">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/trivial-comment` | warning | Comments that restate the code (`// Import React`, `// Return the value`) |
+  | `ai-slop/narrative-comment` | warning | Decorative separators, phase/section headers, JSDoc preambles without meaningful tags, and longer prose blocks with an AI-narration signal (restatement openers, step-by-step narration). Length alone is not flagged. |
+  | `ai-slop/meta-comment` | warning | Comments about implementation phases, agent behavior, or generated-code process instead of the code itself |
+  | `ai-slop/todo-stub` | info | Unresolved TODO/FIXME/HACK comments — a TODO that links a tracking issue is spared |
+  | `ai-slop/generic-naming` | info | AI-generated names: `helper_1`, `data2`, `temp1` |
+</Accordion>
+
+<Accordion title="Exception and error handling">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/swallowed-exception` | error | Empty catch blocks, or catch blocks that only log (JS/TS/Python/Go/Ruby) |
+  | `ai-slop/silent-recovery` | warning | Catch blocks that log without including the caught error and then continue |
+  | `ai-slop/redundant-try-catch` | warning | JS/TS catch blocks that only rethrow the same error without adding context, cleanup, or recovery |
+  | `ai-slop/python-bare-except` | warning | Python `except:` blocks that catch everything without naming an exception type |
+  | `ai-slop/python-broad-except` | warning | Python broad exception handlers with silent/pass-style bodies |
+</Accordion>
+
+<Accordion title="TypeScript type system abuse">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/unsafe-type-assertion` | warning | `as any` casts in TypeScript |
+  | `ai-slop/double-type-assertion` | warning | The `as unknown as X` escape-hatch pattern |
+  | `ai-slop/ts-directive` | info | `@ts-ignore` / `@ts-expect-error` usage |
+  | `ai-slop/redundant-type-coercion` | warning | TypeScript primitive parameters re-coerced with `String(...)`, `Number(...)`, or `Boolean(...)` |
+  | `ai-slop/duplicate-type-declaration` | warning | Exported TypeScript type/interface declarations with the same name and shape repeated across files |
+</Accordion>
+
+<Accordion title="Dead and unreachable code">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/unreachable-code` | warning | Code after `return` / `throw` statements |
+  | `ai-slop/constant-condition` | warning | `if (true)`, `if (false)`, `if (0)` |
+  | `ai-slop/empty-function` | info | Empty function bodies |
+  | `ai-slop/thin-wrapper` | warning | Functions that only forward their own parameters unchanged to another function — a call that transforms its arguments is not flagged |
+  | `ai-slop/console-leftover` | warning | `console.log` / `debug` / `info` left in production code |
+</Accordion>
+
+<Accordion title="Imports and dependencies">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/unused-import` | warning | Unused imports in JS/TS and Python |
+  | `ai-slop/duplicate-import` | warning | Multiple imports from the same module that should be merged |
+  | `ai-slop/hallucinated-import` | error | JS/TS imports of packages not declared in the project manifest |
+</Accordion>
+
+<Accordion title="Hardcoded values">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/hardcoded-url` | warning | Environment-specific URLs hardcoded in production code instead of env/config |
+  | `ai-slop/hardcoded-id` | warning | Provider/project IDs hardcoded in production code instead of env/config |
+</Accordion>
+
+<Accordion title="Python-specific patterns">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/python-mutable-default` | warning | Function defaults like `[]`, `{}`, or `set()` that are shared across calls |
+  | `ai-slop/python-print-debug` | warning | `print(...)` debug output left in production modules |
+  | `ai-slop/python-range-len-loop` | info | `for i in range(len(items))` loops that usually want direct iteration or `enumerate()` |
+  | `ai-slop/python-chained-dict-get` | warning | `.get(..., {}).get(...)` fallback chains that hide missing-data cases |
+  | `ai-slop/python-repetitive-dispatch` | warning | Repeated equality branch ladders that should become a table, set, or handler map |
+  | `ai-slop/python-isinstance-ladder` | warning | Repeated `isinstance(...)` ladders that should become a handler map or normalized representation |
+</Accordion>
+
+<Accordion title="Go and Rust patterns">
+  | Rule | Severity | What it catches |
+  |---|---|---|
+  | `ai-slop/go-library-panic` | warning | Go `panic(...)` calls in non-main library code unless clearly intentional |
+  | `ai-slop/rust-non-test-unwrap` | warning | Rust `.unwrap()` in production code where errors should be handled or documented |
+  | `ai-slop/rust-todo-stub` | warning | Rust `todo!()` stubs in production code |
+</Accordion>
+
+## Security
+
+The Security engine finds hardcoded secrets, unsafe code constructs, and vulnerable dependencies. It carries a default weight of 1.5 — second only to AI Slop.
+
+| Rule | What it catches |
+|---|---|
+| `security/hardcoded-secret` | API keys, AWS credentials, JWT tokens, database URLs, passwords |
+| `security/eval` | `eval()` usage in JS/TS, Python, Ruby, and PHP |
+| `security/innerhtml` | Direct `.innerHTML` assignment |
+| `security/dangerously-set-innerhtml` | React `dangerouslySetInnerHTML` usage that needs sanitization |
+| `security/sql-injection` | String concatenation in SQL queries |
+| `security/shell-injection` | User input passed to command execution |
+| `security/vulnerable-dependency` | Dependency audit via npm, pip, cargo, and govulncheck |
+| `security/dependency-audit-skipped` | Audit could not run because tooling or lockfile context was missing |
+
+## Architecture (opt-in)
+
+The Architecture engine runs custom structural rules you define yourself. It is disabled by default — enable it with `engines.architecture: true` in `.aislop/config.yml` and create a `.aislop/rules.yml` file.
+
+| Rule type | What it does |
+|---|---|
+| `forbid_import` | Bans a package from being imported anywhere in the project (e.g. ban `axios` in favor of `fetch`) |
+| `forbid_import_from_path` | Prevents specific paths from importing specific modules (e.g. controllers cannot import database modules directly) |
+| `require_pattern` | Asserts that files matching a path pattern must include a required code pattern (e.g. error handling in all API routes) |
+
+## Suppressing findings inline
+
+When you know a finding is a false positive or an intentional exception, you can suppress it without changing your config.
+
+```ts
+// aislop-ignore-next-line ai-slop/empty-fallback -- options is validated upstream
+const opts = { ...defaults, ...(input || {}) };
+
+const legacy = doThing(); // aislop-ignore-line
+```
+
+```python
+# aislop-ignore-file
+```
+
+- `aislop-ignore-next-line` suppresses findings on the **next line**
+- `aislop-ignore-line` suppresses findings on the **same line**
+- `aislop-ignore-file` (placed anywhere in the file) suppresses findings for the **entire file**
+
+You can scope a suppression to one or more specific rule IDs, or omit the rule name to silence every rule on that line. Add a `--` followed by a reason to document why the suppression exists. The directive works in any comment syntax (`//`, `#`, `<!-- -->`). Suppressed findings are excluded before scoring, and the scan output reports how many were silenced.
+
+<Warning>
+  Blanket `aislop-ignore-file` directives can mask real problems. Prefer rule-scoped suppressions and always include a reason.
+</Warning>
+
+For the complete list of all rules with their IDs, severities, and supported languages, see the [Rules Reference](/reference/rules-reference).

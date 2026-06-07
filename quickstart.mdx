@@ -1,0 +1,218 @@
+---
+title: "Get started with aislop in under a minute"
+sidebarTitle: "Quickstart"
+description: "Scan your first project, read your score, auto-fix issues, and add a CI quality gate — all in four steps with no upfront configuration."
+---
+
+You don't need to install anything to get your first score. aislop runs directly from npx, works on any project regardless of language or framework, and produces a human-readable report with file locations and a 0–100 quality score. This guide takes you from zero to a gated, auto-fixing workflow in four steps.
+
+<Steps>
+  <Step title="Run your first scan">
+    From any project root, run aislop without installing it. The scan completes in sub-second time and produces a score plus a grouped list of findings.
+
+    ```bash
+    npx aislop@latest scan
+    ```
+
+    You can also scan a specific directory:
+
+    ```bash
+    npx aislop@latest scan ./src
+    ```
+
+    Or scope the scan to only the files you've changed:
+
+    ```bash
+    npx aislop@latest scan --changes
+    npx aislop@latest scan --changes --base origin/main   # compare against a branch
+    npx aislop@latest scan --staged                       # staged files only
+    ```
+
+    <Tip>
+      Once you've run `npx aislop@latest scan` once, add aislop as a dev dependency so you get the same version every time. See [Installation](/installation) for every package manager option.
+    </Tip>
+  </Step>
+
+  <Step title="Read your score and findings">
+    aislop prints a 0–100 score, a per-engine breakdown, and a list of findings grouped by severity. Each finding includes the file path, line number, rule ID, and a short explanation.
+
+    A typical output looks like this:
+
+    ```
+    Score  74 / 100
+
+    ✖  ai-slop/narrative-comment      src/auth/login.ts:14
+       Remove comment that restates what the code already says.
+
+    ✖  code-quality/swallowed-exception   src/utils/parse.ts:88
+       Exception is caught but not logged or re-thrown.
+
+    ✖  security/eval                  src/sandbox.js:6
+       Avoid eval() — use a safer alternative.
+
+    ⚠  formatting/trailing-whitespace  src/index.ts:22
+
+    3 errors · 1 warning · 74/100
+    ```
+
+    To get machine-readable output for scripting or CI tooling:
+
+    ```bash
+    npx aislop@latest scan --json
+    npx aislop@latest scan --sarif    # SARIF 2.1.0 for GitHub code scanning
+    ```
+
+    **Suppressing a known false positive**: if you know a specific finding is not a problem in your context, silence it inline with an optional reason:
+
+    ```ts
+    // aislop-ignore-next-line ai-slop/narrative-comment -- required for API docs generation
+    // Returns the authenticated user or null if the session has expired.
+    export function getUser(): User | null { ... }
+    ```
+
+    Use `aislop-ignore-line` for the current line, `aislop-ignore-next-line` for the line below, or `aislop-ignore-file` anywhere in a file to suppress all findings in that file. The same syntax works in any comment style (`//`, `#`, `<!-- -->`). Suppressed findings are excluded from scoring and reported as a count at the end of the run.
+  </Step>
+
+  <Step title="Auto-fix issues">
+    After installing aislop (see [Installation](/installation)), run `aislop fix` to resolve everything that can be fixed mechanically — formatting, unused imports, dead code, narrative comments.
+
+    ```bash
+    aislop fix           # auto-fix all mechanical issues
+    aislop fix --safe    # only reversible fixes (imports, comments, formatting)
+    aislop fix -f        # aggressive: also prune unused deps and files
+    ```
+
+    `--safe` restricts the run to fixes that cannot change behaviour. Use it when you want to apply and commit immediately without reviewing the diff.
+
+    For findings that require human or AI judgement, hand them off to your coding agent with full diagnostic context:
+
+    ```bash
+    aislop fix --claude    # Claude Code
+    aislop fix --cursor    # Cursor (copies prompt to clipboard)
+    aislop fix --codex     # Codex CLI
+    aislop fix --gemini    # Gemini CLI
+    aislop fix --prompt    # Print the prompt without opening an agent
+    ```
+
+    Run `aislop scan` again after fixing to verify your score improved:
+
+    ```bash
+    aislop scan
+    ```
+
+    **Recommended fix workflow** for getting a project to 100/100:
+
+    ```
+    aislop scan          # see all issues
+    aislop fix --safe    # apply only reversible fixes
+    aislop fix           # auto-fix formatting, lint, imports, comments
+    aislop fix -f        # aggressive: dep audit + unused file removal
+    aislop fix --claude  # hand off remaining issues to a coding agent
+    aislop scan          # verify everything is resolved
+    ```
+  </Step>
+
+  <Step title="Add to CI">
+    Use `aislop ci` to enforce a minimum score on every push or pull request. It outputs JSON, applies your score gate, and exits with a non-zero code when the threshold is not met.
+
+    ```bash
+    aislop ci
+    ```
+
+    For pull requests, gate only the files the PR changes:
+
+    ```bash
+    aislop ci --changes --base origin/main
+    ```
+
+    Set your minimum score threshold in `.aislop/config.yml` (create it with `aislop init`):
+
+    ```yaml
+    ci:
+      failBelow: 70
+    ```
+
+    The fastest way to add aislop to **GitHub Actions** — no version to maintain:
+
+    ```yaml
+    name: aislop
+
+    on:
+      pull_request:
+      push:
+        branches: [main]
+
+    jobs:
+      quality-gate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 24
+          - run: npx --yes aislop@latest ci
+    ```
+
+    Or use the **Marketplace Action** to pin a version for reproducible builds:
+
+    ```yaml
+    - uses: actions/checkout@v4
+    - uses: scanaislop/aislop@v1
+      with:
+        version: latest
+    ```
+
+    <Note>
+      `aislop ci` accepts the same `--changes`, `--staged`, and `--base` flags as `aislop scan`. Use `--changes --base origin/<target>` to limit the gate to only the files a pull request touches.
+    </Note>
+
+    **Install a per-edit hook** so your coding agent sees the score after every change:
+
+    ```bash
+    aislop hook install --claude    # Claude Code
+    aislop hook install --cursor    # Cursor
+    aislop hook install --gemini    # Gemini CLI
+    ```
+
+    Add `--quality-gate` to block edits that regress the score below your baseline:
+
+    ```bash
+    aislop hook install --claude --quality-gate
+    ```
+  </Step>
+</Steps>
+
+## What's next
+
+You now have a scan, a score, auto-fixes, and a CI gate. Explore the rest of the docs to tune aislop for your project.
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/installation"
+  >
+    All install channels: npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages.
+  </Card>
+  <Card
+    title="Scan Command Reference"
+    icon="magnifying-glass"
+    href="/cli/scan"
+  >
+    Every flag, output format, path scoping option, and config key for `aislop scan`.
+  </Card>
+  <Card
+    title="Rules"
+    icon="list-check"
+    href="/concepts/rules"
+  >
+    Browse all 50+ rules by engine, language, and severity.
+  </Card>
+  <Card
+    title="Configuration"
+    icon="sliders"
+    href="/configuration"
+  >
+    Tune thresholds, override rule severity, and set up project-wide ignore patterns.
+  </Card>
+</CardGroup>

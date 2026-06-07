@@ -1,0 +1,234 @@
+---
+title: "aislop ci: quality gate for pull requests and pipelines"
+sidebarTitle: "ci"
+description: "Run aislop as a quality gate in any CI provider. Exits non-zero when the score drops below your threshold or an error-severity finding is present."
+---
+
+`aislop ci` is the same scan engine as `aislop scan`, wrapped in a gate. It prints structured JSON, then exits with code `1` if the score falls below your configured threshold or if any error-severity diagnostic is present. Because it always emits JSON by default, it slots into any CI provider without extra parsing or configuration—just run it and let the exit code do the work.
+
+The simplest set-and-forget form always pulls the latest published CLI, so there is nothing to pin or bump:
+
+```bash
+npx --yes aislop@latest ci
+```
+
+## Basic usage
+
+```bash
+# Gate the full project
+aislop ci
+
+# Gate only the files a PR changes
+aislop ci --changes --base origin/main
+
+# Human-friendly output (useful for local debugging)
+aislop ci --human
+
+# SARIF output for GitHub code scanning
+aislop ci --sarif
+```
+
+## Flags
+
+<ParamField query="--changes" type="boolean">
+  Only gate files that changed relative to the diff base. In CI, PR changes are already committed, so a plain `--changes` (which diffs against `HEAD`) sees nothing. Always pair this with `--base` to point at the PR target branch.
+
+  ```bash
+  aislop ci --changes --base origin/main
+  ```
+</ParamField>
+
+<ParamField query="--base" type="string">
+  The git ref to diff against when `--changes` is set. Defaults to `HEAD`. Set this to the target branch ref so the gate only evaluates the files a pull request actually touches.
+
+  ```bash
+  aislop ci --changes --base origin/main
+  # or, on shallow clones after fetching:
+  aislop ci --changes --base FETCH_HEAD
+  ```
+</ParamField>
+
+<ParamField query="--staged" type="boolean">
+  Only gate staged files. Use this in a pre-commit hook to block commits that would regress the score.
+
+  ```bash
+  aislop ci --staged
+  ```
+</ParamField>
+
+<ParamField query="--human" type="boolean">
+  Render the human-friendly terminal UI instead of JSON output. Useful when you are running `aislop ci` locally to debug a gate failure without switching to `aislop scan`.
+</ParamField>
+
+<ParamField query="--sarif" type="boolean">
+  Emit a SARIF 2.1.0 report instead of JSON. Upload this with the GitHub code scanning action to surface findings in pull request reviews and the Security tab.
+</ParamField>
+
+<ParamField query="--format" type="string">
+  Select `json` or `sarif` output format. Equivalent to `--json` or `--sarif` respectively.
+</ParamField>
+
+## PR-scoped gating
+
+A plain `aislop ci --changes` diffs the working tree against `HEAD`. In CI, the PR commits are already part of the branch history, so that diff is empty. To gate only the files a pull request touches, pass the target branch as `--base`:
+
+```bash
+aislop ci --changes --base origin/main
+```
+
+The base ref must exist in the checkout. With a full clone `origin/<branch>` resolves directly. On a shallow or single-branch clone, fetch the target branch first and use `FETCH_HEAD`:
+
+```bash
+git fetch origin main
+aislop ci --changes --base FETCH_HEAD
+```
+
+<Warning>
+  If an explicit `--base` cannot be resolved, the run fails instead of silently passing an empty scan. This is intentional—an unresolvable base is almost always a misconfiguration.
+</Warning>
+
+## JSON output schema
+
+`aislop ci` emits a single JSON object to stdout. The schema matches `aislop scan --json`. Values below are illustrative:
+
+```json
+{
+  "schemaVersion": "1",
+  "cliVersion": "0.10.2",
+  "score": 87,
+  "label": "Healthy",
+  "engines": {
+    "format":       { "issues": 0, "skipped": false, "elapsed": 406 },
+    "lint":         { "issues": 0, "skipped": false, "elapsed": 378 },
+    "code-quality": { "issues": 1, "skipped": false, "elapsed": 812 },
+    "ai-slop":      { "issues": 2, "skipped": false, "elapsed": 455 },
+    "security":     { "issues": 0, "skipped": false, "elapsed": 1103 }
+  },
+  "diagnostics": [ "..." ]
+}
+```
+
+## Quality gate configuration
+
+Set your minimum acceptable score in `.aislop/config.yml`:
+
+```yaml
+# .aislop/config.yml
+ci:
+  failBelow: 70
+  format: json
+```
+
+`aislop ci` exits `1` when either condition is true:
+
+- The score is below `failBelow`
+- Any diagnostic with `error` severity is present
+
+<Note>
+  The default `failBelow` threshold is `0`, meaning the gate only fails on error-severity findings unless you set a higher bar. Run `aislop init --strict` to start with a threshold of `85`.
+</Note>
+
+## CI provider recipes
+
+<Tabs>
+  <Tab title="GitHub Actions">
+    The self-contained form always runs the latest CLI—nothing to pin:
+
+    ```yaml
+    # .github/workflows/aislop.yml
+    name: aislop
+
+    on:
+      push:
+        branches: [main]
+      pull_request:
+
+    jobs:
+      quality-gate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 24
+          - run: npx --yes aislop@latest ci
+    ```
+
+    Prefer the Marketplace Action? It wraps `setup-node` and runs the same gate:
+
+    ```yaml
+    - uses: actions/checkout@v4
+    - uses: scanaislop/aislop@v1
+      with:
+        version: latest   # or pin, e.g. "0.10.2", for reproducible builds
+    ```
+  </Tab>
+  <Tab title="GitLab CI">
+    ```yaml
+    # .gitlab-ci.yml
+    aislop:
+      image: node:24
+      script:
+        - npx --yes aislop@latest ci
+      rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+        - if: $CI_COMMIT_BRANCH == "main"
+    ```
+  </Tab>
+  <Tab title="CircleCI">
+    ```yaml
+    # .circleci/config.yml
+    version: 2.1
+    jobs:
+      aislop:
+        docker:
+          - image: cimg/node:24.0
+        steps:
+          - checkout
+          - run: npx --yes aislop@latest ci
+    workflows:
+      quality-gate:
+        jobs:
+          - aislop
+    ```
+  </Tab>
+  <Tab title="Bitbucket Pipelines">
+    Bitbucket clones shallow by default. Fetch the PR target branch first, then gate on only the changed files:
+
+    ```yaml
+    # bitbucket-pipelines.yml
+    pipelines:
+      pull-requests:
+        "**":
+          - step:
+              name: aislop gate
+              image: node:24
+              clone:
+                depth: full   # branch diffs need history
+              script:
+                - git fetch origin "$BITBUCKET_PR_DESTINATION_BRANCH"
+                - npx --yes aislop@latest ci --changes --base FETCH_HEAD
+    ```
+  </Tab>
+</Tabs>
+
+## Fastest setup: aislop init
+
+Run `aislop init` and answer **yes** to the GitHub Actions workflow prompt. It writes both `.aislop/config.yml` and `.github/workflows/aislop.yml` for you. Commit both files and your quality gate is live.
+
+```bash
+npx aislop@latest init
+```
+
+Use `--strict` for an enterprise-grade baseline with all engines enabled and `failBelow: 85`:
+
+```bash
+npx aislop@latest init --strict
+```
+
+## Exit codes
+
+| Exit code | Reason |
+|---|---|
+| `0` | Score is at or above `failBelow` and no error-severity findings |
+| `1` | Score is below `failBelow`, or at least one error-severity diagnostic is present |

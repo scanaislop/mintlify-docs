@@ -1,0 +1,180 @@
+---
+title: "Exclude files and paths from aislop scans"
+sidebarTitle: "Ignoring Code"
+description: "Use .aislopignore, the exclude key in config.yml, or CLI flags to keep generated files, snapshots, and legacy paths out of every aislop scan."
+---
+
+aislop gives you three independent mechanisms for excluding paths from a scan: a project-level ignore file, an `exclude:` array in your config, and CLI flags for ad-hoc runs. You can mix all three — aislop merges them before scanning. For silencing a specific finding on a single line rather than excluding a whole file, see [Rule Overrides → Inline suppressions](/configuration/rule-overrides#inline-suppressions).
+
+## Default exclusions
+
+The following paths are excluded automatically on every scan, regardless of your config:
+
+```
+node_modules
+.git
+dist
+build
+coverage
+```
+
+You do not need to add these to your config. They are built into aislop's default `exclude:` list and apply even when no config file is present.
+
+## Method 1: .aislopignore
+
+Create a `.aislopignore` file at the project root. It uses the same glob syntax as `.gitignore` and supports `#` comments.
+
+```
+# .aislopignore
+
+# Generated protobuf and GraphQL types
+src/generated
+src/__generated__
+
+# Jest snapshots
+**/*.snap
+
+# Legacy code pending rewrite
+legacy/
+old-api/
+
+# Third-party vendored code
+vendor/
+```
+
+`.aislopignore` is the right choice when you want exclusions tracked in version control and shared with everyone who runs aislop on the project, without coupling them to the config file.
+
+<Tip>
+  `.aislopignore` is ignored by Git by default. Add it to your repository explicitly so the whole team benefits from the same exclusions.
+</Tip>
+
+## Method 2: exclude in config.yml
+
+Add an `exclude:` array to `.aislop/config.yml`. Every entry is a glob pattern. This is the right choice when your exclusions are tightly coupled to your config — for example, when a strict config excludes test files and a relaxed config does not.
+
+```yaml
+# .aislop/config.yml
+exclude:
+  - node_modules
+  - .git
+  - dist
+  - build
+  - coverage
+  - "**/*.test.ts"      # exclude all test files
+  - "**/*.spec.ts"
+  - src/generated       # generated types
+  - "**/*.snap"         # Jest snapshots
+  - legacy              # legacy directory pending rewrite
+```
+
+<Warning>
+  The `exclude:` array is **replaced wholesale** when a child config extends a parent — values are not concatenated. If your child config sets `exclude:`, it must repeat any parent exclusions it wants to keep. See [Config inheritance](/configuration/config-file#config-inheritance) for details.
+</Warning>
+
+### Restricting to specific paths
+
+Use `include:` to limit scanning to a subset of your project. aislop only scans files that match at least one `include:` pattern and do not match any `exclude:` pattern. An empty `include:` (the default) scans everything not excluded.
+
+```yaml
+include:
+  - src/**          # only scan the src directory
+  - packages/**     # and the packages directory
+```
+
+## Method 3: CLI flags
+
+Pass `--exclude` or `--include` directly to `aislop scan` or `aislop ci` for a one-off run without changing your config. Both flags accept comma-separated glob patterns.
+
+```bash
+# Exclude a directory for a single run
+aislop scan --exclude "src/generated,**/*.snap"
+
+# Scan only the src directory
+aislop scan --include "src/**"
+
+# Combine both: scan src, but skip generated files within it
+aislop scan --include "src/**" --exclude "src/generated/**"
+```
+
+CLI flags apply on top of your config's `exclude:` and `.aislopignore` — they do not replace them.
+
+## Common exclusion patterns
+
+<AccordionGroup>
+  <Accordion title="Generated code">
+    Generated files contain patterns that look like slop (generic names, narrative comments, unsafe casts) but are intentional outputs of a code generator. Exclude them so they don't distort your score.
+
+    ```
+    # .aislopignore
+    src/generated
+    src/__generated__
+    **/*.pb.ts         # protobuf generated TypeScript
+    **/*.pb.go         # protobuf generated Go
+    graphql/generated
+    ```
+  </Accordion>
+  <Accordion title="Test snapshots">
+    Snapshot files are large, auto-generated, and contain no logic worth analysing. Exclude them by file extension.
+
+    ```
+    # .aislopignore
+    **/*.snap
+    **/__snapshots__/**
+    ```
+  </Accordion>
+  <Accordion title="Legacy or vendored directories">
+    When adopting aislop incrementally in a large codebase, exclude legacy code until you're ready to address it. Track the exclusions in `.aislopignore` so you can remove them one directory at a time.
+
+    ```
+    # .aislopignore
+    legacy/
+    vendor/
+    third_party/
+    ```
+  </Accordion>
+  <Accordion title="Test and fixture files">
+    Some teams prefer to exclude test files from scoring so that only production code contributes to the score. Use `config.yml` for this so the exclusion is part of your versioned configuration.
+
+    ```yaml
+    # .aislop/config.yml
+    exclude:
+      - node_modules
+      - .git
+      - dist
+      - build
+      - coverage
+      - "**/*.test.ts"
+      - "**/*.spec.ts"
+      - "**/__tests__/**"
+      - "test/**"
+      - "fixtures/**"
+    ```
+  </Accordion>
+  <Accordion title="Monorepo: per-package exclusions">
+    In a monorepo, each package can have its own `.aislop/config.yml` that extends a root base config. Set `exclude:` in the child config to add package-specific exclusions — but remember that arrays are replaced, not merged, so repeat the defaults you want to keep.
+
+    ```yaml
+    # packages/ui/.aislop/config.yml
+    extends: ../../.aislop/base.yml
+
+    exclude:
+      - node_modules
+      - .git
+      - dist
+      - build
+      - coverage
+      - "src/icons/generated/**"   # icon sprite output
+      - "**/*.stories.ts"          # Storybook story files
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Summary: which method to use
+
+| Method | Best for |
+|---|---|
+| `.aislopignore` | Exclusions shared across the whole team, decoupled from config |
+| `exclude:` in config | Exclusions that vary between config profiles (strict vs. relaxed) |
+| `--exclude` / `--include` CLI flags | Ad-hoc one-off runs without touching committed files |
+
+For silencing a single finding on one line instead of excluding an entire file or path, use an [inline suppression comment](/configuration/rule-overrides#inline-suppressions).

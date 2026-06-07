@@ -1,0 +1,173 @@
+---
+title: "Enforce custom import and layering rules in aislop"
+sidebarTitle: "Architecture Rules"
+description: "Define project-specific import bans, layer boundaries, and required patterns in .aislop/rules.yml to enforce your architecture automatically on every scan."
+---
+
+The architecture engine lets you encode your project's structural conventions as machine-checked rules. Instead of relying on code review comments like "controllers shouldn't import from the database layer" or "don't use axios directly," you define those constraints once in `.aislop/rules.yml` and aislop enforces them on every scan — and in CI. Violations appear in the report with the same severity and scoring impact as any other finding.
+
+## Enabling the architecture engine
+
+The architecture engine is **disabled by default** because it requires a project-specific rules file. Enable it in `.aislop/config.yml`:
+
+```yaml
+engines:
+  architecture: true
+```
+
+Then create `.aislop/rules.yml` in the same directory. aislop reports an error at startup if `architecture: true` is set but the rules file is missing.
+
+## Creating .aislop/rules.yml
+
+The rules file is a YAML document with a single top-level `rules:` array. Each entry defines one constraint.
+
+```yaml
+# .aislop/rules.yml
+rules:
+  - type: forbid_import
+    # ...
+
+  - type: forbid_import_from_path
+    # ...
+
+  - type: require_pattern
+    # ...
+```
+
+You can define as many rules as you need. aislop evaluates all of them on every file in the scan.
+
+## Rule types
+
+### forbid_import
+
+Bans a module from being imported anywhere in the project. Use this to enforce that a particular package or internal module is never referenced directly — for example, to funnel all HTTP calls through a shared client.
+
+<ParamField body="type" type="string" required>
+  Must be `"forbid_import"`.
+</ParamField>
+
+<ParamField body="module" type="string" required>
+  The exact module specifier to ban. Matched against the import path in source files.
+</ParamField>
+
+<ParamField body="message" type="string">
+  Human-readable explanation shown in the diagnostic. Explain what to use instead.
+</ParamField>
+
+```yaml
+- type: forbid_import
+  module: "axios"
+  message: "Use the shared httpClient instead of importing axios directly"
+```
+
+### forbid_import_from_path
+
+Prevents files matching a source glob from importing a module that matches a destination glob. Use this to enforce layer boundaries — for example, preventing controllers from bypassing the service layer and accessing the database directly.
+
+<ParamField body="type" type="string" required>
+  Must be `"forbid_import_from_path"`.
+</ParamField>
+
+<ParamField body="from" type="string" required>
+  A glob pattern matching the **importing** files. Files that match this pattern are not allowed to import from `module`.
+</ParamField>
+
+<ParamField body="module" type="string" required>
+  A glob pattern matching the **imported** path. Imports that resolve to a path matching this pattern are flagged.
+</ParamField>
+
+<ParamField body="message" type="string">
+  Human-readable explanation shown in the diagnostic.
+</ParamField>
+
+```yaml
+- type: forbid_import_from_path
+  from: "src/controllers/**"
+  module: "src/database/**"
+  message: "Controllers must go through the service layer"
+```
+
+### require_pattern
+
+Asserts that every file matching a path glob contains at least one occurrence of a string pattern. Use this to enforce cross-cutting conventions — for example, requiring all API route handlers to include error handling.
+
+<ParamField body="type" type="string" required>
+  Must be `"require_pattern"`.
+</ParamField>
+
+<ParamField body="path" type="string" required>
+  A glob pattern matching the files to check.
+</ParamField>
+
+<ParamField body="pattern" type="string" required>
+  A string that must appear somewhere in each matching file.
+</ParamField>
+
+<ParamField body="message" type="string">
+  Human-readable explanation shown when the pattern is absent.
+</ParamField>
+
+```yaml
+- type: require_pattern
+  path: "src/routes/**"
+  pattern: "catch"
+  message: "API routes must include error handling"
+```
+
+<Note>
+  `pattern` is matched as a literal string, not a regular expression. Keep patterns short and unambiguous so they don't produce false positives in comments or strings.
+</Note>
+
+## Full example
+
+The following rules file mirrors the `examples/architecture-rules.yml` config and demonstrates all three rule types together:
+
+```yaml
+# .aislop/rules.yml
+rules:
+  # Prevent direct axios usage — prefer the shared HTTP client
+  - type: forbid_import
+    module: "axios"
+    message: "Use the shared httpClient instead of importing axios directly"
+
+  # Controllers should not access the database layer directly
+  - type: forbid_import_from_path
+    from: "src/controllers/**"
+    module: "src/database/**"
+    message: "Controllers must go through the service layer"
+
+  # API routes must include error handling
+  - type: require_pattern
+    path: "src/routes/**"
+    pattern: "catch"
+    message: "API routes must include error handling"
+```
+
+And the corresponding config that enables the engine:
+
+```yaml
+# .aislop/config.yml
+engines:
+  architecture: true
+
+scoring:
+  weights:
+    architecture: 1.5   # increase weight if architecture violations should hit harder
+```
+
+## Tips for writing effective rules
+
+<AccordionGroup>
+  <Accordion title="Start with your most-violated conventions">
+    Focus your first rules on the boundaries your team already discusses in code review. Architecture rules work best as a way to encode decisions you've already made, not to discover new ones.
+  </Accordion>
+  <Accordion title="Use forbid_import_from_path for layer enforcement">
+    `forbid_import` bans a module everywhere. `forbid_import_from_path` is more surgical — it only fires when the wrong layer does the importing. Prefer `forbid_import_from_path` for internal module boundaries so that the correct layer (e.g., a data-access layer) can still import the module freely.
+  </Accordion>
+  <Accordion title="Keep require_pattern patterns short and distinctive">
+    A pattern like `catch` will match `try/catch`, `.catch(`, and `catchAll`. That's usually fine for error-handling rules, but be specific enough that the pattern doesn't match unrelated code (such as a variable named `catchphrase`).
+  </Accordion>
+  <Accordion title="Pair rules with clear messages">
+    The `message` field is shown directly in the diagnostic output. Make it actionable — tell the developer what to do, not just what's wrong. For example: `"Use the shared httpClient instead of importing axios directly"` rather than `"axios is forbidden"`.
+  </Accordion>
+</AccordionGroup>

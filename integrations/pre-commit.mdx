@@ -1,0 +1,99 @@
+---
+title: "Run aislop as a pre-commit hook on staged files"
+sidebarTitle: "Pre-commit"
+description: "Block commits that introduce AI slop by running aislop on staged files only, using a direct command or the pre-commit framework."
+---
+
+Running aislop as a pre-commit hook catches quality regressions before they ever reach your repository history. aislop scans only the files you have staged, so the check completes in well under a second on typical diffs. You can wire it up with a one-line command or integrate it into the [pre-commit](https://pre-commit.com) framework alongside your other hooks.
+
+## Approach 1: Direct command (no framework)
+
+The simplest setup is a plain Git hook that calls aislop on staged files. Run this once in your repository root:
+
+```bash
+npx aislop@latest scan --staged
+```
+
+To make it permanent, add the command to `.git/hooks/pre-commit` (create the file if it doesn't exist and make it executable):
+
+```bash
+#!/bin/sh
+npx --yes aislop@latest scan --staged
+```
+
+```bash
+chmod +x .git/hooks/pre-commit
+```
+
+aislop exits non-zero when it finds issues above your configured threshold, which causes `git commit` to abort.
+
+## Approach 2: pre-commit framework hook
+
+If your project already uses the [pre-commit](https://pre-commit.com) framework, add the aislop hook to your `.pre-commit-config.yaml`. The bundled hook runs `aislop scan --staged` automatically.
+
+<Steps>
+  <Step title="Install the pre-commit framework">
+    ```bash
+    pip install pre-commit
+    ```
+    Or use your preferred package manager. Full installation options are in the [pre-commit docs](https://pre-commit.com/#installation).
+  </Step>
+
+  <Step title="Add the aislop hook to your config">
+    Create or update `.pre-commit-config.yaml` in your repository root:
+
+    ```yaml
+    # .pre-commit-config.yaml
+    repos:
+      - repo: https://github.com/scanaislop/aislop
+        rev: v1
+        hooks:
+          - id: aislop
+    ```
+
+    The hook is defined with these properties:
+    - **entry**: `aislop scan --staged` — scans only staged files
+    - **language**: `node`
+    - **pass_filenames**: `false` — aislop discovers staged files itself
+    - **require_serial**: `true` — runs after other hooks complete
+  </Step>
+
+  <Step title="Install the hooks into your repository">
+    ```bash
+    pre-commit install
+    ```
+
+    This writes the framework's hook runner to `.git/hooks/pre-commit`. From this point on, every `git commit` runs aislop on your staged files.
+  </Step>
+
+  <Step title="(Optional) Run against all files once">
+    To check your entire codebase before the first commit gate:
+
+    ```bash
+    pre-commit run aislop --all-files
+    ```
+  </Step>
+</Steps>
+
+## What the hook scans
+
+The `--staged` flag tells aislop to inspect only the files in your Git staging area (`git diff --cached`). Files that are modified but not staged are ignored, keeping the check fast and focused on what you are actually committing.
+
+<Note>
+The hook scores only the staged subset of your codebase. The quality gate threshold from `.aislop/config.yml` still applies — a score below `failBelow` or any error-severity diagnostic will block the commit.
+</Note>
+
+## Combining with AI agent hooks
+
+If you use Claude Code, Cursor, Gemini CLI, or another AI coding agent, you can install a complementary post-edit hook that runs aislop after every agent edit — not just at commit time. This creates a tight feedback loop for agent-generated code.
+
+```bash
+npx aislop@latest hook install --claude    # Claude Code
+npx aislop@latest hook install --cursor    # Cursor
+npx aislop@latest hook install --gemini    # Gemini CLI
+npx aislop@latest hook install             # pick agents interactively
+```
+
+<Tip>
+Use both together: the agent hook catches slop as it's written, and the pre-commit hook acts as a final safety net before code enters version control.
+</Tip>

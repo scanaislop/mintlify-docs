@@ -1,0 +1,255 @@
+---
+title: "Enable and tune aislop engines per project"
+sidebarTitle: "Engines"
+description: "Control which of aislop's six analysis engines run, adjust quality thresholds, tune scoring weights, and set the CI score gate for your project."
+---
+
+aislop runs six deterministic engines in parallel on every scan. Each engine targets a distinct category of issue and contributes independently to the final score. You can enable or disable any engine, tighten or loosen its thresholds, and adjust how heavily its findings influence the score — all from `.aislop/config.yml`.
+
+## The six engines
+
+<CardGroup cols={2}>
+  <Card title="format" icon="paintbrush">
+    Formatting consistency checks. Delegates to Biome (JS/TS), ruff (Python), gofmt (Go), cargo fmt (Rust), rubocop (Ruby), and php-cs-fixer (PHP). Style findings contribute **half** their normal weight to avoid letting house style dominate the score.
+  </Card>
+  <Card title="lint" icon="magnifying-glass-code">
+    Language-specific lint rules. Uses oxlint (JS/TS), ruff (Python), golangci-lint (Go), clippy (Rust), and expo-doctor (React Native). Set `lint.typecheck: true` to add type-aware rules in TypeScript projects.
+  </Card>
+  <Card title="code-quality" icon="chart-line">
+    Complexity and dead code. Tracks function length, file size, control-flow nesting depth, parameter counts, unused files, and unused dependencies (via knip).
+  </Card>
+  <Card title="ai-slop" icon="robot">
+    Patterns AI coding agents leave behind: narrative comments above self-explanatory code, swallowed exceptions, `as any` casts, hallucinated imports, TODO stubs, dead code, and generic names. Carries the highest default weight.
+  </Card>
+  <Card title="architecture" icon="sitemap">
+    Custom structural rules: import bans, layer enforcement, and required patterns. **Opt-in** — disabled by default and requires a `.aislop/rules.yml` file. See [Architecture Rules](/configuration/architecture-rules).
+  </Card>
+  <Card title="security" icon="lock">
+    Secrets and risky constructs (eval, innerHTML, SQL/shell injection) plus dependency vulnerability audits (npm audit, pip-audit, cargo audit, govulncheck).
+  </Card>
+</CardGroup>
+
+## Enabling and disabling engines
+
+Each engine is a boolean flag under `engines:` in `.aislop/config.yml`. Disabling an engine removes it from the scan completely — its findings neither appear in the report nor affect the score.
+
+```yaml
+engines:
+  format: true         # formatting checks
+  lint: true           # linting checks
+  code-quality: true   # complexity, dead code, unused deps
+  ai-slop: true        # AI pattern detection
+  architecture: false  # custom import/path rules — needs .aislop/rules.yml
+  security: true       # secrets, risky constructs, dependency audits
+```
+
+<Tip>
+  Run `aislop doctor` to see which engines have the underlying tools available in your environment before enabling them.
+</Tip>
+
+## Quality thresholds
+
+The `quality:` section controls the numeric limits that trigger code-quality warnings. All four settings accept any positive integer.
+
+| Setting | Default | Description |
+|---|---|---|
+| `maxFunctionLoc` | `80` | Maximum lines of code per function |
+| `maxFileLoc` | `400` | Maximum lines of code per file |
+| `maxNesting` | `5` | Maximum control-flow nesting depth |
+| `maxParams` | `6` | Maximum number of function parameters |
+
+Adjust these to match your team's standards. The `typescript-strict` example config tightens all four; the `monorepo-relaxed` config loosens them for incremental adoption:
+
+<Tabs>
+  <Tab title="Strict (TypeScript)">
+    ```yaml
+    quality:
+      maxFunctionLoc: 60
+      maxFileLoc: 300
+      maxNesting: 4
+      maxParams: 4
+    ```
+  </Tab>
+  <Tab title="Default">
+    ```yaml
+    quality:
+      maxFunctionLoc: 80
+      maxFileLoc: 400
+      maxNesting: 5
+      maxParams: 6
+    ```
+  </Tab>
+  <Tab title="Relaxed (monorepo)">
+    ```yaml
+    quality:
+      maxFunctionLoc: 120
+      maxFileLoc: 600
+      maxNesting: 6
+      maxParams: 8
+    ```
+  </Tab>
+</Tabs>
+
+## Lint typecheck
+
+The `lint.typecheck` option is `false` by default to keep scans sub-second. Enable it in TypeScript projects when you want type-aware lint rules (for example, rules that require `await` on async calls or flag incorrect type narrowing):
+
+```yaml
+lint:
+  typecheck: true
+```
+
+<Note>
+  Enabling `typecheck` requires a valid `tsconfig.json` in your project. Scan time increases because the TypeScript compiler runs as part of the lint pass.
+</Note>
+
+## Security audit options
+
+The security engine runs dependency audits by default. You can disable auditing entirely or extend the timeout for slow networks:
+
+<ParamField body="security.audit" type="boolean" default="true">
+  Run dependency vulnerability audits. Disable if your project has no package manager lockfile or if you manage auditing separately.
+</ParamField>
+
+<ParamField body="security.auditTimeout" type="number" default="25000">
+  Milliseconds before the audit subprocess is killed. Increase this for large dependency trees or slow CI network access.
+</ParamField>
+
+```yaml
+security:
+  audit: true
+  auditTimeout: 30000   # 30 s — useful for Python/Go projects on slow networks
+```
+
+## Scoring weights
+
+Every diagnostic carries a base penalty that depends on its severity, then that penalty is multiplied by the engine weight:
+
+| Severity | Base penalty |
+|---|---|
+| Error | 3.0 |
+| Warning | 1.0 |
+| Info | 0.25 |
+
+The default weight profile is **AI-slop-first** — AI pattern findings cost significantly more than formatting noise, while security carries serious impact:
+
+```yaml
+scoring:
+  weights:
+    format: 0.3       # formatting issues have lighter impact
+    lint: 0.6
+    code-quality: 0.8
+    ai-slop: 2.5      # AI-slop signals carry the strongest weight
+    architecture: 1.0
+    security: 1.5
+```
+
+### Tuning weights for your team
+
+Adjust weights to reflect what your team cares about most. Higher values make that engine's findings damage the score more.
+
+<Tabs>
+  <Tab title="Strict TypeScript">
+    Raises all weights to keep score pressure high across every category:
+
+    ```yaml
+    scoring:
+      weights:
+        format: 1.0
+        lint: 1.5
+        code-quality: 2.0
+        ai-slop: 1.5
+        architecture: 1.0
+        security: 2.0
+    ```
+  </Tab>
+  <Tab title="Security-first (Python/Go)">
+    Triples `security` weight to make dependency vulnerabilities dominate the score:
+
+    ```yaml
+    scoring:
+      weights:
+        format: 0.5
+        lint: 1.0
+        code-quality: 1.5
+        ai-slop: 1.0
+        architecture: 1.0
+        security: 2.5
+    ```
+  </Tab>
+  <Tab title="Incremental adoption">
+    Softens `ai-slop` while security remains high, so large codebases aren't blocked by AI patterns during rollout:
+
+    ```yaml
+    scoring:
+      weights:
+        format: 0.5
+        lint: 1.0
+        code-quality: 1.0
+        ai-slop: 0.5
+        architecture: 1.0
+        security: 2.0
+    ```
+  </Tab>
+</Tabs>
+
+### Tuning guidance
+
+- **Increase `ai-slop`** if you want strict AI-output hygiene to drive the score.
+- **Increase `security`** if dependency or runtime risk should dominate.
+- **Lower `lint` and `code-quality`** if you want scores to emphasise AI-specific findings over generic style.
+- **Lower `format`** if formatting issues should never block CI on their own.
+
+## smoothing and maxPerRule
+
+Two additional scoring knobs prevent edge cases from distorting results:
+
+<ParamField body="scoring.smoothing" type="number" default="20">
+  Reduces penalty spikes in large repos by dampening the logarithmic density curve. Increase this value for legacy codebases with many pre-existing findings so that incremental improvements register clearly in the score.
+</ParamField>
+
+<ParamField body="scoring.maxPerRule" type="number" default="40">
+  Caps the total weighted penalty a single rule family can contribute to the score. Repeated findings from the same rule still appear in the report, but one noisy rule cannot dominate the whole score. Different rule families continue to accumulate normally. Increase `maxPerRule` if you want repeated findings from one rule to punish the score more heavily.
+</ParamField>
+
+```yaml
+scoring:
+  smoothing: 40      # soften impact for large legacy repos
+  maxPerRule: 60     # let a very noisy rule family hit harder
+```
+
+## Score labels and thresholds
+
+The final score maps to a human-readable label. Both thresholds are configurable:
+
+| Score | Default label |
+|---|---|
+| 75 – 100 | Healthy |
+| 50 – 74 | Needs Work |
+| 0 – 49 | Critical |
+
+```yaml
+scoring:
+  thresholds:
+    good: 75   # scores at or above this are "Healthy"
+    ok: 50     # scores at or above this are "Needs Work"; below is "Critical"
+```
+
+## CI quality gate
+
+Set `ci.failBelow` to fail `aislop ci` when the score drops below your threshold. `aislop ci` exits with code `1` when the condition is met, making it a reliable quality gate in any CI environment.
+
+<ParamField body="ci.failBelow" type="number" default="70">
+  Minimum acceptable score. `aislop ci` exits `1` when the score is below this value.
+</ParamField>
+
+```yaml
+ci:
+  failBelow: 70   # block merges when the score drops below 70
+```
+
+<Warning>
+  Setting `failBelow: 0` disables the gate — CI always exits `0` regardless of score. Useful during rollout when you want reports without blocking.
+</Warning>
+
+Use `aislop ci --changes --base origin/main` to gate only the files a pull request changes rather than the full repo score. The same `failBelow` threshold and exit code apply.

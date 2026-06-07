@@ -1,0 +1,180 @@
+---
+title: "Install aislop: npm, Homebrew, pipx, and more"
+sidebarTitle: "Installation"
+description: "Every way to install aislop — npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages — plus requirements, bundled tools, and external tool setup."
+---
+
+aislop is published to npm, Homebrew, and PyPI. Every channel installs the identical `aislop` and `aislop-mcp` commands. Pick the channel that fits your stack — or run without installing at all using `npx aislop@latest scan`.
+
+## Requirements
+
+aislop requires **Node.js 20 or later**. You can check your version with `node --version`. The Homebrew install pulls Node as a dependency automatically; the pipx install requires Node to already be on your `PATH`.
+
+## npm, Yarn, pnpm, and Bun
+
+Install aislop as a project dev dependency or as a global binary, depending on how you plan to use it.
+
+<CodeGroup>
+  ```bash npx (no install)
+  npx aislop@latest scan
+  ```
+
+  ```bash npm
+  npm install --save-dev aislop
+  ```
+
+  ```bash Yarn
+  yarn add --dev aislop
+  ```
+
+  ```bash pnpm
+  pnpm add -D aislop
+  ```
+
+  ```bash Bun
+  bun add -d aislop
+  ```
+
+  ```bash Global (npm)
+  npm install -g aislop
+  ```
+</CodeGroup>
+
+After a local dev-dependency install, run aislop via your package manager:
+
+```bash
+npx aislop scan
+yarn aislop scan
+pnpm aislop scan
+bunx aislop scan
+```
+
+<Tip>
+  Use `npx aislop@latest scan` to always run the latest published version without managing a local install. This is the recommended approach for one-off scans and CI pipelines where you want automatic updates.
+</Tip>
+
+## Homebrew
+
+Install aislop on macOS or Linux via the official tap:
+
+```bash
+brew install scanaislop/tap/aislop
+```
+
+Equivalent two-step form if you prefer to tap separately:
+
+```bash
+brew tap scanaislop/tap
+brew install aislop
+```
+
+Homebrew installs Node.js as a runtime dependency if it is not already present. Upgrade aislop with:
+
+```bash
+brew upgrade aislop
+```
+
+More details: [scanaislop/homebrew-tap](https://github.com/scanaislop/homebrew-tap)
+
+## pipx (Python environments)
+
+For Python-centric projects or environments where pipx is your standard tool installer:
+
+```bash
+pipx install aislop
+```
+
+`pipx` keeps aislop in an isolated virtual environment so it never conflicts with your Python dependencies. Plain `pip install --user aislop` also works. Both options still require **Node.js on your `PATH`** because aislop's analysis engines run on Node.
+
+Upgrade with:
+
+```bash
+pipx upgrade aislop
+```
+
+More details: [aislop on PyPI](https://pypi.org/project/aislop/)
+
+## GitHub Packages
+
+aislop is also published as `@scanaislop/aislop` on GitHub Packages. Use this channel when your organisation's security policy requires packages to be sourced from GitHub's registry:
+
+```bash
+npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
+```
+
+## Bundled tooling
+
+aislop ships the following tools as package dependencies or bundled binaries — you do not need to install them separately:
+
+| Tool | Purpose | Languages |
+|---|---|---|
+| [oxlint](https://oxc.rs/) | Linting | TypeScript, JavaScript |
+| [Biome](https://biomejs.dev/) | Formatting + linting | TypeScript, JavaScript |
+| [knip](https://knip.dev/) | Dead code + unused deps | TypeScript, JavaScript |
+| [ruff](https://docs.astral.sh/ruff/) | Linting + formatting | Python |
+| [golangci-lint](https://golangci-lint.run/) | Linting | Go |
+| [expo-doctor](https://docs.expo.dev/) | Framework checks | Expo / React Native |
+
+`ruff` and `golangci-lint` are downloaded as binaries during `npm install` (or equivalent). To skip binary downloads — for example in air-gapped environments or when you want to manage these tools yourself — set the environment variable before installing:
+
+```bash
+AISLOP_SKIP_TOOL_DOWNLOAD=1 npm install
+```
+
+## External tools
+
+Some engines depend on tools that must already be installed on your machine. These are not bundled because they require language toolchains to be present anyway.
+
+| Tool | Required for | Install guide |
+|---|---|---|
+| `gofmt` | Go formatting | Ships with the [Go toolchain](https://go.dev/dl/) |
+| `govulncheck` | Go dependency audit | `go install golang.org/x/vuln/cmd/govulncheck@latest` |
+| `cargo` + `clippy` | Rust linting + formatting | [rustup.rs](https://rustup.rs/) |
+| `rubocop` | Ruby formatting + linting | `gem install rubocop` |
+| `phpcs` + `php-cs-fixer` | PHP formatting + linting | [php-cs-fixer docs](https://cs.symfony.com/) |
+
+<Warning>
+  If an external tool is missing, aislop skips the corresponding engine and notes it in the scan output. Scores for projects in those languages will be lower than they would be with full engine coverage. Run `aislop doctor` to see exactly which engines are available on your system.
+</Warning>
+
+## Verify your installation
+
+After installing, confirm everything is working:
+
+```bash
+aislop version          # print the installed version
+aislop doctor           # check which engines can run in this project
+```
+
+`aislop doctor` reports on each engine's availability, flags any missing external tools, and shows the language coverage for the current directory.
+
+## Show your score badge
+
+Once you have a score, display it in your README:
+
+```bash
+npx aislop@latest badge    # generate badge markdown for your repo
+```
+
+```markdown
+[![aislop](https://badges.scanaislop.com/score/<owner>/<repo>.svg)](https://scanaislop.com)
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="bolt"
+    href="/quickstart"
+  >
+    Run your first scan, read your score, and add a CI gate in four steps.
+  </Card>
+  <Card
+    title="Configuration"
+    icon="sliders"
+    href="/configuration"
+  >
+    Tune score thresholds, override rule severity, and manage project-wide ignores.
+  </Card>
+</CardGroup>

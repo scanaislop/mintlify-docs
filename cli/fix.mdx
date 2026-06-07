@@ -1,0 +1,178 @@
+---
+title: "aislop fix: auto-fix and agent handoff for slop"
+sidebarTitle: "fix"
+description: "Mechanically fix what can be fixed automatically, then hand the remaining issues to your AI coding agent with full diagnostic context."
+---
+
+`aislop fix` takes the findings from a scan and acts on them. It applies mechanical fixes first—unused imports, narrative comments, formatting, dead code—and for everything that requires broader context it can open your preferred AI coding agent with a structured prompt that contains the full list of remaining diagnostics. The result is a clean, two-stage workflow: commit what the machine can fix, then let your agent handle the rest.
+
+## Fix workflow
+
+Work through the stages in order to reach 100/100 with the least disruption to your codebase:
+
+<Steps>
+  <Step title="Run a plain scan to see everything">
+    Before touching anything, get the full picture.
+
+    ```bash
+    aislop scan
+    ```
+  </Step>
+
+  <Step title="Apply only reversible fixes with --safe">
+    Start conservatively. `--safe` restricts the run to fixes that cannot change behaviour: unused-import removal, import merging, narrative-comment removal, and formatting. Apply these, review the diff, and commit.
+
+    ```bash
+    aislop fix --safe
+    ```
+  </Step>
+
+  <Step title="Run the standard auto-fixer">
+    Without `--safe`, aislop also clears console-log leftovers, removes dead code, and runs lint autofixes. Review the diff before committing.
+
+    ```bash
+    aislop fix
+    ```
+  </Step>
+
+  <Step title="Run aggressive fixes with --force">
+    `--force` adds dependency auditing, framework alignment checks, and unused-file removal. These are more disruptive, so review the diff carefully.
+
+    ```bash
+    aislop fix -f
+    ```
+  </Step>
+
+  <Step title="Hand off remaining issues to your agent">
+    Any issues that need judgment or broader context get passed to your coding agent with full diagnostic information. Pick the agent you use:
+
+    ```bash
+    aislop fix --claude      # Claude Code
+    aislop fix --cursor      # Cursor (copies prompt to clipboard)
+    aislop fix --gemini      # Gemini CLI
+    aislop fix -p            # Print prompt (agent-agnostic)
+    ```
+  </Step>
+
+  <Step title="Verify with a final scan">
+    Confirm everything is resolved.
+
+    ```bash
+    aislop scan
+    ```
+  </Step>
+</Steps>
+
+## Flags
+
+<ParamField query="-d, --verbose" type="boolean">
+  Show detailed progress for each fix operation as it runs, including which files are modified and which rules are being resolved.
+</ParamField>
+
+<ParamField query="-f, --force" type="boolean">
+  Run aggressive fixes in addition to standard ones. This includes dependency auditing, framework dependency alignment, and unused-file removal. Changes here are more likely to affect behaviour—review the diff before committing.
+
+  ```bash
+  aislop fix -f
+  ```
+</ParamField>
+
+<ParamField query="--safe" type="boolean">
+  Restrict the run to reversible fixes only. Safe mode applies:
+  - Unused-import removal
+  - Import merging
+  - Narrative-comment removal
+  - Formatting
+
+  Anything that deletes code or rewrites behaviour—console removal, dead-code elimination, lint autofixes, unused-declaration pruning, and dependency changes—is skipped. A `--safe` run is designed to be "apply and commit" without review.
+
+  ```bash
+  aislop fix --safe
+  ```
+</ParamField>
+
+<ParamField query="-p, --prompt" type="boolean">
+  Print an agent-ready prompt to stdout describing the remaining issues, without opening any specific agent. Use this flag when you want to paste the prompt into any tool or inspect it first.
+
+  ```bash
+  aislop fix -p
+  ```
+</ParamField>
+
+## Agent handoff flags
+
+When auto-fix can't resolve an issue, pass the remaining diagnostics to your coding agent. Each flag opens that agent and provides the structured prompt automatically. Use `--prompt` / `-p` if you prefer an agent-agnostic output you can paste anywhere.
+
+<Tabs>
+  <Tab title="Terminal agents">
+    | Flag | Agent |
+    |---|---|
+    | `--claude` | Claude Code |
+    | `--codex` | Codex CLI |
+    | `--gemini` | Gemini CLI |
+    | `--kimi` | Kimi Code CLI |
+    | `--opencode` | OpenCode |
+    | `--aider` | Aider |
+    | `--goose` | Goose |
+    | `--pi` | pi |
+    | `--crush` | Crush |
+    | `--amp` | Amp |
+    | `--warp` | Warp |
+  </Tab>
+  <Tab title="Editor agents">
+    | Flag | Agent |
+    |---|---|
+    | `--cursor` | Cursor (copies prompt to clipboard) |
+    | `--windsurf` | Windsurf (copies prompt to clipboard) |
+    | `--vscode` | VS Code (copies prompt to clipboard) |
+    | `--antigravity` | Antigravity |
+    | `--deep-agents` | Deep Agents |
+  </Tab>
+</Tabs>
+
+<Tip>
+  Use `--prompt` (`-p`) to print the agent handoff prompt without opening any specific tool. You can then paste it into any agent, share it with a teammate, or inspect the diagnostics before deciding what to do next.
+</Tip>
+
+## What --safe restricts
+
+`--safe` is designed for situations where you want to improve the score with zero risk of introducing bugs. The table below shows what runs and what is skipped:
+
+| Fix type | `--safe` | Standard `fix` | `fix -f` |
+|---|:---:|:---:|:---:|
+| Unused-import removal | ✅ | ✅ | ✅ |
+| Import merging | ✅ | ✅ | ✅ |
+| Narrative-comment removal | ✅ | ✅ | ✅ |
+| Formatting | ✅ | ✅ | ✅ |
+| Console-log removal | — | ✅ | ✅ |
+| Dead-code elimination | — | ✅ | ✅ |
+| Lint autofixes | — | ✅ | ✅ |
+| Unused-declaration pruning | — | ✅ | ✅ |
+| Dependency auditing | — | — | ✅ |
+| Framework alignment | — | — | ✅ |
+| Unused-file removal | — | — | ✅ |
+
+## Common examples
+
+```bash
+# See what's fixable before touching anything
+aislop scan
+
+# Apply only safe, reversible fixes
+aislop fix --safe
+
+# Standard auto-fix with detailed output
+aislop fix -d
+
+# Aggressive mode: deps, unused files, all autofixes
+aislop fix -f
+
+# Hand off to Claude Code
+aislop fix --claude
+
+# Print the agent prompt without opening any tool
+aislop fix --prompt
+
+# One-off run without installing
+npx aislop@latest fix --safe
+```
