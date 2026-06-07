@@ -1,93 +1,101 @@
 ---
-title: "aislop: Catch AI-generated code slop in your codebase"
-sidebarTitle: "Home"
-description: "aislop scores your codebase 0–100 by catching patterns AI coding agents leave behind — sub-second, deterministic, 50+ rules, 8 languages."
+title: "Quality Gate for your AI agents"
+sidebarTitle: "Introduction"
+description: "Understand what scanaislop is, the problem it solves, its six analysis engines, supported languages, and the key properties that make it reliable in CI."
 ---
 
-aislop is a free, MIT-licensed static analysis CLI that gives every codebase a single quality score from 0 to 100. It catches the patterns that Claude Code, Cursor, Codex, and other AI coding agents routinely leave behind — narrative comments above self-explanatory code, swallowed exceptions, `as any` casts, hallucinated imports, dead code, and TODO stubs — across TypeScript, JavaScript, Python, Go, Rust, Ruby, PHP, and Expo/React Native. There are no LLMs in the runtime path: the same code always produces the same score, in under a second.
+<img
+    src="/assets/images/introduction_image.jpg"
+    alt="Travelbase platform overview showing offer discovery, order management, ticket issuance, wallet operations, and webhook integrations"
+    className="mt-6 mb-8 rounded-xl border"
+/>
 
-## Get started
+## What is scanaislop?
+
+Scanaislop is your quaility code gate for AI coding agents. It runs six deterministic engines in parallel across eight language targets, reports findings with file and line locations, auto-fixes what is mechanical, and exits with a non-zero code in CI when the score falls below your threshold. There are no LLMs in the runtime path: the score is computed from regex, AST analysis, and standard open-source tooling, so the same code always produces the same result.
+
+## The problem it solves
+
+Every major AI coding agent — Claude Code, Cursor, Codex, OpenCode, Gemini CLI — generates code that satisfies local correctness checks but introduces patterns that degrade long-term maintainability. These patterns are consistent enough across agents and projects to define as rules. aislop encodes more than 50 of them, weighted so that high-severity slop (swallowed exceptions, unsafe casts, eval) hits the score harder than style noise (trailing whitespace, comment capitalization). You get one number, one gate, and a clear fix list.
+
+## The six engines
+
+aislop runs six engines on every scan. Each engine targets a different quality dimension and maps to a share of the overall 0–100 score.
 
 <CardGroup cols={2}>
-  <Card
-    title="Introduction"
-    icon="book-open"
-    href="/introduction"
-  >
-    Learn what aislop does, the six engines it runs, and why deterministic scoring matters.
-  </Card>
-  <Card
-    title="Quickstart"
-    icon="bolt"
-    href="/quickstart"
-  >
-    Scan your first project in under a minute — no install required.
-  </Card>
-  <Card
-    title="Scan Command"
-    icon="magnifying-glass"
-    href="/cli/scan"
-  >
-    Full reference for flags, output formats, path scoping, and inline suppressions.
-  </Card>
-  <Card
-    title="GitHub Actions"
-    icon="github"
-    href="/integrations/github-actions"
-  >
-    Add a quality gate to every pull request with a single workflow step.
-  </Card>
+    <Card title="Formatting" icon="paintbrush">
+        Code style consistency checked by **Biome** (TypeScript/JavaScript), **ruff** (Python), **gofmt** (Go), **cargo
+        fmt** (Rust), **rubocop** (Ruby), and **php-cs-fixer** (PHP).
+    </Card>
+    <Card title="Linting" icon="triangle-exclamation">
+        Language-specific correctness checked by **oxlint** (JS/TS), **ruff** (Python), **golangci-lint** (Go),
+        **clippy** (Rust), and **expo-doctor** (Expo/React Native).
+    </Card>
+    <Card title="Code Quality" icon="gauge-high">
+        Complexity and dead code: function and file size limits, deep nesting detection, unused files and dependencies
+        via **knip**, and AST-based unused-declaration removal.
+    </Card>
+    <Card title="AI Slop" icon="robot">
+        Patterns specific to AI-generated code: narrative comments, trivial comments, dead patterns, unused imports, `as
+        any` casts, `console.log` leftovers, TODO stubs, and generic names.
+    </Card>
+    <Card title="Security" icon="shield-halved">
+        Vulnerabilities and risky code: `eval`, `innerHTML`, SQL and shell injection patterns, and dependency audits via
+        **npm audit**, **pip-audit**, **cargo audit**, and **govulncheck**.
+    </Card>
+    <Card title="Architecture" icon="sitemap">
+        Structural rules (opt-in): custom import bans, layering rules, and required patterns configured in
+        `.aislop/config.yml`.
+    </Card>
 </CardGroup>
 
-## How it works in three steps
+## Supported languages
 
-Start from zero to a gated, auto-fixing workflow without touching a config file.
+aislop analyses eight language targets with full engine coverage. Files in other languages are excluded from scoring rather than partially scored — you always know exactly what the number represents.
 
-<Steps>
-  <Step title="Install aislop">
-    Run aislop instantly with `npx`, or add it to your project for repeated use.
+| Language | Target identifier |
+|---|---|
+| TypeScript | `typescript` |
+| JavaScript | `javascript` |
+| Expo / React Native | `expo` |
+| Python | `python` |
+| Go | `go` |
+| Rust | `rust` |
+| Ruby | `ruby` |
+| PHP | `php` |
 
-    ```bash
-    # No install — run directly
-    npx aislop@latest scan
+<Note>
+    If a repository is primarily written in an unsupported language (C, C#, Swift, Kotlin, etc.), aislop withholds the
+    score and reports `scoreable: false` rather than printing a number based on a handful of incidental files.
+</Note>
 
-    # Or add as a dev dependency
-    npm install --save-dev aislop
-    ```
+## Key differentiators
 
-    <Tip>
-      Homebrew and pipx installs are also available. See the [Installation](/installation) page for every option.
-    </Tip>
-  </Step>
+**Deterministic, no LLM at runtime.** aislop uses regex, AST analysis, and standard open-source tooling — never an API call to a language model. The same code in always produces the same score out. This makes the score reliable enough to enforce as a hard CI gate.
 
-  <Step title="Scan your codebase">
-    Run `aislop scan` from any project root. You get a 0–100 score, a per-engine breakdown, and a list of findings with file locations.
+**Sub-second.** All six engines run in parallel. For most projects, a full scan completes in well under a second, making it practical as a pre-commit hook and as a post-edit hook inside your coding agent.
 
-    ```bash
-    aislop scan
-    ```
+**50+ rules, language-specific.** Rules are tuned per language and weighted by severity. Sloppy patterns that indicate deeper problems (swallowed exceptions, unsafe type casts) carry more weight than style findings.
 
-    Use `--changes` to score only the files you've edited, or `--json` for machine-readable output.
+**Zero-config start.** `npx aislop@latest scan` works on any repository without any configuration. Add `.aislop/config.yml` when you want to tune thresholds, override rule severity, or enable the Architecture engine.
 
-    ```bash
-    aislop scan --changes          # diff against HEAD
-    aislop scan --json             # JSON output for scripting
-    ```
-  </Step>
+**Auto-fix and agent handoff.** `aislop fix` resolves mechanical issues — formatting, unused imports, dead code, narrative comments — without human intervention. For findings that require context, `aislop fix --claude` (or `--cursor`, `--codex`, etc.) sends a structured prompt to your coding agent with full diagnostic detail.
 
-  <Step title="Fix issues automatically">
-    Auto-fix everything mechanical in one command, then hand the remaining findings to your AI agent with full context.
+## Next steps
 
-    ```bash
-    aislop fix           # auto-fix formatting, imports, dead code, comments
-    aislop fix --safe    # only reversible fixes — safe to commit immediately
-    aislop fix --claude  # hand off remaining issues to Claude Code
-    ```
-
-    Add `aislop ci` to your CI pipeline to enforce a minimum score on every push.
-
-    ```bash
-    aislop ci            # exits 1 if score < threshold
-    ```
-  </Step>
-</Steps>
+<CardGroup cols={2}>
+    <Card
+        title="Quickstart"
+        icon="bolt"
+        href="/quickstart"
+    >
+        Scan your first project in under a minute with a single npx command.
+    </Card>
+    <Card
+        title="How It Works"
+        icon="gears"
+        href="/concepts/how-it-works"
+    >
+        Deep dive into the scoring model, engine weights, and rule evaluation order.
+    </Card>
+</CardGroup>
