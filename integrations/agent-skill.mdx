@@ -15,7 +15,62 @@ The aislop agent skill teaches coding agents how to use the CLI as a quality gat
 npx skills add scanaislop/skills
 ```
 
+That installs the `aislop` skill from the public `scanaislop/skills` repository. The live skills.sh listing is:
+
+```text
+https://www.skills.sh/scanaislop/skills
+```
+
+The listing badge is:
+
+```md
+[![skills.sh](https://skills.sh/b/scanaislop/skills)](https://skills.sh/scanaislop/skills)
+```
+
 Use `npx skills add --help` to see the installer options for global installs, per-agent installs, and dry runs.
+
+## Install options
+
+| Command | Use |
+|---|---|
+| `npx skills add scanaislop/skills` | Install every skill in the repository |
+| `npx skills add scanaislop/skills -s aislop` | Install only the `aislop` skill |
+| `npx skills add scanaislop/skills -a codex` | Install for a specific agent |
+| `npx skills add scanaislop/skills -g` | Install at user scope when the installer supports it |
+| `npx skills add scanaislop/skills --list` | Preview available skills before installing |
+
+## Repository layout
+
+The skills repo is intentionally small:
+
+```text
+scanaislop/skills
+|- README.md
+|- CONTRIBUTING.md
+`- skills/
+   `- aislop/
+      |- SKILL.md
+      |- skill.json
+      |- examples/
+      |- references/
+      `- evals/
+```
+
+`skills/aislop/SKILL.md` is the agent-facing procedure. `skill.json` is the registry manifest that skills.sh reads for metadata, examples, compatibility, keywords, and trigger prompts.
+
+## skills.sh metadata
+
+The current manifest declares:
+
+| Field | Value |
+|---|---|
+| Skill name | `aislop` |
+| Repository | `https://github.com/scanaislop/skills` |
+| Entry file | `SKILL.md` |
+| License | MIT |
+| Compatibility | Claude Code, Codex, Cursor, Windsurf, Gemini CLI, VS Code, Amp, Aider, Warp, Goose, OpenCode, Antigravity, Deep Agents, Kimi, Cline |
+| Examples | before commit, remaining findings, CI gate, clean-scan manual pass, agent handoff |
+| Eval set | trigger accuracy for quality-related prompts and adjacent non-trigger prompts |
 
 ## What the skill tells the agent to do
 
@@ -58,3 +113,26 @@ Use `npx skills add --help` to see the installer options for global installs, pe
 | [Agent command](/cli/agent) | Run a local repair loop with Codex, Claude Code, or OpenCode |
 
 You can use all of them together. The skill provides the operating procedure, hooks provide automatic per-edit feedback, and MCP gives the agent callable tools.
+
+## Example flows included in the skill
+
+The skill repo ships example conversations so agents and maintainers can see the expected behavior end to end:
+
+| Example | Scenario |
+|---|---|
+| `01-before-commit` | Agent finishes a small feature, scans changed files, fixes findings, and reports score before commit |
+| `02-remaining-findings` | `aislop fix` resolves mechanical issues, then the agent handles non-mechanical findings manually |
+| `03-ci-gate` | Agent adds a GitHub Actions quality gate with `ci.failBelow` |
+| `04-green-scan-manual-pass` | Scan is clean, but the agent still catches semantic slop in its manual pass |
+| `05-agent-handoff` | Large PR cleanup using `aislop fix --claude` for high-volume remaining findings |
+
+## Contributing to the skill
+
+Skill changes belong in `scanaislop/skills`, not the CLI repo. Each skill must ship:
+
+- `SKILL.md` with `name` and `description` frontmatter.
+- `skill.json` with registry metadata and examples.
+- At least one realistic example under `examples/`.
+- Updated evals when trigger behavior changes.
+
+Version `skill.json` with semver: patch for typos, minor for new sections or examples, and major for breaking changes to the skill interface.
