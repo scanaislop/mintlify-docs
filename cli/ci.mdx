@@ -134,7 +134,7 @@ ci:
 - Any diagnostic with `error` severity is present
 
 <Note>
-  The default `failBelow` threshold is `0`, meaning the gate only fails on error-severity findings unless you set a higher bar. Run `aislop init --strict` to start with a threshold of `85`.
+  The default `failBelow` threshold is `70`. Run `aislop init --strict` to start with a stricter threshold of `85`, or set `failBelow: 0` intentionally during rollout when you want reports without blocking.
 </Note>
 
 ## CI provider recipes

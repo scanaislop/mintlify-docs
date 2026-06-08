@@ -1,0 +1,61 @@
+---
+title: "Instant scans on scanaislop.com"
+sidebarTitle: "Instant Scan"
+description: "Scan a public GitHub repository from the browser by swapping github.com for scanaislop.com, with no install or account required."
+---
+
+Instant scan is the hosted version of `aislop scan` for public GitHub repositories. It runs the same deterministic engines against the repository default branch and displays the score, top findings, and badge snippet in the browser.
+
+## URL shortcut
+
+Replace `github.com` with `scanaislop.com` in a public repository URL:
+
+```text
+github.com/<owner>/<repo> -> scanaislop.com/<owner>/<repo>
+```
+
+For example:
+
+```text
+https://github.com/scanaislop/aislop
+https://scanaislop.com/scanaislop/aislop
+```
+
+No account or local install is required for public repositories.
+
+## What the page shows
+
+- The latest 0-100 score and label.
+- Error, warning, fixable, and total finding counts.
+- Scan duration and source file count.
+- The first findings with rule ID, severity, file, line, and message.
+- A copy-ready README badge snippet when public badges are enabled.
+- A claim flow for teams that want private scans, branch scans, PR gates, and dashboard history.
+
+## What runs
+
+The hosted scan uses the same engine model as the CLI:
+
+| Engine | Examples |
+|---|---|
+| Format and lint | Biome, oxlint, ruff, gofmt, clippy, rubocop, php-cs-fixer |
+| Code quality | Function/file size, nesting, params, knip dead-code checks |
+| AI slop | Narrative comments, unsafe casts, swallowed errors, console leftovers, hallucinated imports |
+| Security | Hardcoded secrets, eval, innerHTML, SQL/shell injection, vulnerable dependencies |
+
+<Note>
+  Instant scan is deterministic. It is not an LLM review and it does not generate fixes in the browser.
+</Note>
+
+## Limits
+
+| Limit | Behavior |
+|---|---|
+| Public repositories only | Private repositories require dashboard sign-in and GitHub App access |
+| Default branch only | Sign in to scan branches, PRs, or specific commits |
+| Repository size cap | Large repositories may be rejected before clone |
+| Cached repeat scans | Recent scans may render from cache before a fresh run is available |
+
+## When to use it
+
+Use instant scan when you want a fast public score without installing the CLI, or when you want to share a public scan result with another maintainer. Use the CLI or GitHub Action when you need repeatable local output, private repository coverage, or CI gating.

@@ -128,6 +128,13 @@ These flags are accepted by `aislop [directory]`, `aislop scan`, and, where note
 
 | Flag | Description |
 |---|---|
+| `--provider <provider>` | Provider for monitor repair sessions: `auto`, `codex`, `claude`, or `opencode` |
+| `--target-score <score>` | Score monitor repair tries to converge toward |
+| `--max-turns <n>` | Maximum provider turns per repair attempt |
+| `--limit <n>` | Maximum findings to hand to the provider |
+| `--in-place` | Required with `--repair`; edits the current checkout |
+| `--dry-run` | Prints the monitor plan without starting it |
+| `--no-fix` | Skips deterministic safe fixes before provider handoff |
 | `--repair` | Runs bounded repair sessions when scans miss the target |
 | `--background` | Starts a detached local monitor |
 | `--interval <ms>` | Poll interval for git status |
@@ -135,6 +142,27 @@ These flags are accepted by `aislop [directory]`, `aislop scan`, and, where note
 | `--once` | Runs one monitor cycle and exits |
 | `--root <directory>` | Root directory for monitor show/stop commands |
 | `--force` | Uses `SIGKILL` when stopping a monitor |
+
+## Agent utility flags
+
+| Command | Flag | Description |
+|---|---|---|
+| `agent connect` | `--dry-run` | Prints the provider login command without running it |
+| `agent use`, `agent switch` | `--root <directory>` | Git repository that stores the repo-local provider preference |
+| `agent use`, `agent switch` | `--dry-run` | Prints the provider preference change without writing |
+| `agent monitor list` | `--limit <n>` | Maximum monitor records to show |
+| `agent monitor show`, `agent monitor stop` | `--root <directory>` | Git repository to read monitor records from |
+| `agent monitor stop` | `--force` | Sends `SIGKILL` instead of `SIGTERM` |
+| `agent sessions` | `--limit <n>` | Maximum session records to show |
+| `agent show` | `--root <directory>` | Git repository to read sessions from |
+| `agent apply` | `--root <directory>` | Git repository to read sessions from |
+| `agent apply` | `--dry-run` | Previews the session diff without applying it |
+| `agent apply` | `-y, --yes` | Skips confirmation prompts |
+| `agent watch` | `--root <directory>` | Git repository to read sessions from |
+| `agent watch` | `--interval <ms>` | Poll interval while following the transcript |
+| `agent watch` | `--once` | Prints current session events and exits |
+| `agent stop` | `--root <directory>` | Git repository to read sessions from |
+| `agent stop` | `--force` | Sends `SIGKILL` instead of `SIGTERM` |
 
 ## Hook flags
 
@@ -165,6 +193,13 @@ These flags are accepted by `aislop [directory]`, `aislop scan`, and, where note
 | `badge` | `--repo <repo>` | GitHub repo for badge generation |
 | `badge` | `--json` | Emits badge data as JSON |
 | `trend`, `trends` | `--limit <n>` | Number of recent local score records to show |
+
+## Setup and rule flags
+
+| Command | Flag | Description |
+|---|---|---|
+| `init` | `--strict` | Writes an enterprise-grade default config with all engines, typecheck on, `ci.failBelow: 85`, and workflow included |
+| `rules` | `--search` | Opens an interactive searchable rule explorer |
 
 ## Scope files
 

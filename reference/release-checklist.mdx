@@ -1,0 +1,73 @@
+---
+title: "Release checklist"
+sidebarTitle: "Release Checklist"
+description: "The maintainer checklist for cutting an aislop release, covering code, tests, docs, external surfaces, release mechanics, and post-release verification."
+---
+
+Use this checklist when preparing a release branch and tag. If the release adds a user-visible feature, every user-facing surface must be updated before tagging.
+
+## Code and tests
+
+- Run `pnpm typecheck`.
+- Run `pnpm test`.
+- Run `pnpm build`.
+- Run a self-scan:
+
+```bash
+node dist/cli.js scan . --json
+```
+
+- Confirm the score is healthy and no release-blocking diagnostics remain.
+- Run an npm package dry run:
+
+```bash
+npm pack --dry-run
+```
+
+- Inspect tarball size and included files.
+
+## CLI repository docs
+
+- Update `CHANGELOG.md` with a Keep a Changelog entry, real test count, and real dates.
+- Update `README.md` for new commands, flags, or flagship behavior.
+- Update `AGENTS.md` if the agent workflow changed.
+- Update files under `docs/` for any new command, config field, or integration surface.
+- Check `scripts/postinstall-tools.mjs` for version references if tool downloads changed.
+
+## External docs
+
+- Update the Mintlify docs for new commands, flags, config fields, release notes, and workflows.
+- Update command reference pages and dedicated feature pages for flagship features.
+- Update changelog and version examples.
+- Build or validate the docs before pushing.
+
+## Release mechanics
+
+- Open a release PR from `release/<version>` to `develop`.
+- Wait for the PR checks to pass.
+- Merge `develop` to `main` through a PR.
+- Tag `v<version>` from `main` after merge.
+- Let the Release workflow publish packages and create the GitHub Release.
+- If `action.yml` changed, verify the composite Action still works with the new tag.
+- Decide whether to publish the Action to GitHub Marketplace. See [Marketplace Action](/reference/github-marketplace-action).
+
+## Post-release sanity check
+
+Check the public package channels after publishing:
+
+```bash
+npm view aislop version
+npx aislop@<version> --version
+```
+
+Then verify:
+
+- A clean temporary directory can run `npx aislop@<version> scan`.
+- The next PR scanned by the scanaislop bot returns a valid score.
+- GitHub Packages reflects the new version if the GitHub Packages job ran.
+- The GitHub Release is published and has the expected notes.
+- Docs examples that pin exact versions point at the latest published version.
+
+## Common release miss
+
+Do not treat external docs as the only documentation surface. The CLI repository `README.md` is the first page many npm and GitHub users read, so it must mention any new flagship command or workflow before the release is tagged.

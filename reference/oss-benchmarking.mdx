@@ -1,0 +1,98 @@
+---
+title: "OSS benchmark harness"
+sidebarTitle: "OSS Benchmarking"
+description: "Run the frozen GitHub Trending benchmark harness used to validate aislop precision across TypeScript, Python, Go, Rust, Ruby, PHP, and Java projects."
+---
+
+The OSS benchmark harness freezes cohorts and re-runs the same repositories across scanner iterations. It is used to reduce false positives without moving the target after seeing results.
+
+The harness lives in the CLI repository under `tools/oss-benchmark.mjs`.
+
+## Default cohort
+
+The default cohort uses GitHub Trending repositories from these language tracks:
+
+- `typescript`
+- `python`
+- `go`
+- `rust`
+- `ruby`
+- `php`
+- `java`
+
+The default limit is `10` repositories per language.
+
+## Deterministic scan command
+
+Each benchmark scan runs:
+
+```bash
+AISLOP_NO_TELEMETRY=1 DO_NOT_TRACK=1 CI=1 NO_COLOR=1 node dist/cli.js scan "<repo>" --json
+```
+
+That disables telemetry, disables ANSI output, and keeps output stable for overnight runs.
+
+## Workflow
+
+Build the CLI first:
+
+```bash
+pnpm build
+```
+
+Capture a new frozen cohort:
+
+```bash
+pnpm bench:trending:capture
+```
+
+Run the latest frozen cohort:
+
+```bash
+pnpm bench:trending:run -- --iteration pass-1
+```
+
+Capture and run in one command:
+
+```bash
+pnpm bench:trending:cycle -- --iteration pass-1
+```
+
+Re-run the same cohort after rule fixes:
+
+```bash
+pnpm bench:trending:run -- --manifest tools/benchmark-data/cohorts/trending-daily-2026-05-29.json --iteration pass-2
+pnpm bench:trending:run -- --manifest tools/benchmark-data/cohorts/trending-daily-2026-05-29.json --iteration pass-3
+```
+
+Run a smaller smoke test:
+
+```bash
+pnpm bench:trending:cycle -- --languages typescript,php --limit 1 --iteration smoke
+```
+
+## Output layout
+
+Generated benchmark data is ignored by git and written under `tools/benchmark-data/`.
+
+| Path | Contents |
+|---|---|
+| `cohorts/*.json` | Frozen repository lists |
+| `repos/<language>/<owner>__<repo>/` | Cached clones |
+| `runs/<run-id>/summary.json` | Machine-readable aggregate report |
+| `runs/<run-id>/summary.md` | Human review report |
+| `runs/<run-id>/repos/.../scan.json` | Raw per-repo scan JSON |
+| `runs/<run-id>/repos/.../stdout.txt` | Captured stdout |
+| `runs/<run-id>/repos/.../stderr.txt` | Captured stderr |
+| `runs/<run-id>/repos/.../metadata.json` | Reproduction metadata |
+
+## Review loop
+
+1. Check failures first so the cohort is complete.
+2. Check the lowest-score repositories.
+3. Check the highest-volume rules across many repositories.
+4. Open per-repo `scan.json` files for likely false positives.
+5. Fix the rules and add regression tests.
+6. Re-run the same manifest as the next iteration.
+
+Only refresh the cohort when you want a new market snapshot. For rule iteration, keep the manifest stable.

@@ -1,0 +1,69 @@
+---
+title: "Supported languages and frameworks"
+sidebarTitle: "Languages"
+description: "See which aislop engines run for TypeScript, JavaScript, Expo, Python, Go, Rust, Ruby, and PHP, plus the framework detection rules used during scans."
+---
+
+aislop detects languages and frameworks from the files and manifests in your repository, then runs every enabled engine that applies. Missing external tools are skipped instead of failing the scan; run `aislop doctor` when you want to see exactly which engines are available on your machine.
+
+## Support matrix
+
+| Language | Format | Lint | Code quality | AI slop | Security |
+|---|---|---|---|---|---|
+| TypeScript | Biome | oxlint | knip, complexity | Full rule set | Full rule set |
+| JavaScript | Biome | oxlint | knip, complexity | Full rule set | Full rule set |
+| Expo / React Native | Biome | oxlint + expo-doctor | knip, complexity | Full rule set | npm / pnpm audit |
+| Python | ruff format | ruff | complexity | Imports, exceptions, comments, Python rules | Secrets, pip audit |
+| Go | gofmt | golangci-lint | complexity | Exceptions, comments, Go rules | Secrets, govulncheck |
+| Rust | cargo fmt | clippy | complexity | Comments, Rust rules | Secrets, cargo audit |
+| Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
+| PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
+
+## Bundled and external tools
+
+Some tools ship with aislop as package dependencies. Others are expected to be installed in the project environment.
+
+| Tool | Used for | Install source |
+|---|---|---|
+| Biome | JS/TS formatting | Bundled |
+| oxlint | JS/TS linting | Bundled |
+| knip | JS/TS dead files, exports, deps | Bundled |
+| ruff | Python formatting and linting | Downloaded by installer |
+| golangci-lint | Go linting | Downloaded by installer |
+| gofmt | Go formatting | External Go toolchain |
+| govulncheck | Go dependency audit | External Go toolchain |
+| cargo fmt / clippy | Rust formatting and linting | External Rust toolchain |
+| rubocop | Ruby formatting and linting | External Ruby tool |
+| phpcs / php-cs-fixer | PHP linting and formatting | External PHP tools |
+
+<Tip>
+  Use `AISLOP_SKIP_TOOL_DOWNLOAD=1` during installation if your environment cannot download bundled binaries. Then install the external tools yourself and confirm coverage with `aislop doctor`.
+</Tip>
+
+## Framework detection
+
+aislop applies framework-aware lint context when it can prove the framework from manifests or config files.
+
+| Framework | Detection signal | Effect |
+|---|---|---|
+| Next.js | `next` in `package.json`, or `next.config.*` | Enables Next-aware JS/TS lint context |
+| React / Vite / Remix | Framework package in `package.json` | Enables React hooks and JSX-aware lint context |
+| Astro | `astro` in `package.json`, or `astro.config.*` | Softens browser/global false positives in Astro frontmatter and inline scripts |
+| Expo / React Native | `expo` in `package.json` | Runs expo-doctor for dependency alignment |
+| Django / Flask / FastAPI | Python manifest or requirements entries | Keeps Python checks scoped to backend source |
+
+## What to do when a language is skipped
+
+Run:
+
+```bash
+aislop doctor
+```
+
+The doctor report shows which tools are installed, which are missing, and which engines will run for the current repository. If a language is skipped unexpectedly, check that the repository has the expected manifest or source files and that the external tool is on `PATH`.
+
+## Related pages
+
+- [Rules Reference](/reference/rules-reference) lists every rule by engine.
+- [Engines](/configuration/engines) explains how to enable, disable, and weight each engine.
+- [Installation](/installation) covers npm, Homebrew, PyPI, and bundled tooling.

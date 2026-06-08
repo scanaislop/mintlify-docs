@@ -1,0 +1,171 @@
+---
+title: "Example aislop configs"
+sidebarTitle: "Example Configs"
+description: "Copy starting-point .aislop/config.yml profiles for strict TypeScript projects, relaxed monorepos, Python and Go backends, and architecture rules."
+---
+
+Use these profiles as starting points. Copy the YAML into `.aislop/config.yml`, then adjust thresholds and weights for your project.
+
+## Strict TypeScript project
+
+Tight thresholds for teams that want a high bar in production TypeScript code.
+
+```yaml
+# .aislop/config.yml
+version: 1
+
+engines:
+  format: true
+  lint: true
+  code-quality: true
+  ai-slop: true
+  architecture: false
+  security: true
+
+quality:
+  maxFunctionLoc: 60
+  maxFileLoc: 300
+  maxNesting: 4
+  maxParams: 4
+
+scoring:
+  weights:
+    format: 1.0
+    lint: 1.5
+    code-quality: 2.0
+    ai-slop: 1.5
+    architecture: 1.0
+    security: 2.0
+  thresholds:
+    good: 85
+    ok: 65
+
+ci:
+  failBelow: 75
+  format: json
+```
+
+## Relaxed monorepo
+
+Looser thresholds for large codebases or teams adopting aislop incrementally.
+
+```yaml
+# .aislop/config.yml
+version: 1
+
+engines:
+  format: true
+  lint: true
+  code-quality: true
+  ai-slop: true
+  architecture: false
+  security: true
+
+quality:
+  maxFunctionLoc: 120
+  maxFileLoc: 600
+  maxNesting: 6
+  maxParams: 8
+
+scoring:
+  weights:
+    format: 0.5
+    lint: 1.0
+    code-quality: 1.0
+    ai-slop: 0.5
+    architecture: 1.0
+    security: 2.0
+  thresholds:
+    good: 70
+    ok: 40
+
+ci:
+  failBelow: 0
+  format: json
+```
+
+<Warning>
+  `failBelow: 0` makes CI report the score without blocking. Raise it once the team is ready to enforce the gate.
+</Warning>
+
+## Python and Go backend
+
+Backend-oriented defaults with a stronger security weight and a longer dependency-audit timeout.
+
+```yaml
+# .aislop/config.yml
+version: 1
+
+engines:
+  format: true
+  lint: true
+  code-quality: true
+  ai-slop: true
+  architecture: false
+  security: true
+
+quality:
+  maxFunctionLoc: 80
+  maxFileLoc: 500
+  maxNesting: 5
+  maxParams: 6
+
+security:
+  audit: true
+  auditTimeout: 30000
+
+scoring:
+  weights:
+    format: 0.5
+    lint: 1.0
+    code-quality: 1.5
+    ai-slop: 1.0
+    architecture: 1.0
+    security: 2.5
+  thresholds:
+    good: 75
+    ok: 50
+
+ci:
+  failBelow: 60
+  format: json
+```
+
+## Architecture rules file
+
+Architecture rules live in `.aislop/rules.yml`, not `.aislop/config.yml`. Enable the architecture engine before adding this file.
+
+```yaml
+# .aislop/config.yml
+engines:
+  architecture: true
+```
+
+```yaml
+# .aislop/rules.yml
+rules:
+  - type: forbid_import
+    module: "axios"
+    message: "Use the shared httpClient instead of importing axios directly"
+
+  - type: forbid_import_from_path
+    from: "src/controllers/**"
+    module: "src/database/**"
+    message: "Controllers must go through the service layer"
+
+  - type: require_pattern
+    path: "src/routes/**"
+    pattern: "catch"
+    message: "API routes must include error handling"
+```
+
+## Validate after editing
+
+Run:
+
+```bash
+aislop doctor
+aislop scan --json
+```
+
+`doctor` confirms available engine tooling. `scan --json` confirms the config loads and shows exactly which findings and score the profile produces.

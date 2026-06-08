@@ -1,0 +1,60 @@
+---
+title: "Install the aislop agent skill"
+sidebarTitle: "Agent Skill"
+description: "Install aislop as an agent skill so coding agents know when to scan, how to interpret findings, and how to fix AI-slop patterns before handing work back."
+---
+
+The aislop agent skill teaches coding agents how to use the CLI as a quality gate during their own work. It covers two jobs:
+
+- **Prevention:** avoid patterns that aislop flags before writing them.
+- **Detection and fix:** run a scoped scan after editing, auto-fix mechanical findings, verify the remaining findings against source, and only hand back work once the bar is met.
+
+## Install
+
+```bash
+npx skills add scanaislop/skills
+```
+
+Use `npx skills add --help` to see the installer options for global installs, per-agent installs, and dry runs.
+
+## What the skill tells the agent to do
+
+<Steps>
+  <Step title="Follow the project first">
+    The agent matches the repository's logger, error handling, naming, test style, and architecture instead of imposing a generic pattern.
+  </Step>
+  <Step title="Scan the changed files">
+    After editing, the agent runs a scoped scan such as `aislop scan --changes --json`.
+  </Step>
+  <Step title="Auto-fix mechanical findings">
+    The agent runs `aislop fix` for safe cleanup such as unused imports, duplicate imports, formatting, and narrative comments.
+  </Step>
+  <Step title="Fix the remaining findings with judgment">
+    For non-mechanical findings, the agent opens the cited source line, confirms the issue is real, and applies a code change in the repository style.
+  </Step>
+  <Step title="Re-scan before finishing">
+    The agent reports completion only after errors are resolved, fixable warnings are gone, and any intentional finding is clearly called out.
+  </Step>
+</Steps>
+
+## What it prevents
+
+| Category | Examples |
+|---|---|
+| AI-authored comments | Trivial comments, narrative comments, meta comments |
+| Error handling drift | Swallowed exceptions, silent recovery, redundant try/catch |
+| Type safety bypasses | `as any`, double assertions, untracked TypeScript directives |
+| Dead code and duplication | Unused imports, duplicate imports, duplicate blocks, thin wrappers |
+| Security risks | eval, innerHTML, shell/SQL injection, hardcoded secrets |
+| Architecture drift | Import bans, layer rules, required patterns |
+
+## How it relates to hooks and MCP
+
+| Integration | Best for |
+|---|---|
+| Agent skill | Teaches the agent the workflow and rule intent |
+| [Hooks](/cli/hooks) | Force a scan after agent edits and feed findings back immediately |
+| [MCP Server](/integrations/mcp-server) | Expose `aislop_scan`, `aislop_fix`, `aislop_why`, and `aislop_baseline` as tools |
+| [Agent command](/cli/agent) | Run a local repair loop with Codex, Claude Code, or OpenCode |
+
+You can use all of them together. The skill provides the operating procedure, hooks provide automatic per-edit feedback, and MCP gives the agent callable tools.

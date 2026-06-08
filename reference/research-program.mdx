@@ -1,0 +1,110 @@
+---
+title: "aislop research program"
+sidebarTitle: "Research Program"
+description: "The public scan protocol for repeatable AI-code-quality research, benchmark writeups, and rule provenance."
+---
+
+aislop research should be repeatable. Public scans and benchmark writeups need pinned repositories, pinned scanner versions, raw JSON output, false-positive review, and detector changes that ship with regression tests.
+
+## Goals
+
+- Turn repeated AI-agent failure modes into deterministic rules.
+- Keep rule quality honest by scanning real repositories, not only fixtures.
+- Publish methods and limits so research posts are credible.
+- Feed product decisions with evidence about which rules matter, where noise appears, and what teams need to govern AI-written code.
+
+## Public scan protocol
+
+For every public research run:
+
+<Steps>
+  <Step title="Define the cohort before scanning">
+    Record the selection rule, such as GitHub Trending by language, top npm packages, benchmark tasks, framework repositories, or a public nominated list. Do not swap repositories after seeing results unless the reason is disclosed.
+  </Step>
+  <Step title="Pin every repository">
+    Capture `owner/repo`, default branch, commit SHA, primary language, package manager, and whether install/build was attempted.
+  </Step>
+  <Step title="Pin the scanner">
+    Capture aislop version, Node version, OS, config file, enabled engines, and exact command.
+  </Step>
+  <Step title="Store raw output">
+    Keep the JSON result for each repository before writing a summary. Do not publish private source.
+  </Step>
+  <Step title="Classify findings">
+    Sample top findings per rule and mark each as true positive, false positive, needs context, or setup/toolchain failure.
+  </Step>
+  <Step title="Convert learning into product changes">
+    Tighten noisy detectors, add regression tests, improve source filtering, or document setup failures.
+  </Step>
+  <Step title="Publish method and limits">
+    Include cohort, command, version, high-level results, representative examples, what changed in the CLI, and what the scan does not prove.
+  </Step>
+</Steps>
+
+## Preferred command
+
+For a published run, prefer a pinned scanner version:
+
+```bash
+npx aislop@<version> scan . --json
+```
+
+For local source-tree research against the current checkout:
+
+```bash
+AISLOP_NO_TELEMETRY=1 DO_NOT_TRACK=1 CI=1 NO_COLOR=1 node dist/cli.js scan "<repo>" --json
+```
+
+## Report template
+
+```md
+# Title
+
+## Cohort
+
+- Selection rule:
+- Repositories:
+- Date scanned:
+- aislop version:
+- Command:
+
+## Headline Findings
+
+- Finding 1
+- Finding 2
+- Finding 3
+
+## Rule-Level Results
+
+| Rule | Findings | Sampled | True positives | False positives | Action |
+|---|---:|---:|---:|---:|---|
+
+## What Changed
+
+- Detector change:
+- Tests added:
+- Docs updated:
+
+## Limits
+
+- What this scan does not measure:
+- Known setup failures:
+- Follow-up cohort:
+```
+
+## Current research tracks
+
+| Track | Purpose |
+|---|---|
+| GitHub Trending quality sweep | Scan trending public repositories by language to find noisy rules before users do |
+| Agent output benchmark | Run the same tasks across coding agents and score the generated repositories |
+| Benchmark-to-rule translation | Convert external benchmark signals into deterministic scanner rules |
+| Rule provenance | Tie first-party AI-slop rules to motivating patterns, detector strategy, and legitimate exceptions |
+
+## What not to do
+
+- Do not publish leaderboards without pinned versions and a repeatable harness.
+- Do not claim a repository is bad because of a single scan.
+- Do not tune rules only to make one public report look better.
+- Do not use private customer code in public research.
+- Do not mix LLM judgment into scanner output. Label human review separately.

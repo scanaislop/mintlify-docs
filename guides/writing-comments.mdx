@@ -1,0 +1,147 @@
+---
+title: "Write comments that survive aislop"
+sidebarTitle: "Writing Comments"
+description: "A practical guide to comments that earn their place, comments that aislop removes, and the trivial-comment and narrative-comment rules."
+---
+
+aislop does not ban comments. It bans comments that make code noisier without adding information. Keep comments that explain a non-obvious constraint, an external workaround, a data contract, or an invariant the type system cannot express. Delete comments that repeat nearby code.
+
+## Decision tree
+
+Run every comment through this checklist before keeping it.
+
+<Steps>
+  <Step title="Check the name first">
+    If the function, variable, or file name already says what the comment says, delete the comment. Rename the symbol if the name is weak.
+  </Step>
+  <Step title="Delete what-comments">
+    Comments that describe what the next line does are usually redundant. The code is already the source of truth for what happens.
+  </Step>
+  <Step title="Keep why-comments">
+    Keep short notes that explain a non-obvious reason: a third-party bug, a protocol constraint, a compatibility workaround, or an invariant reviewers cannot infer locally.
+  </Step>
+</Steps>
+
+## Bad and good examples
+
+### Trivial restatement
+
+Bad:
+
+```ts
+// Initialize the user service
+const userService = new UserService();
+```
+
+Good:
+
+```ts
+const userService = new UserService();
+```
+
+The name already says what the comment says.
+
+### Narrative JSDoc
+
+Bad:
+
+```ts
+/**
+ * Heuristic side-effect detection. Walks an expression subtree
+ * and flags anything that could invoke code when the declaration
+ * initializes.
+ */
+export const hasSideEffect = (node: Node): boolean => {
+  // ...
+};
+```
+
+Good:
+
+```ts
+/**
+ * @deprecated Use {@link hasObservableEffect}. This predicate
+ * under-counts dynamic property access.
+ */
+export const hasSideEffect = (node: Node): boolean => {
+  // ...
+};
+```
+
+The first block restates the function. The second carries a contract that editors and callers can use.
+
+### Decorative separators
+
+Bad:
+
+```ts
+// --- Classification -------------------------------------------------
+// Per-engine planning, building rows from a discovered project
+// -------------------------------------------------------------------
+export const classify = () => {
+  // ...
+};
+```
+
+Good:
+
+```ts
+export const classify = () => {
+  // ...
+};
+```
+
+If a file needs section banners to stay readable, split it into smaller files.
+
+### Phase headers
+
+Bad:
+
+```ts
+// Phase 1: Code changes
+await runLint();
+await runDeps();
+
+// Phase 2: Formatting
+await runFormat();
+```
+
+Good:
+
+```ts
+await runLint();
+await runDeps();
+
+await runFormat();
+```
+
+Whitespace already groups the steps.
+
+## JSDoc that earns its place
+
+Keep JSDoc when it has machine-readable value or explains a public contract.
+
+| Keep | Why |
+|---|---|
+| `@deprecated` | Editors and type tooling can warn callers |
+| `@see` / `@link` | Typed references survive renames better than prose |
+| `@example` | Useful for public APIs and library exports |
+| `@param` / `@returns` | Useful only when the semantic meaning is not obvious from the name and type |
+
+Delete JSDoc that summarizes an internal helper, repeats parameter names, or narrates implementation steps.
+
+## Rules involved
+
+| Rule | What it flags | Fixable |
+|---|---|---|
+| `ai-slop/trivial-comment` | Adjacent comments that restate code | Yes |
+| `ai-slop/narrative-comment` | Decorative banners, phase headers, JSDoc preambles without meaningful tags, and AI-narration prose | Yes |
+| `ai-slop/meta-comment` | Comments about implementation phases, generated-code process, or agent behavior | Usually |
+
+Run:
+
+```bash
+aislop fix
+```
+
+The fixer removes comments that are mechanically safe to delete and verifies the file still parses before writing the result.

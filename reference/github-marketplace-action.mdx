@@ -1,0 +1,57 @@
+---
+title: "GitHub Marketplace Action listing"
+sidebarTitle: "Marketplace Action"
+description: "Status, naming constraints, and release checklist for publishing the scanaislop/aislop composite Action to GitHub Marketplace."
+---
+
+The `scanaislop/aislop` repository ships a composite `action.yml` at the repo root. That lets workflows use:
+
+```yaml
+- uses: scanaislop/aislop@v1
+  with:
+    version: latest
+```
+
+The Action works even if it is not listed on GitHub Marketplace. Marketplace listing only affects discoverability and the listing badge.
+
+## Current status
+
+Marketplace publishing is deferred until the next release pass that touches Action metadata.
+
+GitHub's release UI may show a "Publish this Action to the GitHub Marketplace" checkbox because the repository contains `action.yml`.
+
+## Current blocker
+
+Marketplace requires the Action `name:` to be globally unique. The current name is:
+
+```yaml
+name: aislop
+description: Run the aislop quality gate on AI-assisted code (scan + fail CI below threshold from .aislop/config.yml).
+branding:
+  icon: shield
+  color: green
+```
+
+GitHub reports that `aislop` is not available as a Marketplace Action name.
+
+## Options
+
+| Option | Change | Effect |
+|---|---|---|
+| Rename in `action.yml` | Use `aislop-scan`, `aislop-quality-gate`, or similar | Marketplace listing works under the new name |
+| Skip Marketplace | Keep `name: aislop` and do not publish | `uses: scanaislop/aislop@v1` keeps working |
+| Claim the handle | Register or acquire the `aislop` handle if possible | Keeps the exact name if ownership is possible |
+
+## Recommendation
+
+Use `name: aislop-scan` when Marketplace publishing becomes a priority. It keeps the brand, describes the Action clearly, and does not change how workflows reference the repository.
+
+`uses: scanaislop/aislop@v1` resolves by owner, repository, and ref. It does not depend on the Marketplace display name.
+
+## Release checklist
+
+- Check whether `github.com/aislop` is available or owned by the team.
+- If the exact name cannot be used, edit `action.yml` to a unique name such as `aislop-scan`.
+- Verify `uses: scanaislop/aislop@v<next>` still resolves in a test workflow.
+- On the next GitHub Release, tick the Marketplace publish checkbox.
+- Confirm the listing renders the shield icon, green branding, and current description.
