@@ -53,14 +53,20 @@
         "tab": "CLI Reference",
         "groups": [
           {
-            "group": "CLI Reference",
+            "group": "Command reference",
             "pages": [
+              "cli/commands",
               "cli/scan",
               "cli/agent",
               "cli/fix",
               "cli/ci",
+              "cli/init",
+              "cli/doctor",
+              "cli/rules",
               "cli/hooks",
-              "cli/other-commands"
+              "cli/badge",
+              "cli/trend",
+              "cli/update-version"
             ]
           }
         ]

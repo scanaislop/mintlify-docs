@@ -1,0 +1,73 @@
+---
+title: "aislop init: create project config and CI workflow"
+sidebarTitle: "init"
+description: "Create .aislop/config.yml, optional architecture rules, and an optional GitHub Actions quality gate."
+---
+
+`aislop init` scaffolds the project files that turn a one-off scan into a repeatable quality gate.
+
+## Usage
+
+```bash
+aislop init
+aislop init ./packages/api
+```
+
+The command writes:
+
+| File | Purpose |
+|---|---|
+| `.aislop/config.yml` | Engine toggles, quality thresholds, scoring weights, CI threshold, telemetry, includes, and excludes |
+| `.aislop/rules.yml` | Optional custom Architecture engine rules |
+| `.github/workflows/aislop.yml` | Optional GitHub Actions workflow |
+
+## Strict mode
+
+Use `--strict` when you want a higher default bar immediately.
+
+```bash
+aislop init --strict
+```
+
+Strict mode writes an enterprise-grade baseline:
+
+| Setting | Strict default |
+|---|---|
+| Engines | All engines enabled |
+| Type-aware linting | Enabled |
+| CI threshold | `failBelow: 85` |
+| Workflow | Included automatically |
+
+## Default workflow shape
+
+The generated workflow uses the set-and-forget CLI path:
+
+```yaml
+name: aislop
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npx --yes aislop@latest ci
+```
+
+## After running init
+
+1. Review `.aislop/config.yml`.
+2. Commit the config and workflow files.
+3. Run `aislop scan` locally.
+4. Push a branch and let `aislop ci` enforce the threshold.
+
+<Tip>
+  Use [Config File](/configuration/config-file) to understand every generated key before tightening the gate.
+</Tip>

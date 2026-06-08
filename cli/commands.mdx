@@ -1,0 +1,182 @@
+---
+title: "aislop commands: complete CLI reference"
+sidebarTitle: "All Commands"
+description: "Every public aislop command, alias, and major flag in one place."
+---
+
+Use `aislop commands` in your terminal for the same command list. Use `aislop <command> --help` for command-specific help.
+
+## Command map
+
+| Command | What it does |
+|---|---|
+| `aislop [directory]` | Opens the interactive menu in a TTY, or scans the current directory in non-TTY shells |
+| `aislop scan [directory]` | Scores code quality and prints findings |
+| `aislop agent [directory]` | Runs a local worktree repair session with Codex, Claude Code, or OpenCode |
+| `aislop agent plan [directory]` | Previews provider, worktree, findings, and publish actions without editing |
+| `aislop agent providers` | Shows installed local provider status and setup hints |
+| `aislop agent connect [provider]` | Runs a provider's local CLI login flow |
+| `aislop agent use [provider]` | Sets or shows the repo-local default repair provider |
+| `aislop agent switch [provider]` | Alias for `aislop agent use` |
+| `aislop agent monitor [directory]` | Watches local git changes and streams scan or repair cycles |
+| `aislop agent monitor list [directory]` | Lists local background agent monitors |
+| `aislop agent monitor show [monitor]` | Shows one background monitor record |
+| `aislop agent monitor stop [monitor]` | Stops a running background monitor |
+| `aislop agent sessions [directory]` | Lists recent local agent sessions |
+| `aislop agent show [session]` | Shows a local agent session summary and timeline |
+| `aislop agent apply [session]` | Applies a reviewed isolated worktree session back to the repo |
+| `aislop agent watch [session]` | Watches a local agent session as it streams |
+| `aislop agent stop [session]` | Stops a running background agent session |
+| `aislop fix [directory]` | Applies deterministic auto-fixes or prints/opens an agent handoff prompt |
+| `aislop ci [directory]` | Runs the CI quality gate with thresholded exit codes |
+| `aislop init [directory]` | Creates config, rules, and optional GitHub Actions workflow |
+| `aislop doctor [directory]` | Checks installed engines and project coverage |
+| `aislop rules [directory]` | Explains rule IDs, severity, fixability, score impact, and meaning |
+| `aislop hook` | Manages per-edit coding-agent hooks |
+| `aislop hook install [agents...]` | Installs coding-agent hooks |
+| `aislop hook uninstall [agents...]` | Removes coding-agent hooks |
+| `aislop hooks` | Alias for `aislop hook` |
+| `aislop hook status` | Shows installed hook status |
+| `aislop hook baseline` | Captures the current score as the hook baseline |
+| `aislop install [agents...]` | Alias for `aislop hook install` |
+| `aislop install hooks [agents...]` | Natural alias for `aislop hook install` |
+| `aislop uninstall [agents...]` | Alias for `aislop hook uninstall` |
+| `aislop uninstall hooks [agents...]` | Natural alias for `aislop hook uninstall` |
+| `aislop badge [directory]` | Prints score badge URL and README markdown |
+| `aislop trend [directory]` | Shows recent local scores from `.aislop/history.jsonl` |
+| `aislop trends [directory]` | Alias for `aislop trend` |
+| `aislop update` | Shows current and latest npm versions |
+| `aislop upgrade` | Alias for `aislop update` |
+| `aislop version` | Prints the installed version |
+| `aislop commands` | Shows the complete command reference |
+
+## Global help and version flags
+
+| Flag | Description |
+|---|---|
+| `-h, --help` | Shows help |
+| `-v, --version` | Shows the installed version |
+| `-V` | Shows the installed version |
+
+## Scan-style flags
+
+These flags are accepted by `aislop [directory]`, `aislop scan`, and, where noted, `aislop ci`.
+
+| Flag | Commands | Description |
+|---|---|---|
+| `--changes` | `scan`, `ci`, root command | Scans or gates changed files |
+| `--staged` | `scan`, `ci`, root command | Scans or gates staged files |
+| `--base <ref>` | `scan`, `ci`, root command | Diff base for `--changes`, such as `origin/main` or `FETCH_HEAD` |
+| `-d, --verbose` | `scan`, root command | Shows file details per rule |
+| `--json` | `scan`, root command | Emits machine-readable JSON |
+| `--sarif` | `scan`, `ci`, root command | Emits SARIF 2.1.0 for code scanning |
+| `--format <format>` | `scan`, `ci`, root command | Chooses `json` or `sarif` |
+| `--include <patterns>` | `scan`, root command | Restricts scanning to comma-separated or repeated paths |
+| `--exclude <patterns>` | `scan`, root command | Excludes comma-separated or repeated paths |
+| `--human` | `ci` | Renders the human-friendly scan UI instead of JSON |
+
+## Fix flags
+
+| Flag | Description |
+|---|---|
+| `-d, --verbose` | Shows detailed fix progress |
+| `-f, --force` | Runs aggressive fixes such as audits and framework dependency alignment |
+| `--safe` | Only applies reversible fixes: imports, comment removal, and formatting |
+| `-p, --prompt` | Prints a prompt for a coding agent to fix remaining issues |
+| `--claude` | Opens Claude Code with remaining findings |
+| `--codex` | Opens Codex CLI with remaining findings |
+| `--cursor` | Opens Cursor and copies the prompt to clipboard |
+| `--windsurf` | Opens Windsurf and copies the prompt to clipboard |
+| `--vscode` | Opens VS Code and copies the prompt to clipboard |
+| `--amp` | Opens Amp with remaining findings |
+| `--antigravity` | Opens Antigravity with remaining findings |
+| `--deep-agents` | Opens Deep Agents with remaining findings |
+| `--gemini` | Opens Gemini CLI with remaining findings |
+| `--kimi` | Opens Kimi Code CLI with remaining findings |
+| `--opencode` | Opens OpenCode with remaining findings |
+| `--warp` | Opens Warp with remaining findings |
+| `--aider` | Opens Aider with remaining findings |
+| `--goose` | Opens Goose with remaining findings |
+| `--pi` | Opens pi with remaining findings |
+| `--crush` | Opens Crush with remaining findings |
+
+## Agent flags
+
+| Flag | Description |
+|---|---|
+| `--provider <provider>` | Provider to use: `auto`, `codex`, `claude`, or `opencode` |
+| `--target-score <score>` | Score to converge toward, default `90` |
+| `--max-turns <n>` | Maximum provider turns for one repair attempt, default `4` |
+| `--limit <n>` | Maximum findings to hand to the provider, default `8` |
+| `--in-place` | Edits the current worktree instead of creating an isolated worktree |
+| `--apply` | Applies the accepted diff back to the original worktree |
+| `-y, --yes` | Skips confirmation prompts for `--apply` |
+| `--dry-run` | Prints the selected provider and plan without running it |
+| `--background` | Starts the agent in the background and returns immediately |
+| `--no-fix` | Skips deterministic safe fixes before provider handoff |
+| `--commit` | Commits the verified diff on an agent branch |
+| `--pr` | Pushes the agent branch and opens a draft pull request |
+| `--branch <name>` | Branch name for `--commit` or `--pr` |
+| `--base <branch>` | Base branch for `--pr` |
+| `--commit-message <message>` | Commit message for `--commit` or `--pr` |
+| `--title <title>` | Pull request title for `--pr` |
+| `--ready` | Opens a ready-for-review PR instead of a draft |
+| `--no-keep-worktree` | Removes the generated worktree when it is safe |
+| `--cleanup` | Removes the generated worktree even when a diff remains |
+
+## Agent monitor flags
+
+| Flag | Description |
+|---|---|
+| `--repair` | Runs bounded repair sessions when scans miss the target |
+| `--background` | Starts a detached local monitor |
+| `--interval <ms>` | Poll interval for git status |
+| `--debounce <ms>` | Wait time after changes settle |
+| `--once` | Runs one monitor cycle and exits |
+| `--root <directory>` | Root directory for monitor show/stop commands |
+| `--force` | Uses `SIGKILL` when stopping a monitor |
+
+## Hook flags
+
+| Flag | Description |
+|---|---|
+| `--agent <names>` | Comma-separated agent list |
+| `-g, --global` | Installs or uninstalls from user-scope config |
+| `--project` | Installs to project-scope config |
+| `--dry-run` | Prints the planned diff without writing |
+| `--yes` | Skips the confirmation prompt where supported |
+| `--quality-gate` | Adds a Claude Stop hook that blocks score regressions below baseline |
+| `--claude` | Shortcut for `--agent claude` |
+| `--cursor` | Shortcut for `--agent cursor` |
+| `--gemini` | Shortcut for `--agent gemini` |
+| `--pi` | Shortcut for `--agent pi` |
+| `--codex` | Shortcut for `--agent codex` |
+| `--windsurf` | Shortcut for `--agent windsurf` |
+| `--cline` | Shortcut for `--agent cline` |
+| `--kilocode` | Shortcut for `--agent kilocode` |
+| `--antigravity` | Shortcut for `--agent antigravity` |
+| `--copilot` | Shortcut for `--agent copilot` |
+
+## Reporting flags
+
+| Command | Flag | Description |
+|---|---|---|
+| `badge` | `--owner <owner>` | GitHub owner for badge generation |
+| `badge` | `--repo <repo>` | GitHub repo for badge generation |
+| `badge` | `--json` | Emits badge data as JSON |
+| `trend`, `trends` | `--limit <n>` | Number of recent local score records to show |
+
+## Scope files
+
+| File | Purpose |
+|---|---|
+| `.aislop/config.yml` | Project policy: engines, scoring, thresholds, telemetry, include/exclude |
+| `.aislop/rules.yml` | Optional Architecture engine rules |
+| `.aislopignore` | Project-wide scan ignores |
+| `.gitignore` | Respected for untracked files |
+| `.aislop/history.jsonl` | Local score history written by interactive full scans |
+| `.aislop/agent/sessions/` | Local agent transcripts |
+
+<Tip>
+  For day-to-day use, start with `aislop scan`, repair with `aislop fix --safe` and `aislop agent`, then enforce the result with `aislop ci`.
+</Tip>

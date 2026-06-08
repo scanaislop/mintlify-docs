@@ -1,0 +1,58 @@
+---
+title: "aislop trend: local score history"
+sidebarTitle: "trend"
+description: "Read local score history from .aislop/history.jsonl and see how a project's score changes over time."
+---
+
+`aislop trend` reads local scan history and prints recent scores with a small trend view.
+
+## Usage
+
+```bash
+aislop trend
+aislop trends
+aislop trend --limit 20
+```
+
+`aislop trends` is an alias for `aislop trend`.
+
+## Flags
+
+| Flag | Description |
+|---|---|
+| `--limit <n>` | Number of recent score records to show |
+
+## How history is written
+
+A full-project interactive `aislop scan` appends one compact record to `.aislop/history.jsonl`.
+
+Each record includes:
+
+| Field | Meaning |
+|---|---|
+| Timestamp | When the scan completed |
+| Score | Numeric score, when scoreable |
+| Errors and warnings | Diagnostic counts |
+| File count | Number of scanned files |
+| CLI version | Installed aislop version |
+
+## When history is not written
+
+History is a local side effect only. It is not written when:
+
+- `--json` is active
+- `--sarif` is active
+- `aislop ci` is running
+- `AISLOP_NO_HISTORY=1` is set
+
+This keeps machine output deterministic and avoids hidden writes in CI.
+
+## Use cases
+
+```bash
+# Show the default recent score history
+aislop trend
+
+# Show more history while debugging a regression
+aislop trend --limit 30
+```
