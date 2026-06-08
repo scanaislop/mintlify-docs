@@ -71,7 +71,7 @@ scoring:
     format: 0.3
     lint: 0.6
     code-quality: 0.8
-    ai-slop: 2.5
+    ai-slop: 1.0
     architecture: 1.0
     security: 1.5
   thresholds:
@@ -189,6 +189,8 @@ Each section controls a distinct part of the aislop run. You can add, remove, or
     <ParamField body="scoring.maxPerRule" type="number" default="40">
       Caps the total weighted penalty any single rule family can contribute. Repeated findings still appear in the report, but one noisy rule cannot dominate the score.
     </ParamField>
+
+    Every native rule also has a score-impact tier. Strict defects and security findings score at full impact, maintainability findings score lower, and mechanical/style/advisory findings score softly. Run `aislop rules` to see each rule's impact tier and rationale.
   </Accordion>
 
   <Accordion title="ci">

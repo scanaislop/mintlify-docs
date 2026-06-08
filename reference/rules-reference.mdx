@@ -57,10 +57,10 @@ The code quality engine measures structural complexity, surfaces dead code, and 
 
 ## AI Slop
 
-These are the rules that make aislop unique. They specifically target the patterns that AI coding assistants tend to leave behind — from narrative comments that restate the code to swallowed exceptions that hide runtime failures. The AI slop engine carries the highest default weight (`2.5`) in your score.
+These are the rules that make aislop unique. They specifically target the patterns that AI coding assistants tend to leave behind — from narrative comments that restate the code to swallowed exceptions that hide runtime failures.
 
 <Note>
-  Style and maintainability rules (`trivial-comment`, `narrative-comment`, `file-too-large`, `function-too-long`) contribute half their normal score weight. They still appear in your report so nothing is hidden, but genuine slop — swallowed errors, dead code, hallucinated imports — drives your score more than house style.
+  Each rule exposes a score-impact tier. Strict defects such as swallowed exceptions and hallucinated imports score at full impact, while style, mechanical, and advisory findings stay visible but score more softly. Run `aislop rules` to see the tier and rationale for every rule.
 </Note>
 
 | Rule ID | Severity | What it catches |

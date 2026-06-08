@@ -94,7 +94,8 @@ aislop ci --changes --base FETCH_HEAD
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.10.2",
+  "cliVersion": "0.12.0",
+  "version": "0.12.0",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -104,7 +105,15 @@ aislop ci --changes --base FETCH_HEAD
     "ai-slop":      { "issues": 2, "skipped": false, "elapsed": 455 },
     "security":     { "issues": 0, "skipped": false, "elapsed": 1103 }
   },
-  "diagnostics": [ "..." ]
+  "diagnostics": [ "..." ],
+  "findingAssessment": {
+    "byKind": {
+      "confirmed-defect": 0,
+      "conservative-security": 0,
+      "style-policy": 0,
+      "ai-slop-indicator": 0
+    }
+  }
 }
 ```
 
@@ -160,7 +169,7 @@ ci:
     - uses: actions/checkout@v4
     - uses: scanaislop/aislop@v1
       with:
-        version: latest   # or pin, e.g. "0.10.2", for reproducible builds
+        version: latest   # or pin, e.g. "0.11.0", for reproducible builds
     ```
   </Tab>
   <Tab title="GitLab CI">

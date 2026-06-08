@@ -1,0 +1,148 @@
+---
+title: "aislop agent: local repair sessions with your coding agent"
+sidebarTitle: "agent"
+description: "Run local repair sessions with Codex, Claude Code, or OpenCode while aislop keeps scoring, verification, worktrees, and review in charge."
+---
+
+`aislop agent` is the local repair workflow for findings that need judgment. It keeps the deterministic scanner in charge, creates an isolated git worktree by default, runs safe mechanical fixes, streams a headless provider session, verifies the result with `aislop scan --json`, and leaves the diff for review.
+
+Use it when `aislop fix` has cleared the obvious cleanup and the remaining findings need a coding agent to understand context.
+
+## Basic usage
+
+```bash
+aislop agent                  # auto-pick an installed provider
+aislop agent --provider codex # choose a provider for this run
+aislop agent ./packages/api   # repair one directory in a monorepo
+```
+
+The foreground run uses a terminal UI with the current step, live activity, edited files, score and target, finding count, passes, token usage, and in-terminal decisions. Non-TTY and CI sessions keep plain streamed output.
+
+## Provider setup
+
+aislop does not ask for OpenAI, Anthropic, or other API keys. Provider CLIs use their own local auth.
+
+```bash
+aislop agent providers        # see installed providers and setup hints
+aislop agent connect codex    # run codex login
+aislop agent connect claude   # run claude auth login
+aislop agent connect opencode # run opencode auth login
+aislop agent use codex        # save a repo-local default provider
+aislop agent use auto         # clear the saved default and auto-detect
+```
+
+Supported repair providers are `codex`, `claude`, and `opencode`. The saved default lives in `.aislop/agent/provider.json` and is added to the repo's local Git exclude so it stays out of commits.
+
+## Plan before editing
+
+Use `agent plan` to preview what will happen before a repair session starts.
+
+```bash
+aislop agent plan
+aislop agent plan --provider claude --target-score 95
+aislop agent plan ./packages/api --apply
+```
+
+The plan shows the selected provider, provider source, worktree mode, current score, findings passed to the provider, apply behavior, commit message, and PR mode. It also reports blockers such as an unauthenticated provider, dirty checkout in isolated worktree mode, or `--background --apply` without `--yes`.
+
+## Apply and publish
+
+By default, isolated sessions leave the repaired worktree for review. Apply or publish only after you inspect the diff.
+
+```bash
+aislop agent --apply           # apply verified diff back to this repo
+aislop agent --apply --yes     # skip the apply prompt
+aislop agent --commit          # commit the verified diff on an agent branch
+aislop agent --pr              # commit, push, and open a draft PR
+```
+
+Useful publishing flags:
+
+| Flag | Description |
+|---|---|
+| `--branch <name>` | Branch name for `--commit` or `--pr` |
+| `--base <branch>` | Base branch for `--pr` |
+| `--commit-message <message>` | Commit message for `--commit` or `--pr` |
+| `--title <title>` | Pull request title for `--pr` |
+| `--ready` | Open a ready-for-review PR instead of a draft |
+| `--no-keep-worktree` | Remove the generated worktree when it is safe |
+| `--cleanup` | Remove the generated worktree even when a diff remains |
+
+## Session review commands
+
+Every session writes a local JSONL transcript under `.aislop/agent/sessions/`. Raw provider output stays in the transcript, while the terminal stream normalizes provider JSONL into readable progress.
+
+```bash
+aislop agent sessions          # list recent local sessions
+aislop agent show              # show the latest timeline and summary
+aislop agent watch             # stream the latest session transcript
+aislop agent apply             # apply a reviewed worktree session later
+aislop agent stop              # stop the latest running background session
+```
+
+| Command | Description |
+|---|---|
+| `aislop agent sessions [directory] --limit <n>` | List recent local sessions |
+| `aislop agent show [session] --root <directory>` | Show one session's score, timeline, selected findings, changed files, and recent provider output |
+| `aislop agent apply [session] --root <directory> --dry-run` | Preview or apply a reviewed isolated worktree diff back to the repo |
+| `aislop agent watch [session] --root <directory> --interval <ms>` | Follow a session transcript until completion |
+| `aislop agent stop [session] --root <directory> --force` | Stop a running background session, using `SIGKILL` with `--force` |
+
+## Background sessions
+
+Use `--background` when you want the repair to continue locally while you move on.
+
+```bash
+aislop agent --background
+aislop agent --background --provider codex
+aislop agent show <session>
+aislop agent watch <session>
+aislop agent stop <session>
+```
+
+Background runs return immediately with a session id, transcript path, and log path. `--apply --background` requires `--yes` because a detached run cannot prompt.
+
+## Monitor mode
+
+Monitor mode watches git changes and reacts after local edits settle. By default it scans and reports only. Automatic edits require both `--repair` and `--in-place` because the monitor edits the checkout you are actively using.
+
+```bash
+aislop agent monitor
+aislop agent monitor --once
+aislop agent monitor --background
+aislop agent monitor --repair --in-place
+aislop agent monitor list
+aislop agent monitor show
+aislop agent monitor stop
+```
+
+| Command | Description |
+|---|---|
+| `aislop agent monitor [directory] --once` | Run one local monitor scan cycle and exit |
+| `aislop agent monitor [directory] --interval <ms> --debounce <ms>` | Poll git status and react after changes settle |
+| `aislop agent monitor [directory] --repair --in-place` | Run bounded local repair sessions when scans miss the target |
+| `aislop agent monitor [directory] --background` | Start a detached local monitor |
+| `aislop agent monitor list [directory] --limit <n>` | List recent background monitor records |
+| `aislop agent monitor show [monitor] --root <directory>` | Show one monitor's status, log path, and recent scan cycles |
+| `aislop agent monitor stop [monitor] --root <directory> --force` | Stop a background monitor, using `SIGKILL` with `--force` |
+
+## Main flags
+
+| Flag | Description |
+|---|---|
+| `--provider <provider>` | Provider to use: `auto`, `codex`, `claude`, or `opencode` |
+| `--target-score <score>` | Score to converge toward |
+| `--max-turns <n>` | Maximum provider turns for one repair attempt |
+| `--limit <n>` | Maximum findings to hand to the provider |
+| `--in-place` | Edit the current worktree instead of creating an isolated worktree |
+| `--apply` | Apply the accepted diff back to the original worktree |
+| `-y, --yes` | Skip confirmation prompts for `--apply` |
+| `--dry-run` | Print the selected provider and plan without running it |
+| `--background` | Start the local agent session in a detached process |
+| `--no-fix` | Skip deterministic safe fixes before provider handoff |
+| `--commit` | Commit the verified diff on an agent branch |
+| `--pr` | Push the agent branch and open a draft pull request |
+
+<Tip>
+  Use `aislop agent plan` with the same flags before a real run when you are about to apply, commit, or open a PR.
+</Tip>

@@ -1,10 +1,10 @@
 ---
-title: "aislop fix: auto-fix and agent handoff for slop"
+title: "aislop fix: deterministic auto-fix for mechanical slop"
 sidebarTitle: "fix"
-description: "Mechanically fix what can be fixed automatically, then hand the remaining issues to your AI coding agent with full diagnostic context."
+description: "Mechanically fix reversible and low-risk findings, then use aislop agent or a prompt handoff for issues that need judgment."
 ---
 
-`aislop fix` takes the findings from a scan and acts on them. It applies mechanical fixes first—unused imports, narrative comments, formatting, dead code—and for everything that requires broader context it can open your preferred AI coding agent with a structured prompt that contains the full list of remaining diagnostics. The result is a clean, two-stage workflow: commit what the machine can fix, then let your agent handle the rest.
+`aislop fix` is the deterministic cleanup layer. It applies mechanical fixes first - unused imports, narrative comments, formatting, dead code - and can still print or open a structured prompt for older agent handoff flows. For the full local repair workflow with worktrees, provider setup, verification, sessions, and optional PR publishing, use [`aislop agent`](/cli/agent).
 
 ## Fix workflow
 
@@ -44,10 +44,12 @@ Work through the stages in order to reach 100/100 with the least disruption to y
   </Step>
 
   <Step title="Hand off remaining issues to your agent">
-    Any issues that need judgment or broader context get passed to your coding agent with full diagnostic information. Pick the agent you use:
+    For the full local repair loop, run `aislop agent`. For prompt-based handoff, pass the remaining diagnostics to your coding agent with full diagnostic information:
 
     ```bash
+    aislop agent             # recommended local repair workflow
     aislop fix --claude      # Claude Code
+    aislop fix --codex       # Codex CLI
     aislop fix --cursor      # Cursor (copies prompt to clipboard)
     aislop fix --gemini      # Gemini CLI
     aislop fix -p            # Print prompt (agent-agnostic)
@@ -99,9 +101,9 @@ Work through the stages in order to reach 100/100 with the least disruption to y
   ```
 </ParamField>
 
-## Agent handoff flags
+## Prompt handoff flags
 
-When auto-fix can't resolve an issue, pass the remaining diagnostics to your coding agent. Each flag opens that agent and provides the structured prompt automatically. Use `--prompt` / `-p` if you prefer an agent-agnostic output you can paste anywhere.
+When auto-fix can't resolve an issue and you do not want the full `aislop agent` workflow, pass the remaining diagnostics to your coding agent. Each flag opens that agent and provides the structured prompt automatically. Use `--prompt` / `-p` if you prefer an agent-agnostic output you can paste anywhere.
 
 <Tabs>
   <Tab title="Terminal agents">
@@ -167,7 +169,10 @@ aislop fix -d
 # Aggressive mode: deps, unused files, all autofixes
 aislop fix -f
 
-# Hand off to Claude Code
+# Run the local repair workflow for remaining issues
+aislop agent
+
+# Or hand off remaining diagnostics to Claude Code
 aislop fix --claude
 
 # Print the agent prompt without opening any tool
