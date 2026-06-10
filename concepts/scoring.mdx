@@ -1,57 +1,101 @@
 ---
-title: "Understanding aislop's 0–100 code quality score"
+title: "Understanding aislop's 0-100 code quality score"
 sidebarTitle: "Scoring"
-description: "Understand how aislop converts diagnostic findings into a single 0–100 score using severity penalties, engine weights, density normalization, and saturation caps."
+description: "Understand how aislop converts diagnostic findings into a single 0-100 score using severity penalties, engine weights, rule-impact tiers, density normalization, and saturation caps."
 ---
 
-Every aislop scan produces a single number between 0 and 100. That number is calculated deterministically from the findings each engine produces — no randomness, no LLM judgment calls. Understanding how the score is built helps you tune it for your team and interpret what it means when it changes.
+Every aislop scan produces a single number between 0 and 100. That number is calculated deterministically from the findings each engine produces - no randomness, no LLM judgment calls. Understanding how the score is built helps you tune it for your team and interpret what it means when it changes.
 
 ## Severity penalties
 
 Each diagnostic finding carries a base penalty that reflects how serious it is. Errors hurt more than warnings, which hurt more than informational hints.
 
 | Severity | Base penalty |
-|---|---|
+|---|---:|
 | Error | 3.0 |
 | Warning | 1.0 |
 | Info | 0.25 |
 
 ## Engine weights
 
-Base penalties are multiplied by the weight of the engine that produced them. aislop uses an **AI-slop-first** weighting profile by default, so patterns left by AI coding agents have a much stronger impact on your score than generic formatting noise.
+Base penalties are multiplied by the weight of the engine that produced them. The default profile keeps AI-slop findings visible without letting one low-impact warning make an otherwise healthy repository look unhealthy. Security carries the strongest default engine weight.
 
 | Engine | Default weight |
-|---|---|
-| `ai-slop` | 2.5 |
+|---|---:|
 | `security` | 1.5 |
+| `ai-slop` | 1.0 |
 | `architecture` | 1.0 |
 | `code-quality` | 0.8 |
 | `lint` | 0.6 |
 | `format` | 0.3 |
 
-## Style findings count for half
+```yaml
+scoring:
+  weights:
+    format: 0.3
+    lint: 0.6
+    code-quality: 0.8
+    ai-slop: 1.0
+    architecture: 1.0
+    security: 1.5
+  smoothing: 20
+  maxPerRule: 40
+```
 
-Rules that measure house style and maintainability — `trivial-comment`, `narrative-comment`, `file-too-large`, and `function-too-long` — still appear in your findings list, but they contribute only **half their normal weighted penalty** to the final score. This keeps your score driven by genuine slop (swallowed errors, dead code, hallucinated imports) rather than formatting preferences, without hiding style issues entirely.
+## Rule impact tiers
 
-## Per-rule saturation cap
+Each native rule also has an explicit impact tier. This lets aislop score strict defects strongly while keeping cleanup and style findings visible but softer.
 
-By default, a single rule can contribute at most **40 weighted penalty points** to the total (`maxPerRule: 40`). If one noisy rule fires hundreds of times across your codebase, it cannot dominate the score and crowd out findings from other rule families. All matching findings still appear in the report — only the score contribution is capped.
+| Tier | Multiplier | Typical use |
+|---|---:|---|
+| `strict` | 1.0 | High-confidence defects, security issues, missing imports, swallowed failures |
+| `standard` | 1.0 | Real quality issues that may still need human judgment |
+| `maintainability` | 0.75 | Refactoring and design debt |
+| `mechanical` | 0.5 | Cleanup that `aislop fix` or a simple edit can usually handle |
+| `style` | 0.5 | Style, readability, and size pressure |
+| `advisory` | 0.25 | Medium-confidence signals such as hardcoded config values |
+
+Many softer tiers also have tighter per-rule caps so one noisy family cannot dominate a score.
+
+JSON output includes the same metadata on each diagnostic:
+
+```json
+{
+  "rule": "ai-slop/hardcoded-url",
+  "scoreImpact": {
+    "tier": "advisory",
+    "multiplier": 0.25,
+    "cap": 4,
+    "rationale": "Hardcoded URLs are medium-confidence config signals and can be intentional canonical URLs."
+  }
+}
+```
+
+Run `aislop rules` to see the impact tier and rationale for every rule.
+
+## Style and cleanup findings score gently
+
+Style and cleanup rules - `trivial-comment`, `narrative-comment`, `unused-import`, formatter findings, and similar - still surface as findings, but contribute less than strict defects. This keeps the score driven by genuine slop such as swallowed errors, broken imports, and risky security constructs without hiding the cleanup work.
+
+## Repeated findings saturate by rule
+
+Each rule contributes at most `scoring.maxPerRule` weighted penalty points by default. Repeated findings still appear in the report, but one noisy rule family cannot dominate the whole score. Different rule families continue to accumulate normally.
 
 ## Density normalization
 
-The final score uses **logarithmic scaling with issue-density normalization**. Penalties are measured relative to the number of source files in the project:
+The final score uses logarithmic scaling with issue-density normalization. Penalties are measured relative to the number of source files in the project, so:
 
-- A handful of issues in a large codebase do not tank the score unfairly.
-- A single issue in an otherwise clean project stays proportional.
-- The score remains meaningful regardless of whether you're scanning a 10-file side project or a 2,000-file monorepo.
+- A few issues in a large codebase do not tank the score unfairly
+- A single issue in an otherwise clean project stays proportional
+- The score remains meaningful regardless of project size
 
 ## Score labels
 
 | Score | Label | What it means |
 |---|---|---|
-| 75 – 100 | **Healthy** | The codebase is in good shape. AI-introduced patterns are minimal. |
-| 50 – 74 | **Needs Work** | Meaningful issues are present. Prioritize AI Slop and Security findings. |
-| 0 – 49 | **Critical** | Significant problems found. Use `aislop fix` to clear what's mechanical, then hand off the rest to your agent. |
+| 75-100 | **Healthy** | The codebase is in good shape. AI-introduced patterns are minimal. |
+| 50-74 | **Needs Work** | Meaningful issues are present. Prioritize AI Slop and Security findings. |
+| 0-49 | **Critical** | Significant problems found. Use `aislop fix` for mechanical cleanup, then use `aislop agent` for the remaining repairs. |
 
 <Note>
   You can customize these thresholds in `.aislop/config.yml` under `scoring.thresholds.good` (default: 75) and `scoring.thresholds.ok` (default: 50).
@@ -62,19 +106,19 @@ The final score uses **logarithmic scaling with issue-density normalization**. P
 <Accordion title="Guidance for adjusting scoring behavior">
 
 **Prioritize AI output hygiene**
-Increase the `ai-slop` weight (e.g. `3.0`) if strict AI-output hygiene is your primary concern and you want AI-slop findings to dominate the score.
+Increase the `ai-slop` weight if strict AI-output hygiene is your primary concern.
 
 **Prioritize security**
 Increase the `security` weight if dependency vulnerabilities and runtime risks should be the primary driver of your score.
 
 **Reduce noise on legacy codebases**
-Increase `smoothing` (default: 20) to reduce penalty spikes when scanning large codebases with accumulated technical debt. Higher smoothing makes gradual improvement feel more proportional.
+Increase `smoothing` (default: 20) to reduce penalty spikes when scanning large codebases with accumulated technical debt.
 
 **Allow repeated findings to punish more**
-Increase `maxPerRule` beyond 40 if you want a rule that fires hundreds of times to keep accumulating penalty beyond the default cap.
+Increase `maxPerRule` beyond 40 if you want a rule that fires many times to keep accumulating penalty beyond the default cap.
 
-**De-emphasize style**
-Lower the `lint` and `code-quality` weights if you want the score to focus purely on AI-specific signals and security rather than general code hygiene.
+**De-emphasize generic lint**
+Lower the `lint` and `code-quality` weights if you want the score to focus more on AI-specific and security findings.
 
 **Set a CI gate**
 Use `ci.failBelow` to block merges when the score drops below a threshold:

@@ -1,0 +1,43 @@
+---
+title: "aislop badge: publish a repository score badge"
+sidebarTitle: "badge"
+description: "Generate a README badge URL and markdown snippet for your repository's public aislop score."
+---
+
+`aislop badge` prints badge markdown for your repository's public score.
+
+## Usage
+
+```bash
+aislop badge
+aislop badge --owner scanaislop --repo aislop
+aislop badge --json
+```
+
+## Flags
+
+| Flag | Description |
+|---|---|
+| `--owner <owner>` | GitHub owner. Auto-detected from git remote when omitted. |
+| `--repo <repo>` | GitHub repository name. Auto-detected from git remote when omitted. |
+| `--json` | Emits machine-readable JSON instead of rendered markdown. |
+
+## Markdown output
+
+```markdown
+[![aislop](https://badges.scanaislop.com/score/<owner>/<repo>.svg)](https://scanaislop.com)
+```
+
+Paste the markdown into your README. The badge points readers to the hosted project page on `scanaislop.com`.
+
+## When auto-detection fails
+
+If the repository remote is missing, private, or not a GitHub URL, pass the owner and repo explicitly:
+
+```bash
+aislop badge --owner my-org --repo my-repo
+```
+
+## CI relationship
+
+The badge is most useful when paired with a CI gate. Add `aislop ci` to pull requests so the score is refreshed as code changes.

@@ -1,0 +1,61 @@
+---
+title: "aislop update, upgrade, version, and commands"
+sidebarTitle: "update/version"
+description: "Check installed versions, compare against the latest npm release, and print the built-in command reference."
+---
+
+These utility commands help you inspect the installed CLI and discover the command surface.
+
+## update and upgrade
+
+`aislop update` checks npm for the latest published version and compares it with your installed version. It does not install anything.
+
+```bash
+aislop update
+aislop upgrade
+```
+
+`aislop upgrade` is an alias for `aislop update`.
+
+Upgrade with the package manager you used to install aislop:
+
+```bash
+npm install -g aislop@latest
+brew upgrade aislop
+pipx upgrade aislop
+```
+
+## version
+
+Print the installed version:
+
+```bash
+aislop version
+aislop -v
+aislop -V
+aislop --version
+```
+
+## commands
+
+Print every public command and major flag:
+
+```bash
+aislop commands
+```
+
+Use it when you are not sure whether a command has a natural alias or when you want to verify flags without opening the docs.
+
+## One-off latest run
+
+For one-off usage without installing:
+
+```bash
+npx aislop@latest scan
+```
+
+For CI, prefer:
+
+```bash
+npx --yes aislop@latest ci
+```

@@ -1,10 +1,10 @@
 ---
 title: "Get started with aislop in under a minute"
 sidebarTitle: "Quickstart"
-description: "Scan your first project, read your score, auto-fix issues, and add a CI quality gate — all in four steps with no upfront configuration."
+description: "Scan your first project, read your score, repair issues, and add a CI quality gate — all in four steps with no upfront configuration."
 ---
 
-You don't need to install anything to get your first score. aislop runs directly from npx, works on any project regardless of language or framework, and produces a human-readable report with file locations and a 0–100 quality score. This guide takes you from zero to a gated, auto-fixing workflow in four steps.
+You don't need to install anything to get your first score. aislop runs directly from npx, works on any project regardless of language or framework, and produces a human-readable report with file locations and a 0-100 quality score. This guide takes you from zero to a gated repair workflow in four steps.
 
 <Steps>
   <Step title="Run your first scan">
@@ -44,7 +44,7 @@ You don't need to install anything to get your first score. aislop runs directly
     ✖  ai-slop/narrative-comment      src/auth/login.ts:14
        Remove comment that restates what the code already says.
 
-    ✖  code-quality/swallowed-exception   src/utils/parse.ts:88
+    ✖  ai-slop/swallowed-exception   src/utils/parse.ts:88
        Exception is caught but not logged or re-thrown.
 
     ✖  security/eval                  src/sandbox.js:6
@@ -73,8 +73,17 @@ You don't need to install anything to get your first score. aislop runs directly
     Use `aislop-ignore-line` for the current line, `aislop-ignore-next-line` for the line below, or `aislop-ignore-file` anywhere in a file to suppress all findings in that file. The same syntax works in any comment style (`//`, `#`, `<!-- -->`). Suppressed findings are excluded from scoring and reported as a count at the end of the run.
   </Step>
 
-  <Step title="Auto-fix issues">
-    After installing aislop (see [Installation](/installation)), run `aislop fix` to resolve everything that can be fixed mechanically — formatting, unused imports, dead code, narrative comments.
+  <Step title="Repair issues">
+    After installing aislop (see [Installation](/installation)), use `aislop agent` for local repair sessions with Codex, Claude Code, or OpenCode. aislop creates an isolated worktree by default, runs safe mechanical fixes, streams the provider session, verifies the result, and leaves the diff for review.
+
+    ```bash
+    aislop agent                 # auto-pick an installed provider
+    aislop agent providers       # see installed providers and setup hints
+    aislop agent connect codex   # run the provider's local login flow
+    aislop agent plan            # preview provider, worktree, findings, and apply behavior
+    ```
+
+    Use `aislop fix` for deterministic mechanical cleanup:
 
     ```bash
     aislop fix           # auto-fix all mechanical issues
@@ -84,7 +93,7 @@ You don't need to install anything to get your first score. aislop runs directly
 
     `--safe` restricts the run to fixes that cannot change behaviour. Use it when you want to apply and commit immediately without reviewing the diff.
 
-    For findings that require human or AI judgement, hand them off to your coding agent with full diagnostic context:
+    For legacy handoff flows, print or open a structured prompt with full diagnostic context:
 
     ```bash
     aislop fix --claude    # Claude Code
@@ -100,14 +109,14 @@ You don't need to install anything to get your first score. aislop runs directly
     aislop scan
     ```
 
-    **Recommended fix workflow** for getting a project to 100/100:
+    **Recommended repair workflow** for getting a project to 100/100:
 
     ```
     aislop scan          # see all issues
     aislop fix --safe    # apply only reversible fixes
     aislop fix           # auto-fix formatting, lint, imports, comments
-    aislop fix -f        # aggressive: dep audit + unused file removal
-    aislop fix --claude  # hand off remaining issues to a coding agent
+    aislop agent plan    # preview the local repair session
+    aislop agent         # repair remaining issues with a local provider
     aislop scan          # verify everything is resolved
     ```
   </Step>
@@ -184,7 +193,7 @@ You don't need to install anything to get your first score. aislop runs directly
 
 ## What's next
 
-You now have a scan, a score, auto-fixes, and a CI gate. Explore the rest of the docs to tune aislop for your project.
+You now have a scan, a score, a repair workflow, and a CI gate. Explore the rest of the docs to tune aislop for your project.
 
 <CardGroup cols={2}>
   <Card
@@ -193,6 +202,13 @@ You now have a scan, a score, auto-fixes, and a CI gate. Explore the rest of the
     href="/installation"
   >
     All install channels: npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages.
+  </Card>
+  <Card
+    title="Local repair agent"
+    icon="bot"
+    href="/cli/agent"
+  >
+    Run Codex, Claude Code, or OpenCode while aislop owns scoring and verification.
   </Card>
   <Card
     title="Scan Command Reference"
@@ -211,7 +227,7 @@ You now have a scan, a score, auto-fixes, and a CI gate. Explore the rest of the
   <Card
     title="Configuration"
     icon="sliders"
-    href="/configuration"
+    href="/configuration/config-file"
   >
     Tune thresholds, override rule severity, and set up project-wide ignore patterns.
   </Card>

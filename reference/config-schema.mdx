@@ -1,0 +1,120 @@
+---
+title: "Configuration schema reference"
+sidebarTitle: "Config Schema"
+description: "Reference for the published aislop JSON Schema and every top-level .aislop/config.yml key."
+---
+
+The canonical JSON Schema for `.aislop/config.yml` is published at:
+
+```text
+https://scanaislop.com/schema/aislop.config.schema.json
+```
+
+Use it with YAML Language Server for editor autocomplete and validation:
+
+```yaml
+# yaml-language-server: $schema=https://scanaislop.com/schema/aislop.config.schema.json
+version: 1
+```
+
+## Top-level keys
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `version` | number | `1` | Config schema version |
+| `engines` | object | all true except `architecture` | Engine toggles |
+| `quality` | object | function 80, file 400, nesting 5, params 6 | Complexity thresholds |
+| `lint` | object | `typecheck: false` | Lint-engine options |
+| `security` | object | `audit: true`, `auditTimeout: 25000` | Security audit settings |
+| `scoring` | object | default weights and labels | Score calculation settings |
+| `ci` | object | `failBelow: 70`, `format: json` | CI gate settings |
+| `telemetry` | object | `enabled: true` | Anonymous telemetry opt-in setting |
+| `rules` | object | `{}` | Per-rule severity overrides |
+| `exclude` | string array | `node_modules`, `.git`, `dist`, `build`, `coverage` | Paths to skip |
+| `include` | string array | `[]` | Paths to include |
+| `extends` | string or string array | none | Parent config paths |
+
+## Engine keys
+
+```yaml
+engines:
+  format: true
+  lint: true
+  code-quality: true
+  ai-slop: true
+  architecture: false
+  security: true
+```
+
+All engine values are booleans. `architecture` is disabled by default because it requires `.aislop/rules.yml`.
+
+## Quality keys
+
+```yaml
+quality:
+  maxFunctionLoc: 80
+  maxFileLoc: 400
+  maxNesting: 5
+  maxParams: 6
+```
+
+All quality values must be positive numbers.
+
+## Scoring keys
+
+```yaml
+scoring:
+  weights:
+    format: 0.3
+    lint: 0.6
+    code-quality: 0.8
+    ai-slop: 1.0
+    architecture: 1.0
+    security: 1.5
+  thresholds:
+    good: 75
+    ok: 50
+  smoothing: 20
+  maxPerRule: 40
+```
+
+`weights` accepts numeric values by engine name. `thresholds.good` controls the Healthy label, and `thresholds.ok` controls the Needs Work/Critical boundary.
+
+## Rule override values
+
+The `rules` map accepts rule IDs as keys and one of three values:
+
+| Value | Meaning |
+|---|---|
+| `error` | Escalate matching findings to error |
+| `warning` | Report matching findings as warnings |
+| `off` | Remove matching findings before scoring |
+
+```yaml
+rules:
+  ai-slop/narrative-comment: warning
+  ai-slop/trivial-comment: "off"
+  security/hardcoded-secret: error
+```
+
+## Extends
+
+`extends` can be a single path or an array of paths.
+
+```yaml
+extends: ../../.aislop/base.yml
+```
+
+```yaml
+extends:
+  - ../../.aislop/base.yml
+  - ./local-overrides.yml
+```
+
+Paths are resolved relative to the config file that declares `extends`. Nested objects are deep-merged. Arrays are replaced wholesale. Chains deeper than five levels and circular references are rejected.
+
+## Related pages
+
+- [Config File](/configuration/config-file) gives the full config guide.
+- [Example Configs](/configuration/example-configs) provides copy-ready profiles.
+- [Ignoring Code](/configuration/ignoring-code) explains `exclude`, `include`, and `.aislopignore`.

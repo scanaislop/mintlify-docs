@@ -1,0 +1,56 @@
+---
+title: "aislop doctor: check engine availability"
+sidebarTitle: "doctor"
+description: "Check which aislop engines, tools, and language targets can run in the current project."
+---
+
+`aislop doctor` inspects the current environment and reports which engines can run. Use it when setting up a new machine, debugging skipped engines, or validating CI images.
+
+## Usage
+
+```bash
+aislop doctor
+aislop doctor ./packages/api
+```
+
+## What doctor checks
+
+| Area | What it reports |
+|---|---|
+| Project coverage | Supported language files found in the target directory |
+| Formatting tools | Biome, ruff format, gofmt, cargo fmt, rubocop, php-cs-fixer |
+| Linting tools | oxlint, ruff, golangci-lint, clippy, expo-doctor |
+| Code quality tools | Complexity checks, knip availability, unused dependency checks |
+| Security tools | Secret checks, risky-code checks, dependency audit availability |
+| Architecture rules | Whether custom Architecture engine rules are configured |
+
+## When to run it
+
+```bash
+# After installing aislop
+aislop doctor
+
+# Before enabling strict CI in a monorepo package
+aislop doctor ./packages/api
+
+# Inside a CI image to verify required language tools exist
+aislop doctor
+```
+
+## Missing tools
+
+Some engines require external language toolchains:
+
+| Tool | Needed for |
+|---|---|
+| `gofmt` | Go formatting |
+| `govulncheck` | Go dependency audit |
+| `cargo`, `clippy` | Rust formatting and linting |
+| `rubocop` | Ruby formatting and linting |
+| `phpcs`, `php-cs-fixer` | PHP linting and formatting |
+
+If a tool is missing, aislop skips the matching check and reports why. Install the tool, rerun `aislop doctor`, then rerun `aislop scan`.
+
+<Note>
+  `aislop doctor` does not score the project. It checks readiness and coverage only.
+</Note>

@@ -1,0 +1,66 @@
+---
+title: "aislop rules: inspect rule IDs, severity, fixability, and impact"
+sidebarTitle: "rules"
+description: "List every rule, search interactively, and understand severity, fixability, and score impact before overriding or suppressing findings."
+---
+
+`aislop rules` explains the rule catalog directly in your terminal. Use it before changing rule severity, adding suppressions, or deciding whether a finding is mechanical cleanup or a strict defect.
+
+## Usage
+
+```bash
+aislop rules
+aislop rules ./packages/api
+aislop rules --search
+```
+
+## Output fields
+
+Each rule entry includes:
+
+| Field | Meaning |
+|---|---|
+| Rule ID | Stable identifier such as `ai-slop/narrative-comment` |
+| Severity | Default severity: `error`, `warning`, or `info` |
+| Fixability | Whether `aislop fix` can resolve it mechanically |
+| Impact tier | How strongly it contributes to the score |
+| Description | What pattern the rule catches |
+
+## Search mode
+
+```bash
+aislop rules --search
+```
+
+Search mode opens an interactive terminal explorer. Search by rule ID, engine, or description.
+
+## Score-impact tiers
+
+| Tier | Meaning |
+|---|---|
+| `strict` | High-confidence defect or security issue |
+| `standard` | Real quality issue that may need judgment |
+| `maintainability` | Design or refactoring debt |
+| `mechanical` | Cleanup that a simple edit or `aislop fix` can usually handle |
+| `style` | Readability and policy pressure |
+| `advisory` | Medium-confidence signal that should stay visible but score softly |
+
+## Override a rule
+
+Add rule overrides to `.aislop/config.yml`:
+
+```yaml
+rules:
+  ai-slop/narrative-comment: warning
+  ai-slop/trivial-comment: "off"
+  security/hardcoded-secret: error
+```
+
+Use `off` sparingly. Prefer a rule-scoped inline suppression when the exception is local.
+
+## Related pages
+
+- [Rules overview](/concepts/rules)
+- [Rules reference](/reference/rules-reference)
+- [Rule overrides](/configuration/rule-overrides)
+- [Scoring](/concepts/scoring)

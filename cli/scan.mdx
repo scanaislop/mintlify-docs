@@ -116,7 +116,8 @@ When you pass `--json` (or `--format json`), aislop prints a single JSON object 
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.10.2",
+  "cliVersion": "0.12.0",
+  "version": "0.12.0",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -126,9 +127,30 @@ When you pass `--json` (or `--format json`), aislop prints a single JSON object 
     "ai-slop":      { "issues": 2, "skipped": false, "elapsed": 455 },
     "security":     { "issues": 0, "skipped": false, "elapsed": 1103 }
   },
-  "diagnostics": [ "..." ]
+  "diagnostics": [
+    {
+      "rule": "ai-slop/hardcoded-url",
+      "severity": "warning",
+      "scoreImpact": {
+        "tier": "advisory",
+        "multiplier": 0.25,
+        "cap": 4,
+        "rationale": "Hardcoded URLs are medium-confidence config signals and can be intentional canonical URLs."
+      }
+    }
+  ],
+  "findingAssessment": {
+    "byKind": {
+      "confirmed-defect": 0,
+      "conservative-security": 0,
+      "style-policy": 0,
+      "ai-slop-indicator": 1
+    }
+  }
 }
 ```
+
+Each diagnostic includes `scoreImpact` metadata so integrations can distinguish strict defects from advisory, style, and mechanical cleanup findings. `findingAssessment` summarizes the finding mix by kind.
 
 <Note>
   Score history is **not** written to `.aislop/history.jsonl` when `--json` or `--sarif` is active. Machine output stays clean and deterministic.

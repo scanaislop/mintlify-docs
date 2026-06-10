@@ -1,0 +1,92 @@
+---
+title: "Automated fix to PR design"
+sidebarTitle: "Fix to PR Design"
+description: "Design reference for a hosted fix-to-open-PR flow where aislop scores every iteration and only keeps changes that improve deterministic quality."
+---
+
+This is a design reference for a hosted `fix -> open PR` flow. The current CLI already supports local `aislop agent --pr`; the hosted flow needs GitHub App installation auth, a server-side sandbox, and job orchestration.
+
+## Principle
+
+The score is the gate. An LLM may propose edits, but aislop scores them. A change is only kept when the deterministic score improves. The model is never the judge of its own work.
+
+## User flow
+
+<Steps>
+  <Step title="Trigger">
+    A user starts a fix run from the hosted dashboard or a future CLI/API command against a repository and ref.
+  </Step>
+  <Step title="Queue">
+    The platform queues a job with repository, ref, installation, and policy context.
+  </Step>
+  <Step title="Run in sandbox">
+    The worker clones the repository, runs the loop, and records score deltas and findings.
+  </Step>
+  <Step title="Open PR or hand off">
+    If the final score improves, the GitHub App opens a PR. If not, the run returns a summary without a PR.
+  </Step>
+</Steps>
+
+## Repair loop
+
+```text
+clone repo @ ref -> scan baseline score S0
+repeat up to N iterations:
+  run aislop fix
+  if findings remain:
+    ask model for bounded patch
+  re-scan score Si
+  if Si > S(i-1):
+    keep changes and commit
+  else:
+    revert this iteration
+stop when clean, no score gain, or budget hit
+if final score Sf > S0:
+  open PR
+else:
+  hand off summary
+```
+
+`aislop fix` runs first because it is deterministic. The model only handles findings that need context. Every kept iteration is committed so the PR history shows the improvement path.
+
+## Branch naming
+
+```text
+aislop/fix/<job-id>
+```
+
+One branch per run, created from the target ref. The hosted App never pushes directly to the default branch.
+
+## PR body
+
+The generated PR body should include:
+
+- Score delta, such as `72 -> 91`.
+- Per-engine breakdown.
+- Findings resolved, grouped by engine and rule.
+- Files changed.
+- Anything left unresolved and why.
+- aislop version and config hash for reproducibility.
+
+## Auth model
+
+- A GitHub App is installed on the repository.
+- The server mints a short-lived installation token for the job.
+- Token scopes are limited to repository contents and pull requests.
+- Tokens are injected as environment secrets, never persisted to disk or logs.
+- Branch protection is respected because output is always a PR.
+
+## Safety rails
+
+| Rail | Requirement |
+|---|---|
+| Sandbox | Ephemeral, network-restricted worker with only the cloned repo writable |
+| Command allowlist | Only `git`, `aislop`, and safe project install/build/test commands |
+| Patch application | Model output is applied as patches, not arbitrary shell |
+| Time and budget caps | Hard limits on wall-clock time, iterations, and token spend |
+| Score-gated writes | Revert any iteration that does not improve the deterministic score |
+| Config protection | `.aislop/config.yml` and `.aislop/rules.yml` are treated as read-only policy inputs |
+
+## Relation to the CLI
+
+Use [`aislop agent --pr`](/cli/agent#apply-and-publish) today for local, developer-controlled repair PRs. The hosted fix-to-PR design applies the same scoring model to a server-side workflow with GitHub App identity and dashboard orchestration.

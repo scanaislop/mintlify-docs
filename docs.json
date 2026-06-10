@@ -44,7 +44,8 @@
             "pages": [
               "concepts/how-it-works",
               "concepts/scoring",
-              "concepts/rules"
+              "concepts/rules",
+              "concepts/supported-languages"
             ]
           }
         ]
@@ -53,13 +54,20 @@
         "tab": "CLI Reference",
         "groups": [
           {
-            "group": "CLI Reference",
+            "group": "Command reference",
             "pages": [
+              "cli/commands",
               "cli/scan",
+              "cli/agent",
               "cli/fix",
               "cli/ci",
+              "cli/init",
+              "cli/doctor",
+              "cli/rules",
               "cli/hooks",
-              "cli/other-commands"
+              "cli/badge",
+              "cli/trend",
+              "cli/update-version"
             ]
           }
         ]
@@ -71,8 +79,10 @@
             "group": "Integrations",
             "pages": [
               "integrations/github-actions",
+              "integrations/instant-scan",
               "integrations/pre-commit",
               "integrations/ci-cd",
+              "integrations/agent-skill",
               "integrations/mcp-server",
               "integrations/vscode"
             ]
@@ -86,6 +96,7 @@
             "group": "Configuration",
             "pages": [
               "configuration/config-file",
+              "configuration/example-configs",
               "configuration/engines",
               "configuration/rule-overrides",
               "configuration/architecture-rules",
@@ -95,13 +106,36 @@
         ]
       },
       {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/writing-comments"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Reference",
         "groups": [
           {
-            "group": "Reference",
+            "group": "Technical reference",
             "pages": [
               "reference/rules-reference",
+              "reference/config-schema",
+              "reference/changelog",
               "reference/telemetry"
+            ]
+          },
+          {
+            "group": "Research and operations",
+            "pages": [
+              "reference/research-program",
+              "reference/oss-benchmarking",
+              "reference/github-marketplace-action",
+              "reference/release-checklist",
+              "reference/fix-to-pr"
             ]
           }
         ]
