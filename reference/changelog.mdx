@@ -25,6 +25,8 @@ Local agent repair sessions get a full terminal-native workflow, CLI output is t
 
 - **Agent telemetry coverage.** `aislop agent` and its provider, plan, monitor, session, apply, watch, and stop subcommands now emit the same lifecycle telemetry as the rest of the CLI, without sending paths, branch names, session ids, prompts, raw findings, or transcripts.
 - **Agent subdirectory scope.** `aislop agent`, `agent plan`, and monitor repair now honor a requested subdirectory in monorepos instead of scanning or fixing the repository root.
+- **Agent worktree diffs.** Agent apply/publish flows now include staged and untracked files, so provider edits are not skipped when the isolated worktree contains pending changes outside the unstaged diff.
+- **Monitor debounce behavior.** Monitor mode now waits for stable dirty snapshots without resetting the debounce timer on every poll, while preserving immediate reactions for `--debounce 0`.
 - **Background stop handling.** Monitor stop now signals the monitor process group on non-Windows platforms, matching background session stop behavior so active provider subprocesses are not left editing.
 - **Installer and CI stability.** Tool downloads retry transient GitHub/network failures, the terminal UI dependency stays compatible with the documented Node `>=20` floor, and long CLI help-surface tests have explicit CI-safe timeouts.
 - **Python and Go calibration.** Python manifest/import resolution handles nested manifests and additional stdlib/package aliases, and Go panic heuristics exempt test-support code.
