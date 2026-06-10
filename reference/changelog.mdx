@@ -4,7 +4,7 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
-## 0.12.0 - 2026-06-08
+## 0.12.0 - 2026-06-10
 
 Local agent repair sessions get a full terminal-native workflow, CLI output is tighter across the command surface, and scoring now separates cosmetic cleanup from higher-impact findings.
 
@@ -23,6 +23,7 @@ Local agent repair sessions get a full terminal-native workflow, CLI output is t
 
 ### Fixed
 
+- **Agent telemetry coverage.** `aislop agent` and its provider, plan, monitor, session, apply, watch, and stop subcommands now emit the same lifecycle telemetry as the rest of the CLI, without sending paths, branch names, session ids, prompts, raw findings, or transcripts.
 - **Agent subdirectory scope.** `aislop agent`, `agent plan`, and monitor repair now honor a requested subdirectory in monorepos instead of scanning or fixing the repository root.
 - **Background stop handling.** Monitor stop now signals the monitor process group on non-Windows platforms, matching background session stop behavior so active provider subprocesses are not left editing.
 - **Installer and CI stability.** Tool downloads retry transient GitHub/network failures, the terminal UI dependency stays compatible with the documented Node `>=20` floor, and long CLI help-surface tests have explicit CI-safe timeouts.
