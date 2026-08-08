@@ -1,7 +1,7 @@
 ---
 title: "Supported languages and frameworks"
 sidebarTitle: "Languages"
-description: "See which aislop engines run for TypeScript, JavaScript, Expo, Python, Go, Rust, Ruby, and PHP, plus the framework detection rules used during scans."
+description: "See which aislop engines run across all 10 language targets, plus the framework and optional-tool rules used during scans."
 ---
 
 aislop detects languages and frameworks from the files and manifests in your repository, then runs every enabled engine that applies. Missing external tools are skipped instead of failing the scan; run `aislop doctor` when you want to see exactly which engines are available on your machine.
@@ -18,6 +18,8 @@ aislop detects languages and frameworks from the files and manifests in your rep
 | Rust | cargo fmt | clippy | complexity | Comments, Rust rules | Secrets, cargo audit |
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
+| C# | dotnet format | Roslynator / InspectCode | complexity | Full rule set | .NET package audit, secrets |
+| C/C++ | clang-format | cppcheck + clang-tidy | complexity | Full rule set | Secrets |
 
 ## Bundled and external tools
 
@@ -35,10 +37,20 @@ Some tools ship with aislop as package dependencies. Others are expected to be i
 | cargo fmt / clippy | Rust formatting and linting | External Rust toolchain |
 | rubocop | Ruby formatting and linting | External Ruby tool |
 | phpcs / php-cs-fixer | PHP linting and formatting | External PHP tools |
+| .NET SDK / Roslynator / InspectCode | C# formatting, linting, and package audit | External .NET tools |
+| cppcheck / clang-format / clang-tidy | C/C++ linting and formatting | External C/C++ tools |
 
 <Tip>
   Use `AISLOP_SKIP_TOOL_DOWNLOAD=1` during installation if your environment cannot download bundled binaries. Then install the external tools yourself and confirm coverage with `aislop doctor`.
 </Tip>
+
+Built-in C# and C/C++ text, complexity, and AI-slop checks run without external tools. C# project evaluation is opt-in for repositories you trust:
+
+```yaml
+lint:
+  csharp:
+    projectEvaluation: true
+```
 
 ## Framework detection
 

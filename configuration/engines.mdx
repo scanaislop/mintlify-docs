@@ -10,10 +10,10 @@ aislop runs six deterministic engines in parallel on every scan. Each engine tar
 
 <CardGroup cols={2}>
   <Card title="format" icon="paintbrush">
-    Formatting consistency checks. Delegates to Biome (JS/TS), ruff (Python), gofmt (Go), cargo fmt (Rust), rubocop (Ruby), and php-cs-fixer (PHP). Formatter findings use mechanical score impact so house style does not dominate the score.
+    Formatting consistency checks. Delegates to Biome (JS/TS), ruff (Python), gofmt (Go), cargo fmt (Rust), rubocop (Ruby), php-cs-fixer (PHP), dotnet format (C#), and clang-format (C/C++). Formatter findings use mechanical score impact so house style does not dominate the score.
   </Card>
   <Card title="lint" icon="magnifying-glass-code">
-    Language-specific lint rules. Uses oxlint (JS/TS), ruff (Python), golangci-lint (Go), clippy (Rust), and expo-doctor (React Native). Set `lint.typecheck: true` to add type-aware rules in TypeScript projects.
+    Language-specific lint rules. Uses oxlint (JS/TS), ruff (Python), golangci-lint (Go), clippy (Rust), expo-doctor (React Native), Roslynator / InspectCode (C#), and cppcheck / clang-tidy (C/C++). Set `lint.typecheck: true` to add type-aware rules in TypeScript projects.
   </Card>
   <Card title="code-quality" icon="chart-line">
     Complexity and dead code. Tracks function length, file size, control-flow nesting depth, parameter counts, unused files, and unused dependencies (via knip).
@@ -25,7 +25,7 @@ aislop runs six deterministic engines in parallel on every scan. Each engine tar
     Custom structural rules: import bans, layer enforcement, and required patterns. **Opt-in** — disabled by default and requires a `.aislop/rules.yml` file. See [Architecture Rules](/configuration/architecture-rules).
   </Card>
   <Card title="security" icon="lock">
-    Secrets and risky constructs (eval, innerHTML, SQL/shell injection) plus dependency vulnerability audits (npm audit, pip-audit, cargo audit, govulncheck).
+    Secrets and risky constructs (eval, innerHTML, SQL/shell injection) plus dependency vulnerability audits (npm audit, pip-audit, cargo audit, govulncheck, and .NET package audit).
   </Card>
 </CardGroup>
 
@@ -102,6 +102,18 @@ lint:
 <Note>
   Enabling `typecheck` requires a valid `tsconfig.json` in your project. Scan time increases because the TypeScript compiler runs as part of the lint pass.
 </Note>
+
+## C# project evaluation
+
+Built-in C# text, complexity, and AI-slop checks do not evaluate project files. Opt in to project-aware formatting, linting, and dependency checks only for repositories you trust:
+
+```yaml
+lint:
+  csharp:
+    projectEvaluation: true
+```
+
+Project evaluation can execute MSBuild logic from the scanned repository. Keep it disabled for untrusted checkouts.
 
 ## Security audit options
 

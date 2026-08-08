@@ -1,7 +1,7 @@
 ---
 title: "How aislop scans and scores your code"
 sidebarTitle: "How It Works"
-description: "Learn how aislop's six parallel engines analyze your codebase across 8 languages and produce a deterministic 0–100 quality score in under a second."
+description: "Learn how aislop's six parallel engines analyze your codebase across 10 language targets and produce a deterministic 0–100 quality score in under a second."
 ---
 
 aislop scans your codebase by running six specialized engines in parallel — Formatting, Linting, Code Quality, AI Slop, Security, and Architecture — then combines their findings into a single 0–100 score. Because every engine uses regex, AST analysis, and standard tooling rather than a language model, you always get the same score for the same code. No API calls, no network round-trips, no nondeterminism.
@@ -12,10 +12,10 @@ Each engine targets a distinct category of problem. They all run concurrently, w
 
 <CardGroup cols={2}>
   <Card title="Formatting" icon="paintbrush">
-    Enforces consistent code style using the canonical formatter for each language: Biome for TypeScript/JavaScript, ruff for Python, gofmt for Go, cargo fmt for Rust, rubocop for Ruby, and php-cs-fixer for PHP.
+    Enforces consistent code style using the canonical formatter for each language, including Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer, dotnet format, and clang-format.
   </Card>
   <Card title="Linting" icon="magnifying-glass">
-    Catches language-specific bugs and bad practices via oxlint (TypeScript/JavaScript), ruff (Python), golangci-lint (Go), clippy (Rust), rubocop (Ruby), and expo-doctor for Expo/React Native project health.
+    Catches language-specific bugs and bad practices via oxlint, ruff, golangci-lint, clippy, rubocop, expo-doctor, Roslynator, InspectCode, cppcheck, and clang-tidy.
   </Card>
   <Card title="Code Quality" icon="chart-bar">
     Measures structural complexity and finds dead code: oversized functions and files, deep nesting, too many parameters, duplicate blocks, unused declarations, and unused dependencies via knip (JS/TS).
@@ -37,7 +37,7 @@ All six engines start at the same time. aislop does not wait for one engine to f
 
 ## Supported languages
 
-aislop fully supports eight language targets. The table below shows which engines apply to each one.
+aislop supports 10 language targets. The table below shows which engines apply to each one.
 
 | Language | Format | Lint | Code Quality | AI Slop | Security |
 |---|---|---|---|---|---|
@@ -49,9 +49,11 @@ aislop fully supports eight language targets. The table below shows which engine
 | Rust | cargo fmt | clippy | complexity | Comments | Secrets, audit |
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | — | complexity | Comments | Secrets |
+| C# | dotnet format | Roslynator / InspectCode | complexity | All rules | Secrets, audit |
+| C/C++ | clang-format | cppcheck + clang-tidy | complexity | All rules | Secrets |
 
 <Note>
-  If your repository is primarily written in an unsupported language (C, C++, C#, Swift, Kotlin, etc.), aislop **withholds the score** rather than printing a number based on a handful of incidental files. The CLI explains why and `--json` output returns `"score": null` along with `"scoreable": false` and a `coverage` breakdown.
+  If your repository is primarily written in an unsupported language such as Swift or Kotlin, aislop **withholds the score** rather than printing a number based on a handful of incidental files. The CLI explains why and `--json` output returns `"score": null` along with `"scoreable": false` and a `coverage` breakdown.
 </Note>
 
 ## Deterministic by design

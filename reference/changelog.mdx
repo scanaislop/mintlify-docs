@@ -4,6 +4,49 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.14.1 - 2026-08-08
+
+aislop now supports 10 language targets, with first-class C# and C/C++ analysis and tighter behavior across mixed-language repositories.
+
+### Added
+
+- **C# support.** Project discovery, formatting, linting, complexity analysis, dependency checks, and C#-specific AI-slop rules.
+- **C/C++ support.** Detection and scoring with cppcheck, clang-tidy, clang-format, complexity analysis, and C/C++-specific AI-slop rules.
+
+### Fixed
+
+- Reduced false findings in C# and C++ strings, comments, raw strings, and interpolated code.
+- Improved file discovery, exclusions, invalid-target handling, external-tool timeouts, Windows tool lookup, dependency scans, and Python import checks.
+
+### Validation
+
+- 2,032 tests passed across 198 files.
+- Linux and Windows CI passed.
+- The release self-scan scored 100/100 with zero findings.
+
+## 0.14.0 - 2026-07-23
+
+Expanded Python workspace awareness, project discovery, cross-platform diagnostics, and scanner accuracy around real-world source layouts.
+
+### Changed
+
+- Resolved dependencies across uv workspaces, including member globs, exclusions, nested packages, editable sources, and shared environments.
+- Made diagnostic paths and external-tool discovery reliable across Windows and Unix-like systems.
+- Preferred project-installed tools over bundled fallbacks and improved bare-source-tree discovery.
+
+### Fixed
+
+- Prevented braces in strings, comments, and regular expressions from distorting complexity boundaries.
+- Removed dependency-postinstall coupling and moved npm publication to trusted OIDC publishing.
+
+## 0.13.1 - 2026-06-29
+
+Calibrated hidden-fallback findings, fixed regular-expression comment masking, and refreshed routine dependencies and CI tooling.
+
+## 0.13.0 - 2026-06-28
+
+Added install-channel telemetry, the hidden-fallback rule, framework adapters, more reliable MCP telemetry, and scanner calibration across common false-positive sources.
+
 ## 0.12.0 - 2026-06-10
 
 Local agent repair sessions get a full terminal-native workflow, CLI output is tighter across the command surface, and scoring now separates cosmetic cleanup from higher-impact findings.

@@ -58,9 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: scanaislop/aislop@v1        # or pin: @v0.12.0
+      - uses: scanaislop/aislop@v1        # or pin: @v0.14.1
         with:
-          version: latest                 # CLI version; pin e.g. "0.12.0" for reproducibility
+          version: latest                 # CLI version; pin e.g. "0.14.1" for reproducibility
 ```
 
 ### Action inputs
@@ -70,7 +70,7 @@ jobs:
 | `directory` | No | `"."` | Directory to scan. |
 | `node-version` | No | `"24"` | Node.js version to install before running aislop. |
 | `format` | No | `"json"` | Output format — `"json"` (CI-friendly) or `"human"`. |
-| `version` | No | `"latest"` | npm aislop CLI version to run, e.g. `"0.12.0"`. Independent of the action ref in `uses:`. |
+| `version` | No | `"latest"` | npm aislop CLI version to run, e.g. `"0.14.1"`. Independent of the action ref in `uses:`. |
 
 ## PR-scoped gating
 

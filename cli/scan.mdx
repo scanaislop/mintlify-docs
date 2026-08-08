@@ -116,8 +116,8 @@ When you pass `--json` (or `--format json`), aislop prints a single JSON object 
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.12.0",
-  "version": "0.12.0",
+  "cliVersion": "0.14.1",
+  "version": "0.14.1",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -170,7 +170,7 @@ Pass `--sarif` to produce a SARIF 2.1.0 report, then upload it with the GitHub c
 
 ## Unsupported-language repos
 
-aislop analyses eight language targets: TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, and PHP. If your repository is primarily written in a language outside this set—C, C++, Swift, Kotlin, and so on—scoring a handful of incidental files would misrepresent the codebase.
+aislop analyses 10 language targets: TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, PHP, C#, and C/C++. If your repository is primarily written in an unsupported language such as Swift or Kotlin, scoring a handful of incidental files would misrepresent the codebase.
 
 In that case aislop **withholds the score** and explains why rather than printing a misleading number. When you use `--json`, the response includes `"score": null` and `"scoreable": false` alongside a `coverage` breakdown showing which files were and were not analysed.
 
