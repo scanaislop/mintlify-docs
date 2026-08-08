@@ -12,7 +12,7 @@ description: "Understand what scanaislop is, the problem it solves, its six anal
 
 ## What is scanaislop?
 
-aislop is a quality gate for AI coding agents. It runs six deterministic engines in parallel across eight language targets, reports findings with file and line locations, repairs mechanical issues, and exits with a non-zero code in CI when the score falls below your threshold. There are no LLMs in the runtime path: the score is computed from regex, AST analysis, and standard open-source tooling, so the same code always produces the same result.
+aislop is a quality gate for AI coding agents. It runs six deterministic engines in parallel across 10 language targets, reports findings with file and line locations, repairs mechanical issues, and exits with a non-zero code in CI when the score falls below your threshold. There are no LLMs in the runtime path: the score is computed from regex, AST analysis, and standard open-source tooling, so the same code always produces the same result.
 
 ## The problem it solves
 
@@ -25,11 +25,11 @@ aislop runs six engines on every scan. Each engine targets a different quality d
 <CardGroup cols={2}>
     <Card title="Formatting" icon="paintbrush">
         Code style consistency checked by **Biome** (TypeScript/JavaScript), **ruff** (Python), **gofmt** (Go), **cargo
-        fmt** (Rust), **rubocop** (Ruby), and **php-cs-fixer** (PHP).
+        fmt** (Rust), **rubocop** (Ruby), **php-cs-fixer** (PHP), **dotnet format** (C#), and **clang-format** (C/C++).
     </Card>
     <Card title="Linting" icon="triangle-exclamation">
         Language-specific correctness checked by **oxlint** (JS/TS), **ruff** (Python), **golangci-lint** (Go),
-        **clippy** (Rust), and **expo-doctor** (Expo/React Native).
+        **clippy** (Rust), **expo-doctor** (Expo/React Native), **Roslynator / InspectCode** (C#), and **cppcheck / clang-tidy** (C/C++).
     </Card>
     <Card title="Code Quality" icon="gauge-high">
         Complexity and dead code: function and file size limits, deep nesting detection, unused files and dependencies
@@ -51,7 +51,7 @@ aislop runs six engines on every scan. Each engine targets a different quality d
 
 ## Supported languages
 
-aislop analyses eight language targets with full engine coverage. Files in other languages are excluded from scoring rather than partially scored — you always know exactly what the number represents.
+aislop analyses 10 language targets. Optional system tools add deeper language-specific coverage; built-in checks still run when those tools are absent.
 
 | Language | Target identifier |
 |---|---|
@@ -63,9 +63,11 @@ aislop analyses eight language targets with full engine coverage. Files in other
 | Rust | `rust` |
 | Ruby | `ruby` |
 | PHP | `php` |
+| C# | `csharp` |
+| C/C++ | `cpp` |
 
 <Note>
-    If a repository is primarily written in an unsupported language (C, C#, Swift, Kotlin, etc.), aislop withholds the
+    If a repository is primarily written in an unsupported language such as Swift or Kotlin, aislop withholds the
     score and reports `scoreable: false` rather than printing a number based on a handful of incidental files.
 </Note>
 

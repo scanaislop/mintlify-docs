@@ -132,6 +132,23 @@ Some engines depend on tools that must already be installed on your machine. The
 | `cargo` + `clippy` | Rust linting + formatting | [rustup.rs](https://rustup.rs/) |
 | `rubocop` | Ruby formatting + linting | `gem install rubocop` |
 | `phpcs` + `php-cs-fixer` | PHP formatting + linting | [php-cs-fixer docs](https://cs.symfony.com/) |
+| `.NET SDK`, `roslynator`, `jb` | C# formatting, linting, and dependency audit | [.NET SDK](https://dotnet.microsoft.com/download) |
+| `cppcheck`, `clang-format`, `clang-tidy` | C/C++ linting and formatting | Your system package manager |
+
+C# and C/C++ receive built-in text and complexity checks without these tools. On macOS, install the optional toolchains with:
+
+```bash
+brew install cppcheck llvm
+brew install --cask dotnet-sdk
+```
+
+C# project evaluation is opt-in. Enable it only for repositories you trust:
+
+```yaml
+lint:
+  csharp:
+    projectEvaluation: true
+```
 
 <Warning>
   If an external tool is missing, aislop skips the corresponding engine and notes it in the scan output. Scores for projects in those languages will be lower than they would be with full engine coverage. Run `aislop doctor` to see exactly which engines are available on your system.

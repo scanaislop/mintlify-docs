@@ -1,7 +1,7 @@
 ---
 title: "aislop rule categories and what they catch"
 sidebarTitle: "Rules"
-description: "Explore aislop's six rule engines — Formatting, Linting, Code Quality, AI Slop, Security, and Architecture — and the 50+ patterns they detect across 8 languages."
+description: "Explore aislop's six rule engines — Formatting, Linting, Code Quality, AI Slop, Security, and Architecture — and the 50+ patterns they detect across 10 language targets."
 ---
 
 aislop organizes its 50+ rules into six engines, each targeting a different class of problem. All six run in parallel on every scan. This page gives you a practical overview of what each engine catches so you can understand your findings, tune severities, and decide which engines matter most for your project.
@@ -19,6 +19,8 @@ The Formatting engine enforces consistent code style using the best-in-class for
 | Rust | cargo fmt |
 | Ruby | rubocop |
 | PHP | php-cs-fixer |
+| C# | dotnet format |
+| C/C++ | clang-format |
 
 ## Linting
 
@@ -32,6 +34,8 @@ The Linting engine catches language-specific bugs, anti-patterns, and bad practi
 | Go | golangci-lint |
 | Rust | clippy |
 | Ruby | rubocop |
+| C# | Roslynator / InspectCode |
+| C/C++ | cppcheck / clang-tidy |
 
 ## Code Quality
 
