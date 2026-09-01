@@ -41,7 +41,7 @@ Some tools ship with aislop as package dependencies. Others are expected to be i
 | cppcheck / clang-format / clang-tidy | C/C++ linting and formatting | External C/C++ tools |
 
 <Tip>
-  Use `AISLOP_SKIP_TOOL_DOWNLOAD=1` during installation if your environment cannot download bundled binaries. Then install the external tools yourself and confirm coverage with `aislop doctor`.
+  Package install does not download Ruff or golangci-lint. Run `aislop-tools` once after installing aislop, or install those binaries yourself and confirm coverage with `aislop doctor`.
 </Tip>
 
 Built-in C# and C/C++ text, complexity, and AI-slop checks run without external tools. C# project evaluation is opt-in for repositories you trust:

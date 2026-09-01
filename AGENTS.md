@@ -1,33 +1,43 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# aislop documentation
 
-# Documentation project instructions
+Source for [docs.scanaislop.com](https://docs.scanaislop.com). Mintlify MDX plus `docs.json`.
 
-## About this project
+## Product
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+- **aislop** is the open-source CLI quality gate for AI generated code (`npx aislop@latest scan`).
+- **scanaislop** is the hosted product at [scanaislop.com](https://scanaislop.com): badges, public scans, team gates.
+- Do not call the CLI "Scanaislop". Site name is `aislop`.
 
-## Terminology
+## Source of truth
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+Check behavior against `scanaislop/aislop` (CLI) before changing commands, flags, scoring, engines, languages, or CI examples.
 
-## Style preferences
+Current product facts:
 
-{/* Add any project-specific style rules below */}
+- CLI version: 0.16.0
+- 10 language targets: TypeScript, JavaScript, Expo / React Native, Python, Go, Rust, Ruby, PHP, C#, C/C++
+- Six engines: format, lint, code-quality, ai-slop, security, architecture (opt-in)
+- Deterministic: no LLM in the runtime path
+- Default scoring `smoothing` is `5` (changed in 0.15.0)
+- Optional Ruff / golangci-lint binaries: run `aislop-tools` after install; package install does not run lifecycle scripts
 
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+## Style
 
-## Content boundaries
+- Active voice, second person
+- Sentence case headings
+- No decorative or generated illustrations. Use commands, tables, and real terminal output.
+- No em dashes in page copy. Use a period, colon, or parentheses.
+- Code formatting for commands, paths, flags, and rule IDs
+- Brand color is emerald `#10b981`, matching scanaislop.com
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+## Agent surfaces to keep in docs
+
+- `/agents` is the copy-paste page: prompt, skill URL, hooks, AGENTS.md template
+- Skill install: `npx skills add scanaislop/skills`
+- Skill file: `https://scanaislop.com/.well-known/agent-skills/aislop/SKILL.md`
+- Hooks: `npx aislop@latest hook install`
+- Handoff: `npx aislop@latest fix --prompt`
+
+## What not to document here
+
+Internal admin, unreleased enterprise-only flows, and cultural "AI slop" jokes that are not about generated code.

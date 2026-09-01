@@ -38,7 +38,7 @@ scoring:
     ai-slop: 1.0
     architecture: 1.0
     security: 1.5
-  smoothing: 20
+  smoothing: 5
   maxPerRule: 40
 ```
 
@@ -83,11 +83,11 @@ Each rule contributes at most `scoring.maxPerRule` weighted penalty points by de
 
 ## Density normalization
 
-The final score uses logarithmic scaling with issue-density normalization. Penalties are measured relative to the number of source files in the project, so:
+Since 0.15.0, deductions are divided by file count before the scoring curve. A large project and a small one with the same habits land on the same number. Copying a tree three times no longer tanks the score for being larger.
 
-- A few issues in a large codebase do not tank the score unfairly
-- A single issue in an otherwise clean project stays proportional
-- The score remains meaningful regardless of project size
+- A few issues in a large codebase do not dominate the number
+- A small dirty project is not padded by size
+- Rule caps scale with project size, so they mean the same thing at any scale
 
 ## Score labels
 
@@ -112,7 +112,7 @@ Increase the `ai-slop` weight if strict AI-output hygiene is your primary concer
 Increase the `security` weight if dependency vulnerabilities and runtime risks should be the primary driver of your score.
 
 **Reduce noise on legacy codebases**
-Increase `smoothing` (default: 20) to reduce penalty spikes when scanning large codebases with accumulated technical debt.
+Increase `smoothing` (default: 5) to reduce penalty spikes when scanning large codebases with accumulated technical debt.
 
 **Allow repeated findings to punish more**
 Increase `maxPerRule` beyond 40 if you want a rule that fires many times to keep accumulating penalty beyond the default cap.

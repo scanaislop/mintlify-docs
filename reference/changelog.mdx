@@ -4,6 +4,41 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.16.0 - 2026-08-30
+
+Scoping release. `fix` and `scan` can be pointed at what changed rather than the whole tree, and `fix` can show what it would do before it writes anything.
+
+### Added
+
+- **`aislop fix --dry-run`.** Prints the planned fix steps, including skipped steps and why, without writing files. Cannot be combined with an agent handoff or `--prompt`.
+- **`aislop fix --changes`, `--staged`, and `--base`.** Restricts fixes to changed or staged files, matching the flags `scan` already accepted.
+- **Changed-line context on findings.** Diagnostics are classified as changed-line or existing-file context in terminal, JSON, and SARIF output.
+
+### Fixed
+
+- Dependency, audit, and Expo alignment fixes stay inside the selected scope.
+- Scoped `fix` no longer rewrites test files that a plain `fix` leaves alone.
+- Scoped `fix` and `scan` agree on the score for the same selection.
+- `fix` respects `CI=true` as well as `CI=1`, so spinner sequences do not leak into GitHub Actions logs.
+- C# and C/C++ formatters appear in the dry-run plan.
+
+## 0.15.0 - 2026-08-26
+
+Calibration release. Scores now describe how code is written rather than how much of it there is. **Every score moves in this release**, most of them upward. Re-baseline CI gates and badges after upgrading.
+
+### Changed
+
+- **Score reflects finding density, not project size.** Deductions are divided by file count before the scoring curve, so a large project and a small one with the same habits land on the same number.
+- **Rule caps scale with project size.**
+- **Default `scoring.smoothing` lowered from 20 to 5.**
+
+### Fixed
+
+- **`ai-slop/trivial-comment`** no longer flags ordinary terse comments. It now requires a file saturated with them (at least one per 50 non-blank lines).
+- **`security/vulnerable-dependency`** reports `devDependencies` as `dev-only` at `info` severity instead of treating them as shipped risk.
+- **`ai-slop/python-mutable-default`** no longer flags call-wrapped keyword arguments such as FastAPI `Body(default={})`.
+- **`doctor`** derives languages from the configured scan scope rather than from manifests alone.
+
 ## 0.14.1 - 2026-08-08
 
 aislop now supports 10 language targets, with first-class C# and C/C++ analysis and tighter behavior across mixed-language repositories.

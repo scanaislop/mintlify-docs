@@ -218,7 +218,7 @@ Adjust weights to reflect what your team cares about most. Higher values make th
 
 Two additional scoring knobs prevent edge cases from distorting results:
 
-<ParamField body="scoring.smoothing" type="number" default="20">
+<ParamField body="scoring.smoothing" type="number" default="5">
   Reduces penalty spikes in large repos by dampening the logarithmic density curve. Increase this value for legacy codebases with many pre-existing findings so that incremental improvements register clearly in the score.
 </ParamField>
 

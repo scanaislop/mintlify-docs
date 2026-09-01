@@ -1,59 +1,61 @@
 ---
-title: "Scan your code for AI slop"
-sidebarTitle: "Introduction"
-description: "Understand what scanaislop is, the problem it solves, its six analysis engines, supported languages, and the key properties that make it reliable in CI."
+title: "aislop: quality gate for AI generated code"
+sidebarTitle: "Overview"
+description: "aislop is a CLI that scores AI generated code 0 to 100. Six deterministic engines, 10 language targets, no LLM at runtime."
 ---
 
-<img
-    src="/assets/images/introduction_image.jpg"
-    alt="Scanaislop documentation overview"
-    className="mt-6 mb-8 rounded-xl border"
-/>
+aislop is the open-source CLI quality gate for AI generated code. Run it on a repo, get a score from 0 to 100, a file-and-line fix list, and a CI exit code you can enforce.
 
-## What is scanaislop?
+scanaislop.com is the hosted platform around that CLI: badges, public scans, and team gates. These docs cover the CLI.
 
-aislop is a quality gate for AI coding agents. It runs six deterministic engines in parallel across 10 language targets, reports findings with file and line locations, repairs mechanical issues, and exits with a non-zero code in CI when the score falls below your threshold. There are no LLMs in the runtime path: the score is computed from regex, AST analysis, and standard open-source tooling, so the same code always produces the same result.
+```bash
+npx aislop@latest scan
+```
 
-## The problem it solves
+```
+Score  87 / 100  Healthy
 
-Every major AI coding agent — Claude Code, Cursor, Codex, OpenCode, Gemini CLI — generates code that satisfies local correctness checks but introduces patterns that degrade long-term maintainability. These patterns are consistent enough across agents and projects to define as rules. aislop encodes more than 50 of them, weighted so high-confidence defects and security findings hit harder than mechanical cleanup. You get one number, one gate, and a clear fix list.
+⚠  ai-slop/narrative-comment     src/auth/login.ts:14
+⚠  ai-slop/unused-import         src/services/users.ts:3
+⚠  code-quality/function-too-long src/commands/fix-render.ts:14
 
-## The six engines
+0 errors · 6 warnings · 4 fixable
+```
 
-aislop runs six engines on every scan. Each engine targets a different quality dimension and maps to a share of the overall 0–100 score.
+No config required. Same code in, same score out. There is no language model in the runtime path: aislop uses regex, AST analysis, and standard open-source tooling.
+
+## What it catches
+
+AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini CLI) often produce code that passes tests and lint, then leaves residue: narrative comments, swallowed exceptions, `as any` casts, hallucinated imports, dead code, TODO stubs, oversized functions. aislop encodes 50+ of those patterns and weights them so security and high-confidence defects hit harder than mechanical cleanup.
+
+## Six engines
+
+Every scan runs six engines in parallel. Architecture is opt-in.
 
 <CardGroup cols={2}>
-    <Card title="Formatting" icon="paintbrush">
-        Code style consistency checked by **Biome** (TypeScript/JavaScript), **ruff** (Python), **gofmt** (Go), **cargo
-        fmt** (Rust), **rubocop** (Ruby), **php-cs-fixer** (PHP), **dotnet format** (C#), and **clang-format** (C/C++).
-    </Card>
-    <Card title="Linting" icon="triangle-exclamation">
-        Language-specific correctness checked by **oxlint** (JS/TS), **ruff** (Python), **golangci-lint** (Go),
-        **clippy** (Rust), **expo-doctor** (Expo/React Native), **Roslynator / InspectCode** (C#), and **cppcheck / clang-tidy** (C/C++).
-    </Card>
-    <Card title="Code Quality" icon="gauge-high">
-        Complexity and dead code: function and file size limits, deep nesting detection, unused files and dependencies
-        via **knip**, and AST-based unused-declaration removal.
-    </Card>
-    <Card title="AI Slop" icon="robot">
-        Patterns specific to AI-generated code: narrative comments, trivial comments, dead patterns, unused imports, `as
-        any` casts, `console.log` leftovers, TODO stubs, and generic names.
-    </Card>
-    <Card title="Security" icon="shield-halved">
-        Vulnerabilities and risky code: `eval`, `innerHTML`, SQL and shell injection patterns, and dependency audits via
-        **npm audit**, **pip-audit**, **cargo audit**, and **govulncheck**.
-    </Card>
-    <Card title="Architecture" icon="sitemap">
-        Structural rules (opt-in): custom import bans, layering rules, and required patterns configured in
-        `.aislop/config.yml`.
-    </Card>
+  <Card title="Formatting" icon="paintbrush">
+    Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer, dotnet format, clang-format.
+  </Card>
+  <Card title="Linting" icon="triangle-exclamation">
+    oxlint, ruff, golangci-lint, clippy, expo-doctor, Roslynator / InspectCode, cppcheck / clang-tidy.
+  </Card>
+  <Card title="Code quality" icon="gauge-high">
+    Function and file size, nesting, unused files and dependencies via knip, unused declarations.
+  </Card>
+  <Card title="AI slop" icon="robot">
+    Narrative and trivial comments, swallowed exceptions, `as any`, unused imports, TODO stubs, generic names.
+  </Card>
+  <Card title="Security" icon="shield-halved">
+    `eval`, `innerHTML`, injection patterns, hardcoded secrets, and dependency audits.
+  </Card>
+  <Card title="Architecture" icon="sitemap">
+    Opt-in import bans, layering rules, and required patterns in `.aislop/rules.yml`.
+  </Card>
 </CardGroup>
 
-## Supported languages
+## 10 language targets
 
-aislop analyses 10 language targets. Optional system tools add deeper language-specific coverage; built-in checks still run when those tools are absent.
-
-| Language | Target identifier |
+| Language | Target |
 |---|---|
 | TypeScript | `typescript` |
 | JavaScript | `javascript` |
@@ -66,45 +68,47 @@ aislop analyses 10 language targets. Optional system tools add deeper language-s
 | C# | `csharp` |
 | C/C++ | `cpp` |
 
-<Note>
-    If a repository is primarily written in an unsupported language such as Swift or Kotlin, aislop withholds the
-    score and reports `scoreable: false` rather than printing a number based on a handful of incidental files.
-</Note>
+Built-in checks still run when optional system tools are missing. If a repository is mostly an unsupported language (Swift, Kotlin, Java), aislop withholds the score and reports `scoreable: false` instead of scoring a handful of incidental files.
 
-## Key differentiators
+## Why it is safe in CI
 
-**Deterministic, no LLM at runtime.** aislop uses regex, AST analysis, and standard open-source tooling — never an API call to a language model. The same code in always produces the same score out. This makes the score reliable enough to enforce as a hard CI gate.
+- **Deterministic.** No LLM at runtime. The same tree always produces the same score.
+- **Fast.** Engines run in parallel. Most projects scan in well under a second.
+- **Zero-config start.** `npx aislop@latest scan` works on any supported repo. Add `.aislop/config.yml` when you want thresholds, rule overrides, or architecture rules.
+- **Repair path.** `aislop fix` handles mechanical cleanup. `aislop agent` runs a local Codex, Claude Code, or OpenCode session with aislop owning scoring and verification.
 
-**Sub-second.** All six engines run in parallel. For most projects, a full scan completes in well under a second, making it practical as a pre-commit hook and as a post-edit hook inside your coding agent.
+Current CLI: **v0.16.0**. MIT licensed.
 
-**50+ rules, language-specific.** Rules are tuned per language and weighted by severity. Sloppy patterns that indicate deeper problems (swallowed exceptions, unsafe type casts) carry more weight than style findings.
+## Give this to your agent
 
-**Zero-config start.** `npx aislop@latest scan` works on any repository without any configuration. Add `.aislop/config.yml` when you want to tune thresholds, override rule severity, or enable the Architecture engine.
+Paste this into Claude Code, Cursor, Codex, or any other coding agent. It installs the aislop skill, hooks, and `AGENTS.md` standard.
 
-**Local repair agent.** `aislop agent` creates an isolated local worktree, runs safe fixes, streams a Codex, Claude Code, or OpenCode repair session, verifies the result, and leaves the diff for review. `aislop fix` remains the deterministic layer for mechanical cleanup.
+```text
+Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+```
 
-## Next steps
+Or run:
+
+```bash
+npx skills add scanaislop/skills
+npx aislop@latest hook install
+```
+
+Full copy-paste prompt, AGENTS.md template, and URLs: [For agents](/agents).
+
+## Next
 
 <CardGroup cols={2}>
-    <Card
-        title="Quickstart"
-        icon="bolt"
-        href="/quickstart"
-    >
-        Scan your first project in under a minute with a single npx command.
-    </Card>
-    <Card
-        title="How It Works"
-        icon="gears"
-        href="/concepts/how-it-works"
-    >
-        Deep dive into the scoring model, engine weights, and rule evaluation order.
-    </Card>
-    <Card
-        title="Local repair agent"
-        icon="bot"
-        href="/cli/agent"
-    >
-        Use Codex, Claude Code, or OpenCode while aislop owns scoring and verification.
-    </Card>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Scan, read the score, repair, and add a CI gate.
+  </Card>
+  <Card title="Installation" icon="download" href="/installation">
+    npm, Homebrew, pipx, GitHub Packages, and optional tools.
+  </Card>
+  <Card title="How it works" icon="gears" href="/concepts/how-it-works">
+    Engines, language coverage, and scoring.
+  </Card>
+  <Card title="For agents" icon="robot" href="/agents">
+    Copy a prompt or URL so the agent installs the skill, hooks, and AGENTS.md.
+  </Card>
 </CardGroup>

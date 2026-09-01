@@ -77,7 +77,7 @@ scoring:
   thresholds:
     good: 75
     ok: 50
-  smoothing: 20
+  smoothing: 5
   maxPerRule: 40
 
 ci:
@@ -183,7 +183,7 @@ Each section controls a distinct part of the aislop run. You can add, remove, or
     <ParamField body="scoring.thresholds.ok" type="number" default="50">
       Scores at or above this value (but below `good`) are labelled **Needs Work**. Scores below this are **Critical**.
     </ParamField>
-    <ParamField body="scoring.smoothing" type="number" default="20">
+    <ParamField body="scoring.smoothing" type="number" default="5">
       Reduces penalty spikes in large repos by dampening the logarithmic density curve. Increase for legacy codebases.
     </ParamField>
     <ParamField body="scoring.maxPerRule" type="number" default="40">

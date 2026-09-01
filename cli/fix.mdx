@@ -71,6 +71,41 @@ Work through the stages in order to reach 100/100 with the least disruption to y
   Show detailed progress for each fix operation as it runs, including which files are modified and which rules are being resolved.
 </ParamField>
 
+<ParamField query="--dry-run" type="boolean">
+  Print the planned fix steps, including skipped steps and why, without writing anything. Cannot be combined with an agent handoff flag or `--prompt`.
+
+  ```bash
+  aislop fix --dry-run
+  aislop fix --dry-run --safe
+  aislop fix --dry-run --changes
+  ```
+</ParamField>
+
+<ParamField query="--changes" type="boolean">
+  Restrict fixes to files that changed since the last commit (diffs against `HEAD` by default). Combine with `--base` to diff against a different ref. Dependency fixes stay inside the selected scope.
+
+  ```bash
+  aislop fix --changes
+  aislop fix --changes --base origin/main
+  ```
+</ParamField>
+
+<ParamField query="--staged" type="boolean">
+  Restrict fixes to files currently staged in git.
+
+  ```bash
+  aislop fix --staged
+  ```
+</ParamField>
+
+<ParamField query="--base" type="string">
+  Git ref to diff against when `--changes` is set. Defaults to `HEAD`.
+
+  ```bash
+  aislop fix --changes --base origin/main
+  ```
+</ParamField>
+
 <ParamField query="-f, --force" type="boolean">
   Run aggressive fixes in addition to standard ones. This includes dependency auditing, framework dependency alignment, and unused-file removal. Changes here are more likely to affect behaviour—review the diff before committing.
 
