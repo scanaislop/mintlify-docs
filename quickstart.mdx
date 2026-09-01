@@ -1,7 +1,7 @@
 ---
 title: "Get started with aislop in under a minute"
 sidebarTitle: "Quickstart"
-description: "Scan your first project, read your score, repair issues, and add a CI quality gate — all in four steps with no upfront configuration."
+description: "Scan your first project, read your score, repair issues, and add a CI quality gate. Four steps, no upfront configuration."
 ---
 
 You don't need to install anything to get your first score. aislop runs directly from npx, works on any project regardless of language or framework, and produces a human-readable report with file locations and a 0-100 quality score. This guide takes you from zero to a gated repair workflow in four steps.
@@ -48,7 +48,7 @@ You don't need to install anything to get your first score. aislop runs directly
        Exception is caught but not logged or re-thrown.
 
     ✖  security/eval                  src/sandbox.js:6
-       Avoid eval() — use a safer alternative.
+       Avoid eval(). Use a safer alternative.
 
     ⚠  formatting/trailing-whitespace  src/index.ts:22
 
@@ -86,9 +86,11 @@ You don't need to install anything to get your first score. aislop runs directly
     Use `aislop fix` for deterministic mechanical cleanup:
 
     ```bash
-    aislop fix           # auto-fix all mechanical issues
-    aislop fix --safe    # only reversible fixes (imports, comments, formatting)
-    aislop fix -f        # aggressive: also prune unused deps and files
+    aislop fix              # auto-fix all mechanical issues
+    aislop fix --safe       # only reversible fixes (imports, comments, formatting)
+    aislop fix --dry-run    # print the plan without writing files
+    aislop fix --changes    # only files changed since HEAD
+    aislop fix -f           # aggressive: also prune unused deps and files
     ```
 
     `--safe` restricts the run to fixes that cannot change behaviour. Use it when you want to apply and commit immediately without reviewing the diff.
@@ -141,7 +143,7 @@ You don't need to install anything to get your first score. aislop runs directly
       failBelow: 70
     ```
 
-    The fastest way to add aislop to **GitHub Actions** — no version to maintain:
+    The fastest way to add aislop to **GitHub Actions**, with no version to maintain:
 
     ```yaml
     name: aislop

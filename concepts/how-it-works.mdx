@@ -4,7 +4,7 @@ sidebarTitle: "How It Works"
 description: "Learn how aislop's six parallel engines analyze your codebase across 10 language targets and produce a deterministic 0–100 quality score in under a second."
 ---
 
-aislop scans your codebase by running six specialized engines in parallel — Formatting, Linting, Code Quality, AI Slop, Security, and Architecture — then combines their findings into a single 0–100 score. Because every engine uses regex, AST analysis, and standard tooling rather than a language model, you always get the same score for the same code. No API calls, no network round-trips, no nondeterminism.
+aislop scans your codebase by running six specialized engines in parallel (Formatting, Linting, Code Quality, AI Slop, Security, and Architecture), then combines their findings into a single 0 to 100 score. Because every engine uses regex, AST analysis, and standard tooling rather than a language model, you always get the same score for the same code. No API calls, no network round-trips, no nondeterminism.
 
 ## The six engines
 
@@ -21,7 +21,7 @@ Each engine targets a distinct category of problem. They all run concurrently, w
     Measures structural complexity and finds dead code: oversized functions and files, deep nesting, too many parameters, duplicate blocks, unused declarations, and unused dependencies via knip (JS/TS).
   </Card>
   <Card title="AI Slop" icon="robot">
-    The engine unique to aislop. Catches the patterns AI coding agents leave behind — narrative and trivial comments, swallowed exceptions, `as any` casts, TODO stubs, hallucinated imports, unreachable code, and more.
+    The engine unique to aislop. Catches the patterns AI coding agents leave behind: narrative and trivial comments, swallowed exceptions, `as any` casts, TODO stubs, hallucinated imports, unreachable code, and more.
   </Card>
   <Card title="Security" icon="shield-halved">
     Finds hardcoded secrets, unsafe constructs (`eval`, `innerHTML`, SQL/shell injection), and vulnerable dependencies via npm, pip, cargo, and govulncheck audits.
@@ -33,7 +33,7 @@ Each engine targets a distinct category of problem. They all run concurrently, w
 
 ## Parallel execution and sub-second results
 
-All six engines start at the same time. aislop does not wait for one engine to finish before launching the next. On most projects you get a complete scan — formatting, linting, complexity, AI slop, security, and architecture — in well under a second.
+All six engines start at the same time. aislop does not wait for one engine to finish before launching the next. On most projects you get a complete scan (formatting, linting, complexity, AI slop, security, and architecture) in well under a second.
 
 ## Supported languages
 
@@ -48,7 +48,7 @@ aislop supports 10 language targets. The table below shows which engines apply t
 | Go | gofmt | golangci-lint | complexity | Exceptions, comments | Secrets, audit |
 | Rust | cargo fmt | clippy | complexity | Comments | Secrets, audit |
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
-| PHP | php-cs-fixer | — | complexity | Comments | Secrets |
+| PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
 | C# | dotnet format | Roslynator / InspectCode | complexity | All rules | Secrets, audit |
 | C/C++ | clang-format | cppcheck + clang-tidy | complexity | All rules | Secrets |
 
@@ -58,7 +58,7 @@ aislop supports 10 language targets. The table below shows which engines apply t
 
 ## Deterministic by design
 
-aislop uses regex matching, AST analysis, and well-established language tooling at runtime — never a language model. Given identical input code, you will always get an identical score. This makes aislop safe to use in CI gates, pre-commit hooks, and editor integrations without worrying about flaky or nondeterministic results.
+aislop uses regex matching, AST analysis, and well-established language tooling at runtime, never a language model. Given identical input code, you will always get an identical score. This makes aislop safe to use in CI gates, pre-commit hooks, and editor integrations without worrying about flaky or nondeterministic results.
 
 <Tip>
   Run `aislop doctor` to check which engines can run in your environment. Some engines require their respective toolchains (Go, Rust, Ruby, PHP) to be installed.

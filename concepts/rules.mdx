@@ -73,7 +73,7 @@ The Code Quality engine measures structural complexity, locates dead code, and i
 
 ## AI Slop
 
-The AI Slop engine is what makes aislop unique. These are the patterns AI coding agents — Claude Code, Cursor, Codex, OpenCode — leave behind that pass lint and tests but quietly rot a codebase. In `0.12.0`, each rule also exposes a score-impact tier so strict defects score harder than mechanical or style cleanup.
+The AI Slop engine is what makes aislop unique. These are the patterns AI coding agents (Claude Code, Cursor, Codex, OpenCode) leave behind that pass lint and tests but quietly rot a codebase. Each rule exposes a score-impact tier so strict defects score harder than mechanical or style cleanup.
 
 <Note>
   Run `aislop rules` to see each rule's severity, fixability, score-impact tier, and rationale. JSON diagnostics include the same `scoreImpact` metadata for integrations.

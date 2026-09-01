@@ -1,10 +1,10 @@
 ---
 title: "Install aislop: npm, Homebrew, pipx, and more"
 sidebarTitle: "Installation"
-description: "Every way to install aislop — npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages — plus requirements, bundled tools, and external tool setup."
+description: "Install aislop with npm, Yarn, pnpm, Bun, Homebrew, pipx, or GitHub Packages. Requirements, aislop-tools, and external tool setup."
 ---
 
-aislop is published to npm, Homebrew, and PyPI. Every channel installs the identical `aislop` and `aislop-mcp` commands. Pick the channel that fits your stack — or run without installing at all using `npx aislop@latest scan`.
+aislop is published to npm, Homebrew, and PyPI. Every channel installs the identical `aislop` and `aislop-mcp` commands. Pick the channel that fits your stack, or run without installing: `npx aislop@latest scan`.
 
 ## Requirements
 
@@ -104,22 +104,30 @@ npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
 
 ## Bundled tooling
 
-aislop ships the following tools as package dependencies or bundled binaries — you do not need to install them separately:
+oxlint, Biome, knip, and expo-doctor ship as package dependencies. Package installation does not run dependency lifecycle scripts, so the core scanner works with npm's secure install defaults.
 
-| Tool | Purpose | Languages |
-|---|---|---|
-| [oxlint](https://oxc.rs/) | Linting | TypeScript, JavaScript |
-| [Biome](https://biomejs.dev/) | Formatting + linting | TypeScript, JavaScript |
-| [knip](https://knip.dev/) | Dead code + unused deps | TypeScript, JavaScript |
-| [ruff](https://docs.astral.sh/ruff/) | Linting + formatting | Python |
-| [golangci-lint](https://golangci-lint.run/) | Linting | Go |
-| [expo-doctor](https://docs.expo.dev/) | Framework checks | Expo / React Native |
-
-`ruff` and `golangci-lint` are downloaded as binaries during `npm install` (or equivalent). To skip binary downloads — for example in air-gapped environments or when you want to manage these tools yourself — set the environment variable before installing:
+For bundled **ruff** and **golangci-lint** coverage, run the explicit tool installer once after installing aislop:
 
 ```bash
-AISLOP_SKIP_TOOL_DOWNLOAD=1 npm install
+aislop-tools
 ```
+
+One-off from npx:
+
+```bash
+npx --yes --package=aislop@latest aislop-tools
+```
+
+The command exits non-zero if a supported binary cannot be installed. Skip it in air-gapped environments and install those tools yourself, then confirm coverage with `aislop doctor`.
+
+| Tool | Purpose | Languages | Install source |
+|---|---|---|---|
+| [oxlint](https://oxc.rs/) | Linting | TypeScript, JavaScript | Package dependency |
+| [Biome](https://biomejs.dev/) | Formatting + linting | TypeScript, JavaScript | Package dependency |
+| [knip](https://knip.dev/) | Dead code + unused deps | TypeScript, JavaScript | Package dependency |
+| [expo-doctor](https://docs.expo.dev/) | Framework checks | Expo / React Native | Package dependency |
+| [ruff](https://docs.astral.sh/ruff/) | Linting + formatting | Python | `aislop-tools` |
+| [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
 
 ## External tools
 

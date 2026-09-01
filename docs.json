@@ -1,143 +1,196 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Scanaislop Documentation",
-  "logo": {
-    "light": "/assets/images/scanaislop_logo.png",
-    "dark": "/assets/images/scanaislop_logo.png"
-  },
+  "theme": "maple",
+  "name": "aislop",
+  "description": "CLI quality gate for AI generated code. Scan, score, and fix slop across 10 language targets. Deterministic, no LLM at runtime.",
   "colors": {
     "primary": "#10b981",
-    "light": "#10b981",
-    "dark": "#10b981"
+    "light": "#34d399",
+    "dark": "#059669"
   },
-  "favicon": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg",
+  "logo": {
+    "light": "/assets/logo-light.svg",
+    "dark": "/assets/logo-dark.svg",
+    "href": "https://scanaislop.com"
+  },
+  "favicon": "/assets/favicon.svg",
+  "appearance": {
+    "default": "system"
+  },
   "fonts": {
     "heading": {
-      "family": "Space Grotesk"
+      "family": "Inter"
     },
     "body": {
       "family": "Inter"
     }
   },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": "dark"
+  },
+  "thumbnails": {
+    "appearance": "dark",
+    "background": "/assets/og-image.png"
+  },
   "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://scanaislop.com"
+      },
+      {
+        "label": "npm",
+        "href": "https://www.npmjs.com/package/aislop"
+      }
+    ],
     "primary": {
       "type": "github",
       "href": "https://github.com/scanaislop/aislop"
     }
   },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/scanaislop/aislop",
+      "x": "https://x.com/scanaislop",
+      "discord": "https://discord.gg/Mzz4A6mfj6"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Website",
+            "href": "https://scanaislop.com"
+          },
+          {
+            "label": "Pricing",
+            "href": "https://scanaislop.com/pricing"
+          },
+          {
+            "label": "CLI on GitHub",
+            "href": "https://github.com/scanaislop/aislop"
+          },
+          {
+            "label": "npm",
+            "href": "https://www.npmjs.com/package/aislop"
+          }
+        ]
+      },
+      {
+        "header": "Docs",
+        "items": [
+          {
+            "label": "Quickstart",
+            "href": "/quickstart"
+          },
+          {
+            "label": "Installation",
+            "href": "/installation"
+          },
+          {
+            "label": "Scoring",
+            "href": "/concepts/scoring"
+          },
+          {
+            "label": "Changelog",
+            "href": "/reference/changelog"
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude"]
+  },
+  "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/"
+    }
+  ],
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Get Started",
-        "groups": [
-          {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "installation"
-            ]
-          },
-          {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/how-it-works",
-              "concepts/scoring",
-              "concepts/rules",
-              "concepts/supported-languages"
-            ]
-          }
+        "group": "Get started",
+        "pages": [
+          "index",
+          "quickstart",
+          "installation"
         ]
       },
       {
-        "tab": "CLI Reference",
-        "groups": [
-          {
-            "group": "Command reference",
-            "pages": [
-              "cli/commands",
-              "cli/scan",
-              "cli/agent",
-              "cli/fix",
-              "cli/ci",
-              "cli/init",
-              "cli/doctor",
-              "cli/rules",
-              "cli/hooks",
-              "cli/badge",
-              "cli/trend",
-              "cli/update-version"
-            ]
-          }
+        "group": "Concepts",
+        "pages": [
+          "concepts/how-it-works",
+          "concepts/scoring",
+          "concepts/rules",
+          "concepts/supported-languages"
         ]
       },
       {
-        "tab": "Integrations",
-        "groups": [
-          {
-            "group": "Integrations",
-            "pages": [
-              "integrations/github-actions",
-              "integrations/instant-scan",
-              "integrations/pre-commit",
-              "integrations/ci-cd",
-              "integrations/agent-skill",
-              "integrations/mcp-server",
-              "integrations/vscode"
-            ]
-          }
+        "group": "CLI",
+        "pages": [
+          "cli/commands",
+          "cli/scan",
+          "cli/agent",
+          "cli/fix",
+          "cli/ci",
+          "cli/init",
+          "cli/doctor",
+          "cli/rules",
+          "cli/hooks",
+          "cli/badge",
+          "cli/trend",
+          "cli/update-version"
         ]
       },
       {
-        "tab": "Configuration",
-        "groups": [
-          {
-            "group": "Configuration",
-            "pages": [
-              "configuration/config-file",
-              "configuration/example-configs",
-              "configuration/engines",
-              "configuration/rule-overrides",
-              "configuration/architecture-rules",
-              "configuration/ignoring-code"
-            ]
-          }
+        "group": "Integrations",
+        "pages": [
+          "integrations/github-actions",
+          "integrations/instant-scan",
+          "integrations/pre-commit",
+          "integrations/ci-cd",
+          "integrations/agent-skill",
+          "integrations/mcp-server",
+          "integrations/vscode"
         ]
       },
       {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/writing-comments"
-            ]
-          }
+        "group": "Configuration",
+        "pages": [
+          "configuration/config-file",
+          "configuration/example-configs",
+          "configuration/engines",
+          "configuration/rule-overrides",
+          "configuration/architecture-rules",
+          "configuration/ignoring-code"
         ]
       },
       {
-        "tab": "Reference",
-        "groups": [
-          {
-            "group": "Technical reference",
-            "pages": [
-              "reference/rules-reference",
-              "reference/config-schema",
-              "reference/changelog",
-              "reference/telemetry"
-            ]
-          },
-          {
-            "group": "Research and operations",
-            "pages": [
-              "reference/research-program",
-              "reference/oss-benchmarking",
-              "reference/github-marketplace-action",
-              "reference/release-checklist",
-              "reference/fix-to-pr"
-            ]
-          }
+        "group": "Guides",
+        "pages": [
+          "guides/writing-comments"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/rules-reference",
+          "reference/config-schema",
+          "reference/changelog",
+          "reference/telemetry"
+        ]
+      },
+      {
+        "group": "Operations",
+        "pages": [
+          "reference/research-program",
+          "reference/oss-benchmarking",
+          "reference/github-marketplace-action",
+          "reference/release-checklist",
+          "reference/fix-to-pr"
         ]
       }
     ]
