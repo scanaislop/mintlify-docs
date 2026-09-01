@@ -11,6 +11,20 @@
     "light": "#10b981",
     "dark": "#10b981"
   },
+  "appearance": {
+    "default": "system"
+  },
+  "background": {
+    "decoration": "grid"
+  },
+  "seo": {
+    "indexing": "all",
+    "metatags": {
+      "title": "Scanaislop Documentation",
+      "description": "Scanaislop Documentation",
+      "image": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg"
+    }
+  },
   "favicon": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg",
   "fonts": {
     "heading": {

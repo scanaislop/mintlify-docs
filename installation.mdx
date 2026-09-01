@@ -1,10 +1,10 @@
 ---
-title: "Install aislop: npm, Homebrew, pipx, and more"
+title: "npm, Homebrew, pipx, and more"
 sidebarTitle: "Installation"
-description: "Every way to install aislop — npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages — plus requirements, bundled tools, and external tool setup."
+description: "Every way to install aislop; npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages; plus requirements, bundled tools, and external tool setup."
 ---
 
-aislop is published to npm, Homebrew, and PyPI. Every channel installs the identical `aislop` and `aislop-mcp` commands. Pick the channel that fits your stack — or run without installing at all using `npx aislop@latest scan`.
+Scanaislop is published to npm, Homebrew, and PyPI. Every channel installs the identical `aislop` and `aislop-mcp` commands. Pick the channel that fits your stack — or run without installing at all using `npx aislop@latest scan`.
 
 ## Requirements
 
@@ -15,29 +15,29 @@ aislop requires **Node.js 20 or later**. You can check your version with `node -
 Install aislop as a project dev dependency or as a global binary, depending on how you plan to use it.
 
 <CodeGroup>
-  ```bash npx (no install)
-  npx aislop@latest scan
-  ```
+    ```bash npx (no install)
+    npx aislop@latest scan
+    ```
 
-  ```bash npm
-  npm install --save-dev aislop
-  ```
+    ```bash npm
+    npm install --save-dev aislop
+    ```
 
-  ```bash Yarn
-  yarn add --dev aislop
-  ```
+    ```bash Yarn
+    yarn add --dev aislop
+    ```
 
-  ```bash pnpm
-  pnpm add -D aislop
-  ```
+    ```bash pnpm
+    pnpm add -D aislop
+    ```
 
-  ```bash Bun
-  bun add -d aislop
-  ```
+    ```bash Bun
+    bun add -d aislop
+    ```
 
-  ```bash Global (npm)
-  npm install -g aislop
-  ```
+    ```bash Global (npm)
+    npm install -g aislop
+    ```
 </CodeGroup>
 
 After a local dev-dependency install, run aislop via your package manager:
@@ -50,7 +50,8 @@ bunx aislop scan
 ```
 
 <Tip>
-  Use `npx aislop@latest scan` to always run the latest published version without managing a local install. This is the recommended approach for one-off scans and CI pipelines where you want automatic updates.
+    Use `npx aislop@latest scan` to always run the latest published version without managing a local install. This is
+    the recommended approach for one-off scans and CI pipelines where you want automatic updates.
 </Tip>
 
 ## Homebrew
@@ -151,7 +152,9 @@ lint:
 ```
 
 <Warning>
-  If an external tool is missing, aislop skips the corresponding engine and notes it in the scan output. Scores for projects in those languages will be lower than they would be with full engine coverage. Run `aislop doctor` to see exactly which engines are available on your system.
+    If an external tool is missing, aislop skips the corresponding engine and notes it in the scan output. Scores for
+    projects in those languages will be lower than they would be with full engine coverage. Run `aislop doctor` to see
+    exactly which engines are available on your system.
 </Warning>
 
 ## Verify your installation
@@ -180,18 +183,18 @@ npx aislop@latest badge    # generate badge markdown for your repo
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card
-    title="Quickstart"
-    icon="bolt"
-    href="/quickstart"
-  >
-    Run your first scan, read your score, and add a CI gate in four steps.
-  </Card>
-  <Card
-    title="Configuration"
-    icon="sliders"
-    href="/configuration/config-file"
-  >
-    Tune score thresholds, override rule severity, and manage project-wide ignores.
-  </Card>
+    <Card
+        title="Quickstart"
+        icon="bolt"
+        href="/quickstart"
+    >
+        Run your first scan, read your score, and add a CI gate in four steps.
+    </Card>
+    <Card
+        title="Configuration"
+        icon="sliders"
+        href="/configuration/config-file"
+    >
+        Tune score thresholds, override rule severity, and manage project-wide ignores.
+    </Card>
 </CardGroup>
