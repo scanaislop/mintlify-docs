@@ -33,22 +33,7 @@
     "appearance": "dark",
     "background": "/assets/og-image.png"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Website",
-        "href": "https://scanaislop.com"
-      },
-      {
-        "label": "npm",
-        "href": "https://www.npmjs.com/package/aislop"
-      }
-    ],
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/scanaislop/aislop"
-    }
-  },
+
   "footer": {
     "socials": {
       "github": "https://github.com/scanaislop/aislop",
