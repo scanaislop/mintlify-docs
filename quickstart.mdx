@@ -191,6 +191,22 @@ You don't need to install anything to get your first score. aislop runs directly
     aislop hook install --claude --quality-gate
     ```
   </Step>
+
+  <Step title="Give aislop to your coding agent">
+    Install the skill so the agent knows when to scan, then drop repo instructions it will actually load.
+
+    ```bash
+    npx skills add scanaislop/skills
+    ```
+
+    Paste this into the agent if you want it to do the setup:
+
+    ```text
+    Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+    ```
+
+    Copy-paste prompt, AGENTS.md template, skill URL, and MCP snippet: [For agents](/agents).
+  </Step>
 </Steps>
 
 ## What's next
@@ -206,11 +222,11 @@ You now have a scan, a score, a repair workflow, and a CI gate. Explore the rest
     All install channels: npm, Yarn, pnpm, Bun, Homebrew, pipx, and GitHub Packages.
   </Card>
   <Card
-    title="Local repair agent"
-    icon="bot"
-    href="/cli/agent"
+    title="For agents"
+    icon="robot"
+    href="/agents"
   >
-    Run Codex, Claude Code, or OpenCode while aislop owns scoring and verification.
+    Copy a prompt or URL so the agent installs the skill, hooks, and AGENTS.md.
   </Card>
   <Card
     title="Scan Command Reference"

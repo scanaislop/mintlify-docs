@@ -4,7 +4,9 @@ sidebarTitle: "hooks"
 description: "Install hooks that run after every AI agent edit and give instant score feedback, blocking regressions before they reach your repository."
 ---
 
-aislop hooks plug into your AI coding agent's edit loop. After every change the agent makes, the hook runs a scan and feeds the score and findings straight back into the agent's context—so instead of discovering slop at CI time, the agent sees it immediately and can correct its own output. For agents that support stop hooks, you can also block commits if the score regresses below a baseline.
+aislop hooks plug into your AI coding agent's edit loop. After every change the agent makes, the hook runs a scan and feeds the score and findings straight back into the agent's context, so instead of discovering slop at CI time, the agent sees it immediately and can correct its own output. For agents that support stop hooks, you can also block commits if the score regresses below a baseline.
+
+To install the skill, hooks, and `AGENTS.md` in one paste, see [For agents](/agents).
 
 ## Install a hook
 

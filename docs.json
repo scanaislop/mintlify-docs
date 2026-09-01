@@ -78,6 +78,10 @@
             "href": "/concepts/scoring"
           },
           {
+            "label": "For agents",
+            "href": "/agents"
+          },
+          {
             "label": "Changelog",
             "href": "/reference/changelog"
           }
@@ -92,6 +96,10 @@
     {
       "source": "/introduction",
       "destination": "/"
+    },
+    {
+      "source": "/for-agents",
+      "destination": "/agents"
     }
   ],
   "navigation": {
@@ -101,7 +109,8 @@
         "pages": [
           "index",
           "quickstart",
-          "installation"
+          "installation",
+          "agents"
         ]
       },
       {

@@ -9,10 +9,18 @@ The aislop agent skill teaches coding agents how to use the CLI as a quality gat
 - **Prevention:** avoid patterns that aislop flags before writing them.
 - **Detection and fix:** run a scoped scan after editing, auto-fix mechanical findings, verify the remaining findings against source, and only hand back work once the bar is met.
 
+To also install hooks and `AGENTS.md` in one paste, use [For agents](/agents).
+
 ## Install
 
 ```bash
 npx skills add scanaislop/skills
+```
+
+Give an agent this URL if it can fetch files:
+
+```text
+https://scanaislop.com/.well-known/agent-skills/aislop/SKILL.md
 ```
 
 That installs the `aislop` skill from the public `scanaislop/skills` repository. The live skills.sh listing is:

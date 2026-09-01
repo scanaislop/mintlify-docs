@@ -1,0 +1,145 @@
+---
+title: "Give aislop to your coding agent"
+sidebarTitle: "For agents"
+description: "Copy one prompt or URL so Claude Code, Cursor, Codex, and other agents install the aislop skill, hooks, and AGENTS.md standard."
+---
+
+Paste a prompt, a URL, or three commands. The agent then installs the [aislop skill](/integrations/agent-skill), [hooks](/cli/hooks), and repo instructions so every edit is held to the same quality gate.
+
+## Paste this into any agent
+
+```text
+Set up aislop as the quality gate for this repository.
+
+Read https://docs.scanaislop.com/agents
+and https://scanaislop.com/.well-known/agent-skills/aislop/SKILL.md
+
+Then:
+1. npx skills add scanaislop/skills
+2. npx aislop@latest hook install
+3. Add the AGENTS.md template from that docs page (also CLAUDE.md / GEMINI.md if those files exist)
+4. npx aislop@latest scan
+5. npx aislop@latest fix
+
+Do not disable rules. Scan after edits. Fix mechanical findings with aislop fix. Fix the rest in-session. Re-scan before you say done.
+```
+
+That block is enough. The agent can fetch the pages, install the skill and hooks, and write the standard.
+
+## Or send a URL
+
+Give the agent this page:
+
+```text
+https://docs.scanaislop.com/agents
+```
+
+Or the loadable skill file:
+
+```text
+https://scanaislop.com/.well-known/agent-skills/aislop/SKILL.md
+```
+
+Related machine-readable surfaces:
+
+| URL | What it is |
+|---|---|
+| [scanaislop.com/llms.txt](https://scanaislop.com/llms.txt) | Compact product and command index for agents |
+| [scanaislop.com/.well-known/agent-skills/index.json](https://scanaislop.com/.well-known/agent-skills/index.json) | Skill discovery index |
+| [skills.sh/scanaislop/skills](https://www.skills.sh/scanaislop/skills) | Public skill listing |
+
+## Or run the commands yourself
+
+```bash
+npx skills add scanaislop/skills
+npx aislop@latest hook install
+npx aislop@latest scan
+```
+
+`npx skills add scanaislop/skills` installs the aislop skill into the coding agents on this machine. `aislop hook install` wires a scan after every agent edit (Claude Code, Cursor, Gemini CLI, and others). See [Agent skill](/integrations/agent-skill) and [Hooks](/cli/hooks) for flags.
+
+Add `--quality-gate` when you want the agent blocked if the score drops:
+
+```bash
+npx aislop@latest hook install --claude --quality-gate
+npx aislop@latest hook baseline
+```
+
+## AGENTS.md template
+
+Drop this at the repo root as `AGENTS.md`. If the repo already has `CLAUDE.md` or `GEMINI.md`, add `@AGENTS.md` on its own line (or copy the same body).
+
+````md
+# aislop
+
+aislop is the quality gate for AI generated code in this repo. Scan after you edit. Treat findings as blocking, not advisory.
+
+## Install (once)
+
+    npx skills add scanaislop/skills
+    npx aislop@latest hook install
+
+## On every edit
+
+1. npx aislop@latest scan --changes --json (or --staged before commit)
+2. npx aislop@latest fix for mechanical issues (imports, comments, formatting)
+3. Fix remaining findings in-session in this project's style
+4. Re-scan. Do not say done with unresolved errors or fixable warnings
+
+## Do not
+
+- Disable rules or add blanket aislop-ignore comments to pass
+- Dump raw JSON at the user; triage findings
+- Run aislop fix -f unless asked (it can rewrite manifests)
+
+Config lives in `.aislop/config.yml`. Architecture rules, if any, live in `.aislop/rules.yml`.
+````
+
+`aislop hook install` also writes agent-specific instruction files (`AISLOP.md`, Cursor rules, Copilot instructions, and so on). Keep `AGENTS.md` as the portable copy.
+
+## Handoff prompt (remaining findings)
+
+After `aislop fix`, remaining issues need judgment. Print a prompt you can paste into any agent:
+
+```bash
+npx aislop@latest fix --prompt
+```
+
+Or open a specific agent with that prompt already filled:
+
+```bash
+npx aislop@latest fix --claude
+npx aislop@latest fix --codex
+npx aislop@latest fix --cursor
+```
+
+See [aislop agent](/cli/agent) for the local repair session, and [aislop fix](/cli/fix) for `--prompt` and agent flags.
+
+## MCP tools
+
+If the agent speaks MCP, add:
+
+```json
+{
+  "mcpServers": {
+    "aislop": {
+      "command": "npx",
+      "args": ["-y", "aislop-mcp"]
+    }
+  }
+}
+```
+
+That exposes `aislop_scan`, `aislop_fix`, `aislop_why`, and `aislop_baseline`. Details: [MCP server](/integrations/mcp-server).
+
+## How the pieces stack
+
+| Piece | Job |
+|---|---|
+| [Skill](/integrations/agent-skill) | Teaches the agent when to scan, how to fix, and when it is allowed to stop |
+| [Hooks](/cli/hooks) | Runs a scan after every edit and feeds findings back the same turn |
+| `AGENTS.md` | Portable repo instructions every agent can load |
+| [MCP](/integrations/mcp-server) | Callable tools inside the editor |
+| [aislop agent](/cli/agent) | Isolated local repair session with Codex, Claude Code, or OpenCode |
+
+Use all of them. The skill is the procedure. The hook is the enforcement. `AGENTS.md` is the written standard.

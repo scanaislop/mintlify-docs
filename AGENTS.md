@@ -30,6 +30,14 @@ Current product facts:
 - Code formatting for commands, paths, flags, and rule IDs
 - Brand color is emerald `#10b981`, matching scanaislop.com
 
+## Agent surfaces to keep in docs
+
+- `/agents` is the copy-paste page: prompt, skill URL, hooks, AGENTS.md template
+- Skill install: `npx skills add scanaislop/skills`
+- Skill file: `https://scanaislop.com/.well-known/agent-skills/aislop/SKILL.md`
+- Hooks: `npx aislop@latest hook install`
+- Handoff: `npx aislop@latest fix --prompt`
+
 ## What not to document here
 
 Internal admin, unreleased enterprise-only flows, and cultural "AI slop" jokes that are not about generated code.

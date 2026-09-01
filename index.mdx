@@ -79,6 +79,23 @@ Built-in checks still run when optional system tools are missing. If a repositor
 
 Current CLI: **v0.16.0**. MIT licensed.
 
+## Give this to your agent
+
+Paste this into Claude Code, Cursor, Codex, or any other coding agent. It installs the aislop skill, hooks, and `AGENTS.md` standard.
+
+```text
+Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+```
+
+Or run:
+
+```bash
+npx skills add scanaislop/skills
+npx aislop@latest hook install
+```
+
+Full copy-paste prompt, AGENTS.md template, and URLs: [For agents](/agents).
+
 ## Next
 
 <CardGroup cols={2}>
@@ -91,7 +108,7 @@ Current CLI: **v0.16.0**. MIT licensed.
   <Card title="How it works" icon="gears" href="/concepts/how-it-works">
     Engines, language coverage, and scoring.
   </Card>
-  <Card title="Local repair agent" icon="robot" href="/cli/agent">
-    Use your coding agent while aislop verifies the result.
+  <Card title="For agents" icon="robot" href="/agents">
+    Copy a prompt or URL so the agent installs the skill, hooks, and AGENTS.md.
   </Card>
 </CardGroup>
