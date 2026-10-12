@@ -21,8 +21,7 @@
   },
   "favicon": "/assets/favicon.svg",
   "appearance": {
-    "default": "system",
-    "strict": false
+    "default": "system"
   },
   "fonts": {
     "heading": {
@@ -151,79 +150,6 @@
       {
         "language": "en",
         "default": true,
-        "navbar": {
-          "links": [
-            {
-              "label": "Pricing",
-              "href": "https://scanaislop.com/pricing"
-            },
-            {
-              "type": "github",
-              "label": "GitHub",
-              "href": "https://github.com/scanaislop/aislop"
-            }
-          ],
-          "primary": {
-            "type": "button",
-            "label": "Scan a repo",
-            "href": "https://scanaislop.com/try/"
-          }
-        },
-        "footer": {
-          "socials": {
-            "github": "https://github.com/scanaislop/aislop",
-            "x": "https://x.com/scanaislop",
-            "discord": "https://discord.gg/Mzz4A6mfj6"
-          },
-          "links": [
-            {
-              "header": "Product",
-              "items": [
-                {
-                  "label": "Website",
-                  "href": "https://scanaislop.com"
-                },
-                {
-                  "label": "Pricing",
-                  "href": "https://scanaislop.com/pricing"
-                },
-                {
-                  "label": "CLI on GitHub",
-                  "href": "https://github.com/scanaislop/aislop"
-                },
-                {
-                  "label": "npm",
-                  "href": "https://www.npmjs.com/package/aislop"
-                }
-              ]
-            },
-            {
-              "header": "Docs",
-              "items": [
-                {
-                  "label": "Quickstart",
-                  "href": "/quickstart"
-                },
-                {
-                  "label": "Installation",
-                  "href": "/installation"
-                },
-                {
-                  "label": "Scoring",
-                  "href": "/concepts/scoring"
-                },
-                {
-                  "label": "For agents",
-                  "href": "/agents"
-                },
-                {
-                  "label": "Changelog",
-                  "href": "/reference/changelog"
-                }
-              ]
-            }
-          ]
-        },
         "groups": [
           {
             "group": "Get started",
@@ -462,6 +388,84 @@
               "de/index",
               "de/quickstart",
               "de/installation"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "zh-Hans",
+        "navbar": {
+          "links": [
+            {
+              "label": "价格",
+              "href": "https://scanaislop.com/pricing"
+            },
+            {
+              "type": "github",
+              "label": "GitHub",
+              "href": "https://github.com/scanaislop/aislop"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "扫描仓库",
+            "href": "https://scanaislop.com/try/"
+          }
+        },
+        "footer": {
+          "socials": {
+            "github": "https://github.com/scanaislop/aislop",
+            "x": "https://x.com/scanaislop",
+            "discord": "https://discord.gg/Mzz4A6mfj6"
+          },
+          "links": [
+            {
+              "header": "产品",
+              "items": [
+                {
+                  "label": "官网",
+                  "href": "https://scanaislop.com"
+                },
+                {
+                  "label": "价格",
+                  "href": "https://scanaislop.com/pricing"
+                },
+                {
+                  "label": "GitHub 上的 CLI",
+                  "href": "https://github.com/scanaislop/aislop"
+                },
+                {
+                  "label": "npm",
+                  "href": "https://www.npmjs.com/package/aislop"
+                }
+              ]
+            },
+            {
+              "header": "文档",
+              "items": [
+                {
+                  "label": "快速开始",
+                  "href": "/zh/quickstart"
+                },
+                {
+                  "label": "安装",
+                  "href": "/zh/installation"
+                },
+                {
+                  "label": "完整文档（英文）",
+                  "href": "/quickstart"
+                }
+              ]
+            }
+          ]
+        },
+        "groups": [
+          {
+            "group": "入门",
+            "pages": [
+              "zh/index",
+              "zh/quickstart",
+              "zh/installation"
             ]
           }
         ]

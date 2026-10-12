@@ -30,7 +30,7 @@ Current product facts:
 - Code formatting for commands, paths, flags, and rule IDs
 - Brand color is emerald (`#059669` light, `#10b981` dark), matching scanaislop.com
 - Fonts: Mona Sans (self-hosted in `/fonts`) for text, Geist Mono for code via `style.css`
-- Localised pages live in `es/` and `de/`. Update them when you change `index`, `quickstart`, or `installation`. Keep code, commands, and flags untranslated
+- Localised pages live in `es/`, `de/`, and `zh/` (language code `zh-Hans`). Update them when you change `index`, `quickstart`, or `installation`. Keep code, commands, and flags untranslated
 
 ## Agent surfaces to keep in docs
 

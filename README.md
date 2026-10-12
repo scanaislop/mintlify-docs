@@ -29,6 +29,6 @@ The Mintlify GitHub app deploys from the default branch after merge.
 
 ## Languages
 
-English is the default. Spanish (`es/`) and German (`de/`) cover the Get started pages. Run `mint validate` and `mint broken-links` before pushing.
+English is the default. Spanish (`es/`), German (`de/`), and Simplified Chinese (`zh/`, code `zh-Hans`) cover the Get started pages. Run `mint validate` and `mint broken-links` before pushing.
 
 If a page 404s locally, run from the directory that contains `docs.json`.
