@@ -25,5 +25,10 @@ The Mintlify GitHub app deploys from the default branch after merge.
 - Logo: `/assets/logo-light.svg` and `/assets/logo-dark.svg`
 - Favicon: `/assets/favicon.svg` (same mark as scanaislop.com)
 - No generated hero illustrations
+- Theme: `luma`, colors and fonts aligned with scanaislop.com tokens
+
+## Languages
+
+English is the default. Spanish (`es/`) and German (`de/`) cover the Get started pages. Run `mint validate` and `mint broken-links` before pushing.
 
 If a page 404s locally, run from the directory that contains `docs.json`.

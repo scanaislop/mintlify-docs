@@ -1,0 +1,114 @@
+---
+title: "aislop: Quality Gate für KI-generierten Code"
+sidebarTitle: "Überblick"
+description: "aislop ist eine CLI, die KI-generierten Code mit 0 bis 100 Punkten bewertet. Sechs deterministische Engines, 10 Sprachen, kein LLM zur Laufzeit."
+---
+
+aislop ist die Open-Source-CLI, die als Quality Gate für KI-generierten Code dient. Du lässt sie über ein Repository laufen und bekommst einen Score von 0 bis 100, eine Liste mit Datei und Zeile für jede Korrektur und einen Exit-Code, den du in CI durchsetzen kannst.
+
+scanaislop.com ist die gehostete Plattform rund um diese CLI: Badges, öffentliche Scans und Team-Gates. Diese Dokumentation behandelt die CLI.
+
+```bash
+npx aislop@latest scan
+```
+
+```
+Score  87 / 100  Healthy
+
+⚠  ai-slop/narrative-comment     src/auth/login.ts:14
+⚠  ai-slop/unused-import         src/services/users.ts:3
+⚠  code-quality/function-too-long src/commands/fix-render.ts:14
+
+0 errors · 6 warnings · 4 fixable
+```
+
+Keine Konfiguration nötig. Gleicher Code ergibt immer den gleichen Score. Im Ausführungspfad steckt kein Sprachmodell: aislop arbeitet mit regulären Ausdrücken, AST-Analyse und etablierten Open-Source-Tools.
+
+## Was aislop findet
+
+KI-Coding-Agents (Claude Code, Cursor, Codex, OpenCode, Gemini CLI) erzeugen oft Code, der Tests und Linter besteht und trotzdem Rückstände hinterlässt: erzählende Kommentare, verschluckte Exceptions, `as any`-Casts, halluzinierte Imports, toten Code, TODO-Stubs und überlange Funktionen. aislop kennt über 50 solcher Muster und gewichtet sie so, dass Sicherheitsprobleme und eindeutige Defekte stärker zählen als mechanisches Aufräumen.
+
+## Sechs Engines
+
+Jeder Scan führt sechs Engines parallel aus. Architecture ist optional.
+
+<CardGroup cols={2}>
+  <Card title="Formatierung" icon="paintbrush">
+    Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer, dotnet format, clang-format.
+  </Card>
+  <Card title="Linting" icon="triangle-exclamation">
+    oxlint, ruff, golangci-lint, clippy, expo-doctor, Roslynator / InspectCode, cppcheck / clang-tidy.
+  </Card>
+  <Card title="Codequalität" icon="gauge-high">
+    Funktions- und Dateigröße, Verschachtelungstiefe, ungenutzte Dateien und Abhängigkeiten per knip, ungenutzte Deklarationen.
+  </Card>
+  <Card title="AI slop" icon="robot">
+    Erzählende und triviale Kommentare, verschluckte Exceptions, `as any`, ungenutzte Imports, TODO-Stubs, generische Namen.
+  </Card>
+  <Card title="Sicherheit" icon="shield-halved">
+    `eval`, `innerHTML`, Injection-Muster, hartkodierte Secrets und Dependency-Audits.
+  </Card>
+  <Card title="Architektur" icon="sitemap">
+    Optionale Import-Verbote, Schichtregeln und Pflichtmuster in `.aislop/rules.yml`.
+  </Card>
+</CardGroup>
+
+## 10 Sprachen
+
+| Sprache | Target |
+|---|---|
+| TypeScript | `typescript` |
+| JavaScript | `javascript` |
+| Expo / React Native | `expo` |
+| Python | `python` |
+| Go | `go` |
+| Rust | `rust` |
+| Ruby | `ruby` |
+| PHP | `php` |
+| C# | `csharp` |
+| C/C++ | `cpp` |
+
+Die eingebauten Prüfungen laufen auch dann, wenn optionale Systemtools fehlen. Besteht ein Repository überwiegend aus einer nicht unterstützten Sprache (Swift, Kotlin, Java), hält aislop den Score zurück und meldet `scoreable: false`, statt ein paar zufällige Dateien zu bewerten.
+
+## Warum es in CI sicher ist
+
+- **Deterministisch.** Kein LLM zur Laufzeit. Derselbe Stand ergibt immer denselben Score.
+- **Schnell.** Die Engines laufen parallel. Die meisten Projekte sind in deutlich unter einer Sekunde gescannt.
+- **Ohne Konfiguration startklar.** `npx aislop@latest scan` funktioniert in jedem unterstützten Repository. Leg `.aislop/config.yml` an, sobald du Schwellenwerte, Regel-Overrides oder Architekturregeln brauchst.
+- **Weg zur Reparatur.** `aislop fix` übernimmt das mechanische Aufräumen. `aislop agent` startet eine lokale Codex-, Claude-Code- oder OpenCode-Session, in der aislop Bewertung und Verifikation übernimmt.
+
+Aktuelle CLI: **v0.16.0**. MIT-Lizenz.
+
+## Für deinen Agent
+
+Füge das in Claude Code, Cursor, Codex oder einen anderen Coding-Agent ein. Es installiert den aislop-Skill, die Hooks und den `AGENTS.md`-Standard.
+
+```text
+Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+```
+
+Oder führe aus:
+
+```bash
+npx skills add scanaislop/skills
+npx aislop@latest hook install
+```
+
+Vollständiger Prompt, AGENTS.md-Vorlage und URLs (auf Englisch): [For agents](/agents).
+
+## Weiter
+
+<CardGroup cols={2}>
+  <Card title="Schnellstart" icon="bolt" href="/de/quickstart">
+    Scannen, Score lesen, reparieren und ein CI-Gate einrichten.
+  </Card>
+  <Card title="Installation" icon="download" href="/de/installation">
+    npm, Homebrew, pipx, GitHub Packages und optionale Tools.
+  </Card>
+  <Card title="So funktioniert es (Englisch)" icon="gears" href="/concepts/how-it-works">
+    Engines, Sprachabdeckung und Scoring.
+  </Card>
+  <Card title="Für Agents (Englisch)" icon="robot" href="/agents">
+    Kopiere einen Prompt oder eine URL, damit der Agent Skill, Hooks und AGENTS.md installiert.
+  </Card>
+</CardGroup>
