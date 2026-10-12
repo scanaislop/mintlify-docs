@@ -1,0 +1,205 @@
+---
+title: "aislop installieren: npm, Homebrew, pipx und mehr"
+sidebarTitle: "Installation"
+description: "Installiere aislop mit npm, Yarn, pnpm, Bun, Homebrew, pipx oder GitHub Packages. Voraussetzungen, aislop-tools und externe Tools."
+---
+
+aislop wird auf npm, Homebrew und PyPI veröffentlicht. Jeder Kanal installiert dieselben Befehle `aislop` und `aislop-mcp`. Wähle den Kanal, der zu deinem Stack passt, oder starte ohne Installation: `npx aislop@latest scan`.
+
+## Voraussetzungen
+
+aislop benötigt **Node.js 20 oder neuer**. Deine Version prüfst du mit `node --version`. Die Homebrew-Installation zieht Node automatisch als Abhängigkeit mit; bei der pipx-Installation muss Node bereits in deinem `PATH` liegen.
+
+## npm, Yarn, pnpm und Bun
+
+Installiere aislop als Dev-Dependency im Projekt oder als globales Binary, je nachdem, wie du es einsetzen willst.
+
+<CodeGroup>
+  ```bash npx (no install)
+  npx aislop@latest scan
+  ```
+
+  ```bash npm
+  npm install --save-dev aislop
+  ```
+
+  ```bash Yarn
+  yarn add --dev aislop
+  ```
+
+  ```bash pnpm
+  pnpm add -D aislop
+  ```
+
+  ```bash Bun
+  bun add -d aislop
+  ```
+
+  ```bash Global (npm)
+  npm install -g aislop
+  ```
+</CodeGroup>
+
+Nach einer lokalen Installation als Dev-Dependency startest du aislop über deinen Paketmanager:
+
+```bash
+npx aislop scan
+yarn aislop scan
+pnpm aislop scan
+bunx aislop scan
+```
+
+<Tip>
+  Mit `npx aislop@latest scan` nutzt du immer die neueste veröffentlichte Version, ohne eine lokale Installation pflegen zu müssen. Das ist der empfohlene Weg für einmalige Scans und für CI-Pipelines, die automatisch aktuell bleiben sollen.
+</Tip>
+
+## Homebrew
+
+Installiere aislop auf macOS oder Linux über den offiziellen Tap:
+
+```bash
+brew install scanaislop/tap/aislop
+```
+
+Gleichwertige Variante in zwei Schritten, falls du den Tap separat hinzufügen möchtest:
+
+```bash
+brew tap scanaislop/tap
+brew install aislop
+```
+
+Homebrew installiert Node.js als Laufzeitabhängigkeit, falls es noch fehlt. Aktualisieren kannst du aislop mit:
+
+```bash
+brew upgrade aislop
+```
+
+Mehr dazu: [scanaislop/homebrew-tap](https://github.com/scanaislop/homebrew-tap)
+
+## pipx (Python-Umgebungen)
+
+Für Python-lastige Projekte oder Umgebungen, in denen pipx dein Standard-Installer für Tools ist:
+
+```bash
+pipx install aislop
+```
+
+`pipx` hält aislop in einer isolierten virtuellen Umgebung, sodass es nie mit deinen Python-Abhängigkeiten kollidiert. Ein einfaches `pip install --user aislop` funktioniert ebenfalls. In beiden Fällen brauchst du **Node.js in deinem `PATH`**, weil die Analyse-Engines von aislop auf Node laufen.
+
+Aktualisieren mit:
+
+```bash
+pipx upgrade aislop
+```
+
+Mehr dazu: [aislop auf PyPI](https://pypi.org/project/aislop/)
+
+## GitHub Packages
+
+aislop ist auch als `@scanaislop/aislop` auf GitHub Packages verfügbar. Nutze diesen Kanal, wenn die Sicherheitsrichtlinien deiner Organisation verlangen, dass Pakete aus der GitHub-Registry stammen:
+
+```bash
+npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
+```
+
+## Mitgelieferte Tools
+
+oxlint, Biome, knip und expo-doctor werden als Paketabhängigkeiten mitgeliefert. Die Paketinstallation führt keine Lifecycle-Skripte von Abhängigkeiten aus, daher funktioniert der Kern-Scanner mit den sicheren Installations-Defaults von npm.
+
+Für die mitgelieferte Abdeckung durch **ruff** und **golangci-lint** führst du nach der Installation von aislop einmal den expliziten Tool-Installer aus:
+
+```bash
+aislop-tools
+```
+
+Einmalig über npx:
+
+```bash
+npx --yes --package=aislop@latest aislop-tools
+```
+
+Der Befehl endet mit einem Exit-Code ungleich null, wenn sich ein unterstütztes Binary nicht installieren lässt. In Air-Gapped-Umgebungen lässt du ihn weg, installierst die Tools selbst und prüfst die Abdeckung anschließend mit `aislop doctor`.
+
+| Tool | Zweck | Sprachen | Quelle |
+|---|---|---|---|
+| [oxlint](https://oxc.rs/) | Linting | TypeScript, JavaScript | Paketabhängigkeit |
+| [Biome](https://biomejs.dev/) | Formatierung + Linting | TypeScript, JavaScript | Paketabhängigkeit |
+| [knip](https://knip.dev/) | Toter Code + ungenutzte Abhängigkeiten | TypeScript, JavaScript | Paketabhängigkeit |
+| [expo-doctor](https://docs.expo.dev/) | Framework-Prüfungen | Expo / React Native | Paketabhängigkeit |
+| [ruff](https://docs.astral.sh/ruff/) | Linting + Formatierung | Python | `aislop-tools` |
+| [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
+
+## Externe Tools
+
+Einige Engines setzen Tools voraus, die bereits auf deinem Rechner installiert sein müssen. Sie werden nicht mitgeliefert, weil sie ohnehin die jeweilige Toolchain der Sprache voraussetzen.
+
+| Tool | Benötigt für | Installationsanleitung |
+|---|---|---|
+| `gofmt` | Go-Formatierung | Teil der [Go-Toolchain](https://go.dev/dl/) |
+| `govulncheck` | Dependency-Audit für Go | `go install golang.org/x/vuln/cmd/govulncheck@latest` |
+| `cargo` + `clippy` | Rust-Linting + Formatierung | [rustup.rs](https://rustup.rs/) |
+| `rubocop` | Ruby-Formatierung + Linting | `gem install rubocop` |
+| `phpcs` + `php-cs-fixer` | PHP-Formatierung + Linting | [php-cs-fixer-Doku](https://cs.symfony.com/) |
+| `.NET SDK`, `roslynator`, `jb` | C#-Formatierung, Linting und Dependency-Audit | [.NET SDK](https://dotnet.microsoft.com/download) |
+| `cppcheck`, `clang-format`, `clang-tidy` | C/C++-Linting und Formatierung | Paketmanager deines Systems |
+
+C# und C/C++ erhalten auch ohne diese Tools die eingebauten Text- und Komplexitätsprüfungen. Unter macOS installierst du die optionalen Toolchains mit:
+
+```bash
+brew install cppcheck llvm
+brew install --cask dotnet-sdk
+```
+
+Die Projektauswertung für C# ist optional. Aktiviere sie nur für Repositories, denen du vertraust:
+
+```yaml
+lint:
+  csharp:
+    projectEvaluation: true
+```
+
+<Warning>
+  Fehlt ein externes Tool, überspringt aislop die zugehörige Engine und vermerkt das in der Scan-Ausgabe. Projekte in diesen Sprachen erhalten dann niedrigere Scores als mit voller Engine-Abdeckung. Mit `aislop doctor` siehst du genau, welche Engines auf deinem System verfügbar sind.
+</Warning>
+
+## Installation prüfen
+
+Prüfe nach der Installation, ob alles funktioniert:
+
+```bash
+aislop version          # print the installed version
+aislop doctor           # check which engines can run in this project
+```
+
+`aislop doctor` meldet die Verfügbarkeit jeder Engine, weist auf fehlende externe Tools hin und zeigt die Sprachabdeckung für das aktuelle Verzeichnis.
+
+## Score-Badge anzeigen
+
+Sobald du einen Score hast, zeig ihn in deiner README:
+
+```bash
+npx aislop@latest badge    # generate badge markdown for your repo
+```
+
+```markdown
+[![aislop](https://badges.scanaislop.com/score/<owner>/<repo>.svg)](https://scanaislop.com)
+```
+
+## Nächste Schritte
+
+<CardGroup cols={2}>
+  <Card
+    title="Schnellstart"
+    icon="bolt"
+    href="/de/quickstart"
+  >
+    Ersten Scan ausführen, Score lesen und ein CI-Gate einrichten.
+  </Card>
+  <Card
+    title="Konfiguration (Englisch)"
+    icon="sliders"
+    href="/configuration/config-file"
+  >
+    Score-Schwellenwerte anpassen, Schweregrade überschreiben und projektweite Ignores verwalten.
+  </Card>
+</CardGroup>

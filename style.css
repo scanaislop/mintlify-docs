@@ -1,0 +1,88 @@
+/* Light polish to match scanaislop.com. Colors, fonts and backgrounds live in docs.json. */
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+code,
+kbd,
+pre,
+.code-block,
+.code-group {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "liga" 0;
+}
+
+#page-title,
+.mdx-content h1 {
+  letter-spacing: -0.03em;
+}
+
+.mdx-content h2,
+.mdx-content h3 {
+  letter-spacing: -0.02em;
+}
+
+.card {
+  border-radius: 12px;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+a.card:hover {
+  transform: translateY(-1px);
+}
+
+.code-block,
+.code-group,
+.callout {
+  border-radius: 8px;
+}
+
+#topbar-cta-button a,
+#topbar-cta-button button {
+  border-radius: 8px;
+}
+
+/* Mona Sans has no CJK glyphs. Put CJK system fonts ahead of the generic fallbacks
+   so Chinese text gets a proper face on every OS. Latin text still renders in Mona Sans. */
+html:root {
+  --font-family-body-custom: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-family-headings-custom: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+:lang(zh-Hans) body,
+:lang(zh) body,
+html[data-current-path^="/zh"] body {
+  font-family: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+}
+
+:lang(zh-Hans) #page-title,
+:lang(zh) #page-title,
+:lang(zh-Hans) .mdx-content :is(h1, h2, h3),
+:lang(zh) .mdx-content :is(h1, h2, h3),
+html[data-current-path^="/zh"] #page-title,
+html[data-current-path^="/zh"] .mdx-content :is(h1, h2, h3) {
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  a.card:hover {
+    transform: none;
+  }
+}
