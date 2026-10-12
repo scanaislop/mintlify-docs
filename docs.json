@@ -68,7 +68,7 @@
     "primary": {
       "type": "button",
       "label": "Scan a repo",
-      "href": "https://scanaislop.com"
+      "href": "https://scanaislop.com/try/"
     }
   },
   "footer": {
@@ -166,7 +166,7 @@
           "primary": {
             "type": "button",
             "label": "Scan a repo",
-            "href": "https://scanaislop.com"
+            "href": "https://scanaislop.com/try/"
           }
         },
         "footer": {
@@ -327,7 +327,7 @@
           "primary": {
             "type": "button",
             "label": "Escanear un repo",
-            "href": "https://scanaislop.com"
+            "href": "https://scanaislop.com/try/"
           }
         },
         "footer": {
@@ -405,7 +405,7 @@
           "primary": {
             "type": "button",
             "label": "Repo scannen",
-            "href": "https://scanaislop.com"
+            "href": "https://scanaislop.com/try/"
           }
         },
         "footer": {
