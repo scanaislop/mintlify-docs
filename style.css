@@ -134,3 +134,21 @@ html[data-current-path^="/zh"] .mdx-content :is(h1, h2, h3) {
   align-items: center;
   font-size: 0.9375rem;
 }
+
+/* Wider reading column on large screens; the default 40.5rem leaves empty gutters. */
+@media (min-width: 1280px) {
+  :root {
+    --content-width: 46rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --content-width: 50rem;
+  }
+}
+
+/* Denser three-up cards on the overview. */
+.mdx-content .card {
+  height: 100%;
+}
