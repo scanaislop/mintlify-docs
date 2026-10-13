@@ -86,3 +86,51 @@ html[data-current-path^="/zh"] .mdx-content :is(h1, h2, h3) {
     transform: none;
   }
 }
+
+/* Mobile navigation drawer: roomier tap targets, clearer groups and a
+   language control that reads as a control, matching scanaislop.com. */
+#mobile-nav #localization-select-trigger {
+  min-height: 2.75rem;
+  border-radius: 12px;
+  padding-inline: 0.875rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+#mobile-nav #localization-select-trigger::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  background: currentColor;
+  opacity: 0.6;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+#mobile-nav .sidebar-group-header {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  opacity: 0.65;
+}
+
+#mobile-nav .sidebar-group + div,
+#mobile-nav div:has(> .sidebar-group-header) {
+  padding-top: 0.25rem;
+}
+
+#mobile-nav div:has(> .sidebar-group-header) + div:has(> .sidebar-group-header) {
+  margin-top: 0.75rem;
+  border-top: 1px solid rgb(127 127 127 / 0.14);
+  padding-top: 1rem;
+}
+
+#mobile-nav .sidebar-group a {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.9375rem;
+}
