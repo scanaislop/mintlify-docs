@@ -4,6 +4,67 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.18.1 - 2026-10-06
+
+Patch release. Pinning the GitHub Action now pins the CLI too, so Dependabot keeps both current.
+
+### Changed
+
+- **Action ref selects the CLI version.** `uses: scanaislop/aislop@v0.18.1` runs `aislop@0.18.1`, a commit SHA runs that commit's version, and `@v1` still runs the latest release.
+
+### Fixed
+
+- `aislop agent` shows the provider's own error output when a session fails, not just an exit code.
+- Patched dependency advisories in `proxy-addr`, `source-map-js`, and `smol-toml`.
+
+## 0.18.0 - 2026-10-03
+
+Baseline release. Adopt aislop on an existing codebase and gate CI on new findings only, plus fixes for false positives reported by users.
+
+### Added
+
+- **Baseline mode.** `aislop baseline write` records today's findings. With `ci.baseline` set, CI fails only on new findings. Findings match on line content, not line numbers, so unrelated edits do not resurface them. Opt-in.
+- **`imports.provided`.** Lists modules your runtime supplies so Python import checks do not flag them.
+
+### Changed
+
+- Python import checks read every `requirements*.txt` file, `-r` includes, and PEP 723 script metadata.
+- Biome and ruff follow your project's own config, and aislop uses the ruff pinned in your virtualenv. A missing tool is reported instead of silently skipped.
+
+### Fixed
+
+- Fewer false positives on UI copy under password-like keys and on Go `v, _ := f()`.
+- A bare `aislop-ignore` directive now works.
+
+## 0.17.0 - 2026-10-02
+
+Per-file overrides, a fourth agent provider, and clearer failure reporting. One scan can now hold controllers, services, and generated code to different standards.
+
+### Added
+
+- **Ordered overrides.** `overrides` in `.aislop/config.yml` apply glob-matched quality limits and rule severities; later entries win. Opt-in.
+- **pi provider.** `aislop agent` can run repair sessions on pi, alongside Codex, Claude Code, and OpenCode.
+
+### Changed
+
+- A scan with no aislop hook installed suggests installing one, and suggested commands work when run through `npx`.
+
+### Fixed
+
+- `aislop fix` keeps exports that are still used in their own file instead of deleting them.
+- `aislop badge` detects repositories with dots in their names.
+
+## 0.16.1 - 2026-09-09
+
+Maintenance release. Four rule fixes, three from outside contributors, that stop findings firing where they should not and catch handlers that were slipping through. Scores can move in either direction.
+
+### Fixed
+
+- Python `logger.exception` is no longer treated as swallowing an error, since it attaches the traceback.
+- URLs inside Python docstrings are read as documentation rather than hard-coded endpoints.
+- `target/`-style build directories are pruned, so Rust projects are not scored on generated code.
+- Multi-line Python `except` bodies are read as whole statements, so handlers wrapped across lines are no longer skipped.
+
 ## 0.16.0 - 2026-08-30
 
 Scoping release. `fix` and `scan` can be pointed at what changed rather than the whole tree, and `fix` can show what it would do before it writes anything.
