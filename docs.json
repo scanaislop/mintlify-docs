@@ -150,88 +150,144 @@
       {
         "language": "en",
         "default": true,
-        "groups": [
+        "tabs": [
           {
-            "group": "Get started",
-            "pages": [
-              "index",
-              "quickstart",
-              "installation",
-              "agents"
+            "tab": "Get started",
+            "icon": "rocket",
+            "groups": [
+              {
+                "group": "Get started",
+                "icon": "flag",
+                "pages": [
+                  "index",
+                  "quickstart",
+                  "installation",
+                  "agents"
+                ]
+              },
+              {
+                "group": "Concepts",
+                "icon": "lightbulb",
+                "pages": [
+                  "concepts/how-it-works",
+                  "concepts/scoring",
+                  "concepts/rules",
+                  "concepts/supported-languages"
+                ]
+              },
+              {
+                "group": "Guides",
+                "icon": "book-open",
+                "pages": [
+                  "guides/writing-comments"
+                ]
+              }
             ]
           },
           {
-            "group": "Concepts",
-            "pages": [
-              "concepts/how-it-works",
-              "concepts/scoring",
-              "concepts/rules",
-              "concepts/supported-languages"
+            "tab": "CLI",
+            "icon": "terminal",
+            "groups": [
+              {
+                "group": "Overview",
+                "icon": "list",
+                "pages": [
+                  "cli/commands"
+                ]
+              },
+              {
+                "group": "Core commands",
+                "icon": "play",
+                "pages": [
+                  "cli/scan",
+                  "cli/fix",
+                  "cli/agent",
+                  "cli/ci",
+                  "cli/init"
+                ]
+              },
+              {
+                "group": "Utilities",
+                "icon": "wrench",
+                "pages": [
+                  "cli/doctor",
+                  "cli/rules",
+                  "cli/hooks",
+                  "cli/badge",
+                  "cli/trend",
+                  "cli/update-version"
+                ]
+              }
             ]
           },
           {
-            "group": "CLI",
-            "pages": [
-              "cli/commands",
-              "cli/scan",
-              "cli/agent",
-              "cli/fix",
-              "cli/ci",
-              "cli/init",
-              "cli/doctor",
-              "cli/rules",
-              "cli/hooks",
-              "cli/badge",
-              "cli/trend",
-              "cli/update-version"
+            "tab": "Integrations",
+            "icon": "plug",
+            "groups": [
+              {
+                "group": "CI and Git",
+                "icon": "code-branch",
+                "pages": [
+                  "integrations/github-actions",
+                  "integrations/ci-cd",
+                  "integrations/pre-commit",
+                  "integrations/instant-scan"
+                ]
+              },
+              {
+                "group": "Agents and editors",
+                "icon": "robot",
+                "pages": [
+                  "integrations/agent-skill",
+                  "integrations/mcp-server",
+                  "integrations/vscode"
+                ]
+              }
             ]
           },
           {
-            "group": "Integrations",
-            "pages": [
-              "integrations/github-actions",
-              "integrations/instant-scan",
-              "integrations/pre-commit",
-              "integrations/ci-cd",
-              "integrations/agent-skill",
-              "integrations/mcp-server",
-              "integrations/vscode"
+            "tab": "Configuration",
+            "icon": "sliders",
+            "groups": [
+              {
+                "group": "Configuration",
+                "icon": "gear",
+                "pages": [
+                  "configuration/config-file",
+                  "configuration/example-configs",
+                  "configuration/engines",
+                  "configuration/rule-overrides",
+                  "configuration/architecture-rules",
+                  "configuration/ignoring-code"
+                ]
+              }
             ]
           },
           {
-            "group": "Configuration",
-            "pages": [
-              "configuration/config-file",
-              "configuration/example-configs",
-              "configuration/engines",
-              "configuration/rule-overrides",
-              "configuration/architecture-rules",
-              "configuration/ignoring-code"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/writing-comments"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "reference/rules-reference",
-              "reference/config-schema",
-              "reference/changelog",
-              "reference/telemetry"
-            ]
-          },
-          {
-            "group": "Operations",
-            "pages": [
-              "reference/research-program",
-              "reference/oss-benchmarking",
-              "reference/github-marketplace-action",
-              "reference/release-checklist",
-              "reference/fix-to-pr"
+            "tab": "Reference",
+            "icon": "book",
+            "groups": [
+              {
+                "group": "Reference",
+                "icon": "bookmark",
+                "pages": [
+                  "reference/rules-reference",
+                  "reference/config-schema",
+                  "reference/changelog",
+                  "reference/telemetry"
+                ]
+              },
+              {
+                "group": "Operations",
+                "icon": "server",
+                "pages": [
+                  "reference/research-program",
+                  "reference/oss-benchmarking",
+                  "reference/github-marketplace-action",
+                  "reference/release-checklist",
+                  "reference/fix-to-pr"
+                ]
+              }
             ]
           }
         ]

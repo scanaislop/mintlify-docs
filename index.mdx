@@ -4,23 +4,42 @@ sidebarTitle: "Overview"
 description: "aislop is a CLI that scores AI generated code 0 to 100. Six deterministic engines, 10 language targets, no LLM at runtime."
 ---
 
-aislop is the open-source CLI quality gate for AI generated code. Run it on a repo, get a score from 0 to 100, a file-and-line fix list, and a CI exit code you can enforce.
+Run it on a repo and get a score from 0 to 100, a file-and-line fix list, and a CI exit code you can enforce. These docs cover the open-source CLI; [scanaislop.com](https://scanaislop.com) is the hosted platform around it (badges, public scans, team gates).
 
-scanaislop.com is the hosted platform around that CLI: badges, public scans, and team gates. These docs cover the CLI.
-
-```bash
+```bash Run it
 npx aislop@latest scan
 ```
 
-```
+```text Output
 Score  87 / 100  Healthy
 
-⚠  ai-slop/narrative-comment     src/auth/login.ts:14
-⚠  ai-slop/unused-import         src/services/users.ts:3
+⚠  ai-slop/narrative-comment      src/auth/login.ts:14
+⚠  ai-slop/unused-import          src/services/users.ts:3
 ⚠  code-quality/function-too-long src/commands/fix-render.ts:14
 
 0 errors · 6 warnings · 4 fixable
 ```
+
+<CardGroup cols={3}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Scan, read the score, repair, and gate CI in four steps.
+  </Card>
+  <Card title="Gate pull requests" icon="code-branch" href="/integrations/github-actions">
+    Fail PRs that drop below your threshold with the GitHub Action.
+  </Card>
+  <Card title="Give it to your agent" icon="robot" href="/agents">
+    Install the skill, hooks, and AGENTS.md in one prompt.
+  </Card>
+  <Card title="CLI reference" icon="terminal" href="/cli/commands">
+    Every command and flag, with examples.
+  </Card>
+  <Card title="Configure" icon="sliders" href="/configuration/config-file">
+    Thresholds, engines, rule overrides, and architecture rules.
+  </Card>
+  <Card title="Rules" icon="list-check" href="/reference/rules-reference">
+    All 50+ rules, what they catch, and how they are weighted.
+  </Card>
+</CardGroup>
 
 No config required. Same code in, same score out. There is no language model in the runtime path: aislop uses regex, AST analysis, and standard open-source tooling.
 
@@ -32,7 +51,7 @@ AI coding agents (Claude Code, Cursor, Codex, OpenCode, Gemini CLI) often produc
 
 Every scan runs six engines in parallel. Architecture is opt-in.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Formatting" icon="paintbrush">
     Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer, dotnet format, clang-format.
   </Card>
@@ -55,29 +74,34 @@ Every scan runs six engines in parallel. Architecture is opt-in.
 
 ## 10 language targets
 
-| Language | Target |
-|---|---|
-| TypeScript | `typescript` |
-| JavaScript | `javascript` |
-| Expo / React Native | `expo` |
-| Python | `python` |
-| Go | `go` |
-| Rust | `rust` |
-| Ruby | `ruby` |
-| PHP | `php` |
-| C# | `csharp` |
-| C/C++ | `cpp` |
+| Language | Target | Language | Target |
+|---|---|---|---|
+| TypeScript | `typescript` | Rust | `rust` |
+| JavaScript | `javascript` | Ruby | `ruby` |
+| Expo / React Native | `expo` | PHP | `php` |
+| Python | `python` | C# | `csharp` |
+| Go | `go` | C/C++ | `cpp` |
 
 Built-in checks still run when optional system tools are missing. If a repository is mostly an unsupported language (Swift, Kotlin, Java), aislop withholds the score and reports `scoreable: false` instead of scoring a handful of incidental files.
 
 ## Why it is safe in CI
 
-- **Deterministic.** No LLM at runtime. The same tree always produces the same score.
-- **Fast.** Engines run in parallel. Most projects scan in well under a second.
-- **Zero-config start.** `npx aislop@latest scan` works on any supported repo. Add `.aislop/config.yml` when you want thresholds, rule overrides, or architecture rules.
-- **Repair path.** `aislop fix` handles mechanical cleanup. `aislop agent` runs a local Codex, Claude Code, or OpenCode session with aislop owning scoring and verification.
+<CardGroup cols={2}>
+  <Card title="Deterministic" icon="equals">
+    No LLM at runtime. The same tree always produces the same score.
+  </Card>
+  <Card title="Fast" icon="gauge-high">
+    Engines run in parallel. Most projects scan in well under a second.
+  </Card>
+  <Card title="Zero-config start" icon="wand-magic-sparkles">
+    `npx aislop@latest scan` works on any supported repo. Add `.aislop/config.yml` when you want thresholds, rule overrides, or architecture rules.
+  </Card>
+  <Card title="Repair path" icon="screwdriver-wrench">
+    `aislop fix` handles mechanical cleanup. `aislop agent` runs a local Codex, Claude Code, or OpenCode session with aislop owning scoring and verification.
+  </Card>
+</CardGroup>
 
-Current CLI: **v0.16.0**. MIT licensed.
+Current CLI: **v0.18.1**. MIT licensed.
 
 ## Give this to your agent
 
@@ -95,20 +119,3 @@ npx aislop@latest hook install
 ```
 
 Full copy-paste prompt, AGENTS.md template, and URLs: [For agents](/agents).
-
-## Next
-
-<CardGroup cols={2}>
-  <Card title="Quickstart" icon="bolt" href="/quickstart">
-    Scan, read the score, repair, and add a CI gate.
-  </Card>
-  <Card title="Installation" icon="download" href="/installation">
-    npm, Homebrew, pipx, GitHub Packages, and optional tools.
-  </Card>
-  <Card title="How it works" icon="gears" href="/concepts/how-it-works">
-    Engines, language coverage, and scoring.
-  </Card>
-  <Card title="For agents" icon="robot" href="/agents">
-    Copy a prompt or URL so the agent installs the skill, hooks, and AGENTS.md.
-  </Card>
-</CardGroup>
