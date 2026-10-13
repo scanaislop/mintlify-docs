@@ -1,0 +1,114 @@
+---
+title: "aislop：AI 生成代码的质量门禁"
+sidebarTitle: "概览"
+description: "aislop 是一个为 AI 生成代码打分（0 到 100）的 CLI。六个确定性引擎，覆盖 10 种语言，运行时不调用 LLM。"
+---
+
+aislop 是一款开源 CLI，专门为 AI 生成的代码把好质量关。在仓库里运行它，你会得到一个 0 到 100 的分数、精确到文件和行号的修复清单，以及一个可以在 CI 中强制执行的退出码。
+
+scanaislop.com 是围绕这个 CLI 构建的托管平台，提供徽章、公开扫描和团队门禁。本文档介绍的是 CLI。
+
+```bash
+npx aislop@latest scan
+```
+
+```
+Score  87 / 100  Healthy
+
+⚠  ai-slop/narrative-comment     src/auth/login.ts:14
+⚠  ai-slop/unused-import         src/services/users.ts:3
+⚠  code-quality/function-too-long src/commands/fix-render.ts:14
+
+0 errors · 6 warnings · 4 fixable
+```
+
+无需任何配置。同样的代码，永远得到同样的分数。运行路径中没有任何语言模型：aislop 依靠正则表达式、AST 分析和标准开源工具完成检查。
+
+## 能发现什么
+
+AI 编程助手（Claude Code、Cursor、Codex、OpenCode、Gemini CLI）写出的代码常常能通过测试和 lint，却留下不少残渣：复述代码的叙述式注释、被吞掉的异常、`as any` 强转、凭空捏造的 import、死代码、TODO 占位和过长的函数。aislop 收录了 50 多种这类模式，并按权重计分，让安全问题和高置信度缺陷比机械性清理扣分更重。
+
+## 六个引擎
+
+每次扫描都会并行运行六个引擎，其中 Architecture 需要手动开启。
+
+<CardGroup cols={2}>
+  <Card title="格式化" icon="paintbrush">
+    Biome、ruff、gofmt、cargo fmt、rubocop、php-cs-fixer、dotnet format、clang-format。
+  </Card>
+  <Card title="Lint" icon="triangle-exclamation">
+    oxlint、ruff、golangci-lint、clippy、expo-doctor、Roslynator / InspectCode、cppcheck / clang-tidy。
+  </Card>
+  <Card title="代码质量" icon="gauge-high">
+    函数和文件体量、嵌套深度、通过 knip 检查未使用的文件和依赖、未使用的声明。
+  </Card>
+  <Card title="AI slop" icon="robot">
+    叙述式和无意义注释、被吞掉的异常、`as any`、未使用的 import、TODO 占位、泛化命名。
+  </Card>
+  <Card title="安全" icon="shield-halved">
+    `eval`、`innerHTML`、注入模式、硬编码密钥，以及依赖审计。
+  </Card>
+  <Card title="架构" icon="sitemap">
+    可选开启：在 `.aislop/rules.yml` 中定义 import 禁令、分层规则和必需模式。
+  </Card>
+</CardGroup>
+
+## 支持 10 种语言
+
+| 语言 | Target |
+|---|---|
+| TypeScript | `typescript` |
+| JavaScript | `javascript` |
+| Expo / React Native | `expo` |
+| Python | `python` |
+| Go | `go` |
+| Rust | `rust` |
+| Ruby | `ruby` |
+| PHP | `php` |
+| C# | `csharp` |
+| C/C++ | `cpp` |
+
+即使缺少可选的系统工具，内置检查也照常运行。如果一个仓库主要由不支持的语言（Swift、Kotlin、Java）构成，aislop 不会拿零星几个文件来打分，而是暂不给分并报告 `scoreable: false`。
+
+## 为什么能放心用在 CI 中
+
+- **确定性。** 运行时不调用 LLM，同一份代码树永远得到同一个分数。
+- **快速。** 各引擎并行运行，大多数项目的扫描耗时远低于一秒。
+- **零配置上手。** `npx aislop@latest scan` 在任何受支持的仓库中都能直接运行。需要阈值、规则覆盖或架构规则时，再添加 `.aislop/config.yml`。
+- **完整的修复路径。** `aislop fix` 负责机械性清理。`aislop agent` 会启动本地的 Codex、Claude Code 或 OpenCode 会话，由 aislop 负责打分和验证。
+
+当前 CLI 版本：**v0.16.0**，采用 MIT 许可证。
+
+## 交给你的编程助手
+
+把下面这段话粘贴到 Claude Code、Cursor、Codex 或其他编程助手中，它会安装 aislop skill、hooks 和 `AGENTS.md` 规范。
+
+```text
+Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+```
+
+或者直接运行：
+
+```bash
+npx skills add scanaislop/skills
+npx aislop@latest hook install
+```
+
+完整的提示词、AGENTS.md 模板和相关 URL：[For agents（英文）](/agents)。
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="快速开始" icon="bolt" href="/zh/quickstart">
+    扫描、查看分数、修复问题，并添加 CI 门禁。
+  </Card>
+  <Card title="安装" icon="download" href="/zh/installation">
+    npm、Homebrew、pipx、GitHub Packages 以及可选工具。
+  </Card>
+  <Card title="工作原理（英文）" icon="gears" href="/concepts/how-it-works">
+    引擎、语言覆盖范围和评分机制。
+  </Card>
+  <Card title="面向编程助手（英文）" icon="robot" href="/agents">
+    复制提示词或 URL，让编程助手自动安装 skill、hooks 和 AGENTS.md。
+  </Card>
+</CardGroup>

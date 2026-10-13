@@ -1,0 +1,205 @@
+---
+title: "安装 aislop：npm、Homebrew、pipx 等"
+sidebarTitle: "安装"
+description: "通过 npm、Yarn、pnpm、Bun、Homebrew、pipx 或 GitHub Packages 安装 aislop。包括环境要求、aislop-tools 和外部工具配置。"
+---
+
+aislop 发布在 npm、Homebrew 和 PyPI 上。无论选择哪个渠道，安装的都是相同的 `aislop` 和 `aislop-mcp` 命令。选一个适合你技术栈的渠道即可，也可以不安装直接运行：`npx aislop@latest scan`。
+
+## 环境要求
+
+aislop 需要 **Node.js 20 或更高版本**。可以用 `node --version` 查看当前版本。通过 Homebrew 安装时会自动把 Node 作为依赖装上；通过 pipx 安装则要求 Node 已经在你的 `PATH` 中。
+
+## npm、Yarn、pnpm 和 Bun
+
+根据使用方式，把 aislop 安装为项目的开发依赖，或者安装为全局命令。
+
+<CodeGroup>
+  ```bash npx (no install)
+  npx aislop@latest scan
+  ```
+
+  ```bash npm
+  npm install --save-dev aislop
+  ```
+
+  ```bash Yarn
+  yarn add --dev aislop
+  ```
+
+  ```bash pnpm
+  pnpm add -D aislop
+  ```
+
+  ```bash Bun
+  bun add -d aislop
+  ```
+
+  ```bash Global (npm)
+  npm install -g aislop
+  ```
+</CodeGroup>
+
+作为本地开发依赖安装后，通过包管理器运行 aislop：
+
+```bash
+npx aislop scan
+yarn aislop scan
+pnpm aislop scan
+bunx aislop scan
+```
+
+<Tip>
+  使用 `npx aislop@latest scan` 可以始终运行最新发布的版本，无需维护本地安装。对于一次性扫描，以及希望自动保持最新的 CI 流水线，推荐使用这种方式。
+</Tip>
+
+## Homebrew
+
+在 macOS 或 Linux 上通过官方 tap 安装 aislop：
+
+```bash
+brew install scanaislop/tap/aislop
+```
+
+如果你习惯先单独添加 tap，也可以分两步完成：
+
+```bash
+brew tap scanaislop/tap
+brew install aislop
+```
+
+如果系统中还没有 Node.js，Homebrew 会把它作为运行时依赖一并安装。升级 aislop：
+
+```bash
+brew upgrade aislop
+```
+
+详细信息：[scanaislop/homebrew-tap](https://github.com/scanaislop/homebrew-tap)
+
+## pipx（Python 环境）
+
+适用于以 Python 为主的项目，或者习惯用 pipx 安装工具的环境：
+
+```bash
+pipx install aislop
+```
+
+`pipx` 会把 aislop 放在独立的虚拟环境中，不会与你的 Python 依赖冲突。直接用 `pip install --user aislop` 也可以。两种方式都要求 **Node.js 在你的 `PATH` 中**，因为 aislop 的分析引擎运行在 Node 上。
+
+升级：
+
+```bash
+pipx upgrade aislop
+```
+
+详细信息：[PyPI 上的 aislop](https://pypi.org/project/aislop/)
+
+## GitHub Packages
+
+aislop 也以 `@scanaislop/aislop` 的名称发布在 GitHub Packages 上。如果你所在组织的安全策略要求软件包必须来自 GitHub 的 registry，可以使用这个渠道：
+
+```bash
+npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
+```
+
+## 内置工具
+
+oxlint、Biome、knip 和 expo-doctor 作为包依赖一起发布。安装过程不会执行依赖的生命周期脚本，因此核心扫描器在 npm 默认的安全安装设置下也能正常工作。
+
+如需使用内置的 **ruff** 和 **golangci-lint** 覆盖，在安装 aislop 后单独运行一次工具安装命令：
+
+```bash
+aislop-tools
+```
+
+也可以通过 npx 一次性运行：
+
+```bash
+npx --yes --package=aislop@latest aislop-tools
+```
+
+如果某个受支持的二进制文件无法安装，该命令会以非零退出码结束。在离线（air-gapped）环境中可以跳过这一步，自行安装这些工具，然后用 `aislop doctor` 确认覆盖情况。
+
+| 工具 | 用途 | 语言 | 安装来源 |
+|---|---|---|---|
+| [oxlint](https://oxc.rs/) | Lint | TypeScript、JavaScript | 包依赖 |
+| [Biome](https://biomejs.dev/) | 格式化 + Lint | TypeScript、JavaScript | 包依赖 |
+| [knip](https://knip.dev/) | 死代码 + 未使用的依赖 | TypeScript、JavaScript | 包依赖 |
+| [expo-doctor](https://docs.expo.dev/) | 框架检查 | Expo / React Native | 包依赖 |
+| [ruff](https://docs.astral.sh/ruff/) | Lint + 格式化 | Python | `aislop-tools` |
+| [golangci-lint](https://golangci-lint.run/) | Lint | Go | `aislop-tools` |
+
+## 外部工具
+
+部分引擎依赖本机已安装的工具。这些工具本身就需要对应语言的工具链，所以没有内置。
+
+| 工具 | 用于 | 安装指南 |
+|---|---|---|
+| `gofmt` | Go 格式化 | 随 [Go 工具链](https://go.dev/dl/)一起提供 |
+| `govulncheck` | Go 依赖审计 | `go install golang.org/x/vuln/cmd/govulncheck@latest` |
+| `cargo` + `clippy` | Rust Lint + 格式化 | [rustup.rs](https://rustup.rs/) |
+| `rubocop` | Ruby 格式化 + Lint | `gem install rubocop` |
+| `phpcs` + `php-cs-fixer` | PHP 格式化 + Lint | [php-cs-fixer 文档](https://cs.symfony.com/) |
+| `.NET SDK`、`roslynator`、`jb` | C# 格式化、Lint 和依赖审计 | [.NET SDK](https://dotnet.microsoft.com/download) |
+| `cppcheck`、`clang-format`、`clang-tidy` | C/C++ Lint 和格式化 | 系统自带的包管理器 |
+
+即使没有这些工具，C# 和 C/C++ 也能获得内置的文本和复杂度检查。在 macOS 上可以这样安装可选工具链：
+
+```bash
+brew install cppcheck llvm
+brew install --cask dotnet-sdk
+```
+
+C# 项目评估需要手动开启，只应在可信的仓库中启用：
+
+```yaml
+lint:
+  csharp:
+    projectEvaluation: true
+```
+
+<Warning>
+  如果缺少某个外部工具，aislop 会跳过对应的引擎，并在扫描输出中注明。这些语言的项目得分会低于引擎全覆盖时的得分。运行 `aislop doctor` 可以准确查看你的系统上有哪些引擎可用。
+</Warning>
+
+## 验证安装
+
+安装完成后，确认一切正常：
+
+```bash
+aislop version          # print the installed version
+aislop doctor           # check which engines can run in this project
+```
+
+`aislop doctor` 会报告每个引擎是否可用，指出缺失的外部工具，并显示当前目录的语言覆盖情况。
+
+## 展示分数徽章
+
+拿到分数后，可以把它展示在 README 中：
+
+```bash
+npx aislop@latest badge    # generate badge markdown for your repo
+```
+
+```markdown
+[![aislop](https://badges.scanaislop.com/score/<owner>/<repo>.svg)](https://scanaislop.com)
+```
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card
+    title="快速开始"
+    icon="bolt"
+    href="/zh/quickstart"
+  >
+    运行第一次扫描，查看分数，并添加 CI 门禁。
+  </Card>
+  <Card
+    title="配置（英文）"
+    icon="sliders"
+    href="/configuration/config-file"
+  >
+    调整分数阈值、覆盖规则严重级别，并管理项目级的忽略规则。
+  </Card>
+</CardGroup>
