@@ -16,6 +16,78 @@
   font-display: swap;
 }
 
+/* Register Mona Sans across its full weight axis so 450/550 render as real
+   weights instead of snapping to 400 or a synthetic bold. */
+@font-face {
+  font-family: "Mona Sans";
+  src: url("/fonts/mona-sans.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Legibility: body copy a step heavier than 400, nav and captions no smaller
+   than 13px, and the grey ramp shifted so secondary text is darker in light
+   mode and brighter in dark mode. Mintlify reads these as "R G B" triplets:
+   gray-500..700 colour light-mode text, gray-300/400 colour dark-mode text. */
+html:root:root {
+  --gray-300: 222 226 230;
+  --gray-400: 190 196 203;
+  --gray-500: 98 104 112;
+  --gray-600: 66 72 80;
+  --gray-700: 44 50 58;
+}
+
+body {
+  font-weight: 450;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.mdx-content {
+  font-weight: 450;
+}
+
+html.dark .mdx-content {
+  color: rgb(214 220 228);
+}
+
+/* Brand stays #059669 (docs.json). In light mode, text and the CTA use the
+   darker brand-600 (#047857) so green text clears 4.5:1, matching the light
+   primary button on scanaislop.com. Dark mode keeps the brighter brand. */
+html:not(.dark) :is(.text-primary, .mdx-content a:not(.card):not([class*="bg-"])) {
+  color: #047857;
+}
+
+html:not(.dark) #topbar-cta-button :is(a, button) > :first-child,
+html:not(.dark) #topbar-cta-button :is(a, button) {
+  background-color: #047857;
+}
+
+#sidebar-content a,
+#table-of-contents a,
+#navbar a,
+#footer a {
+  font-weight: 500;
+}
+
+#footer a {
+  color: rgb(var(--gray-600));
+}
+
+html.dark #footer a {
+  color: rgb(var(--gray-400));
+}
+
+.sidebar-group-header,
+#sidebar .sidebar-group-header {
+  font-size: 0.8125rem;
+}
+
+.mdx-content :is(small, figcaption) {
+  font-size: 0.8125rem;
+}
+
 code,
 kbd,
 pre,
@@ -111,10 +183,10 @@ html[data-current-path^="/zh"] .mdx-content :is(h1, h2, h3) {
 
 #mobile-nav .sidebar-group-header {
   margin-bottom: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 550;
+  font-size: 0.8125rem;
+  font-weight: 600;
   letter-spacing: 0;
-  opacity: 0.65;
+  opacity: 0.8;
 }
 
 #mobile-nav .sidebar-group + div,
