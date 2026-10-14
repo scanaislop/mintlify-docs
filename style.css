@@ -52,6 +52,18 @@ html.dark .mdx-content {
   color: rgb(214 220 228);
 }
 
+/* Brand stays #059669 (docs.json). In light mode, text and the CTA use the
+   darker brand-600 (#047857) so green text clears 4.5:1, matching the light
+   primary button on scanaislop.com. Dark mode keeps the brighter brand. */
+html:not(.dark) :is(.text-primary, .mdx-content a:not(.card):not([class*="bg-"])) {
+  color: #047857;
+}
+
+html:not(.dark) #topbar-cta-button :is(a, button) > :first-child,
+html:not(.dark) #topbar-cta-button :is(a, button) {
+  background-color: #047857;
+}
+
 #sidebar-content a,
 #table-of-contents a,
 #navbar a,
