@@ -4,7 +4,7 @@
   "name": "aislop",
   "description": "CLI quality gate for AI generated code. Scan, score, and fix slop across 10 language targets. Deterministic, no LLM at runtime.",
   "colors": {
-    "primary": "#059669",
+    "primary": "#047857",
     "light": "#10b981",
     "dark": "#047857"
   },
