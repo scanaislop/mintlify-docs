@@ -4,6 +4,14 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.19.1 - 2026-10-28
+
+A patch release. Info notices such as `knip/skipped` no longer fail a baselined `aislop ci` run.
+
+### Fixed
+
+- **Info notices no longer fail a baselined `ci` run.** With a CI baseline, 0.19.0 counted the info notice `knip/skipped` as a new finding, so projects with a baseline and no Knip setup failed `aislop ci`. Info notices are still reported but no longer count as new findings.
+
 ## 0.19.0 - 2026-10-28
 
 Java support, a `quality.knip` setting, and fixes for false positives and missed findings across several rules.
