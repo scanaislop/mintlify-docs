@@ -4,6 +4,33 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.19.0 - 2026-10-28
+
+Java support, a `quality.knip` setting, and fixes for false positives and missed findings across several rules.
+
+### Added
+
+- **Java support.** Java projects get formatting (google-java-format), linting (PMD, plus Checkstyle when the project has a `checkstyle.xml`), security checks for SQL and process commands built by concatenation and for unsafe deserialization, and AI-slop rules including the new `ai-slop/java-broad-throws`. `aislop doctor` shows the Java tools and how to install them.
+- **`quality.knip`.** `auto` (default) runs Knip for projects that declare or configure it, `always` runs the bundled Knip on every JavaScript or TypeScript project, and `off` never runs it. `always` runs code from the scanned repository, because Knip loads its config files.
+- **`knip/skipped` notice.** An info finding reports when Knip is not set up, times out, or fails, instead of the check disappearing silently.
+
+### Changed
+
+- A knip config file or a `"knip"` key in `package.json` now counts as using Knip. aislop always runs its own bundled Knip.
+- Links to scanaislop.com carry utm parameters. The visible link text is unchanged.
+
+### Fixed
+
+- `.aislop/config.yaml` and `rules.yaml` are now read. When both spellings exist, `.yml` wins. Run `aislop hook install` again so the Claude Code `FileChanged` hook watches both.
+- `ai-slop/unused-css` and `security/hardcoded-secret` check stylesheets and config files (`.yaml`, `.yml`, `.json`, `.toml`) on real scans again. Upgrading can surface dead CSS that was always there.
+- Fewer `ai-slop/hardcoded-url` false positives on vendor hosts, `.dev`/`.app` domains, social profiles, and legal pages.
+- `ai-slop/unsafe-type-assertion` ignores comments, and `eslint/no-undef` respects `/* global */` directives.
+- `knip/files` findings are reported again with Knip 6.
+- Agent hooks write lock, baseline, and session files at the project root.
+- `security/vulnerable-dependency` no longer suggests a downgrade as an upgrade.
+- No `EPIPE` crash when the output reader closes early (for example, piping into `head`).
+- Patched dependency advisories in `vite`, `zod`, `vitest`, `body-parser`, `fast-uri`, `ip-address`, and `qs`.
+
 ## 0.18.1 - 2026-10-06
 
 Patch release. Pinning the GitHub Action now pins the CLI too, so Dependabot keeps both current.
