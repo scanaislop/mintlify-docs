@@ -18,8 +18,8 @@ aislop doctor ./packages/api
 | Area | What it reports |
 |---|---|
 | Project coverage | Supported language files found in the target directory |
-| Formatting tools | Biome, ruff format, gofmt, cargo fmt, rubocop, php-cs-fixer |
-| Linting tools | oxlint, ruff, golangci-lint, clippy, expo-doctor |
+| Formatting tools | Biome, ruff format, gofmt, cargo fmt, rubocop, php-cs-fixer, google-java-format |
+| Linting tools | oxlint, ruff, golangci-lint, clippy, expo-doctor, PMD, Checkstyle |
 | Code quality tools | Complexity checks, knip availability, unused dependency checks |
 | Security tools | Secret checks, risky-code checks, dependency audit availability |
 | Architecture rules | Whether custom Architecture engine rules are configured |
@@ -48,6 +48,7 @@ Some engines require external language toolchains:
 | `cargo`, `clippy` | Rust formatting and linting |
 | `rubocop` | Ruby formatting and linting |
 | `phpcs`, `php-cs-fixer` | PHP linting and formatting |
+| `pmd`, plus `google-java-format` and `checkstyle` when the project uses them | Java linting and formatting (needs a JRE) |
 
 If a tool is missing, aislop skips the matching check and reports why. Install the tool, rerun `aislop doctor`, then rerun `aislop scan`.
 

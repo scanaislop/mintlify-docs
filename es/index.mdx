@@ -1,7 +1,7 @@
 ---
 title: "aislop: control de calidad para código generado por IA"
 sidebarTitle: "Introducción"
-description: "aislop es una CLI que puntúa de 0 a 100 el código generado por IA. Seis motores deterministas, 10 lenguajes y ningún LLM en tiempo de ejecución."
+description: "aislop es una CLI que puntúa de 0 a 100 el código generado por IA. Seis motores deterministas, 11 lenguajes y ningún LLM en tiempo de ejecución."
 ---
 
 aislop es la CLI de código abierto que actúa como control de calidad para el código generado por IA. Ejecútala sobre un repositorio y obtendrás una puntuación de 0 a 100, una lista de correcciones con archivo y línea, y un código de salida que puedes exigir en CI.
@@ -53,7 +53,7 @@ Cada escaneo ejecuta seis motores en paralelo. Architecture es opcional.
   </Card>
 </CardGroup>
 
-## 10 lenguajes
+## 11 lenguajes
 
 | Lenguaje | Target |
 |---|---|
@@ -65,10 +65,11 @@ Cada escaneo ejecuta seis motores en paralelo. Architecture es opcional.
 | Rust | `rust` |
 | Ruby | `ruby` |
 | PHP | `php` |
+| Java | `java` |
 | C# | `csharp` |
 | C/C++ | `cpp` |
 
-Las comprobaciones integradas se ejecutan aunque falten herramientas opcionales del sistema. Si un repositorio está escrito sobre todo en un lenguaje no soportado (Swift, Kotlin, Java), aislop no emite puntuación e informa `scoreable: false` en lugar de puntuar un puñado de archivos sueltos.
+Las comprobaciones integradas se ejecutan aunque falten herramientas opcionales del sistema. Si un repositorio está escrito sobre todo en un lenguaje no soportado (Swift, Kotlin), aislop no emite puntuación e informa `scoreable: false` en lugar de puntuar un puñado de archivos sueltos.
 
 ## Por qué es seguro en CI
 
@@ -77,7 +78,7 @@ Las comprobaciones integradas se ejecutan aunque falten herramientas opcionales 
 - **Sin configuración inicial.** `npx aislop@latest scan` funciona en cualquier repositorio soportado. Añade `.aislop/config.yml` cuando quieras umbrales, ajustes de reglas o reglas de arquitectura.
 - **Camino de reparación.** `aislop fix` se encarga de la limpieza mecánica. `aislop agent` lanza una sesión local de Codex, Claude Code u OpenCode en la que aislop controla la puntuación y la verificación.
 
-CLI actual: **v0.18.1**. Licencia MIT.
+CLI actual: **v0.19.1**. Licencia MIT.
 
 ## Pásaselo a tu agente
 
