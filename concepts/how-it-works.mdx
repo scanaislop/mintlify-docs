@@ -1,7 +1,7 @@
 ---
 title: "How aislop scans and scores your code"
 sidebarTitle: "How It Works"
-description: "Learn how aislop's six parallel engines analyze your codebase across 10 language targets and produce a deterministic 0–100 quality score in under a second."
+description: "Learn how aislop's six parallel engines analyze your codebase across 11 language targets and produce a deterministic 0–100 quality score in under a second."
 ---
 
 aislop scans your codebase by running six specialized engines in parallel (Formatting, Linting, Code Quality, AI Slop, Security, and Architecture), then combines their findings into a single 0 to 100 score. Because every engine uses regex, AST analysis, and standard tooling rather than a language model, you always get the same score for the same code. No API calls, no network round-trips, no nondeterminism.
@@ -37,7 +37,7 @@ All six engines start at the same time. aislop does not wait for one engine to f
 
 ## Supported languages
 
-aislop supports 10 language targets. The table below shows which engines apply to each one.
+aislop supports 11 language targets. The table below shows which engines apply to each one.
 
 | Language | Format | Lint | Code Quality | AI Slop | Security |
 |---|---|---|---|---|---|
@@ -49,6 +49,7 @@ aislop supports 10 language targets. The table below shows which engines apply t
 | Rust | cargo fmt | clippy | complexity | Comments | Secrets, audit |
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
+| Java | google-java-format | PMD + Checkstyle | complexity | Imports, exceptions, comments, `System.out`, broad throws | Secrets, SQL and command injection, deserialization |
 | C# | dotnet format | Roslynator / InspectCode | complexity | All rules | Secrets, audit |
 | C/C++ | clang-format | cppcheck + clang-tidy | complexity | All rules | Secrets |
 

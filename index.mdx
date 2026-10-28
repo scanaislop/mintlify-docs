@@ -1,7 +1,7 @@
 ---
 title: "aislop: quality gate for AI generated code"
 sidebarTitle: "Overview"
-description: "aislop is a CLI that scores AI generated code 0 to 100. Six deterministic engines, 10 language targets, no LLM at runtime."
+description: "aislop is a CLI that scores AI generated code 0 to 100. Six deterministic engines, 11 language targets, no LLM at runtime."
 ---
 
 Run it on a repo and get a score from 0 to 100, a file-and-line fix list, and a CI exit code you can enforce. These docs cover the open-source CLI; [scanaislop.com](https://scanaislop.com) is the hosted platform around it (badges, public scans, team gates).
@@ -56,7 +56,7 @@ Every scan runs six engines in parallel. Architecture is opt-in.
     Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer, dotnet format, clang-format.
   </Card>
   <Card title="Linting" icon="triangle-exclamation">
-    oxlint, ruff, golangci-lint, clippy, expo-doctor, Roslynator / InspectCode, cppcheck / clang-tidy.
+    oxlint, ruff, golangci-lint, clippy, expo-doctor, PMD / Checkstyle, Roslynator / InspectCode, cppcheck / clang-tidy.
   </Card>
   <Card title="Code quality" icon="gauge-high">
     Function and file size, nesting, unused files and dependencies via knip, unused declarations.
@@ -72,17 +72,18 @@ Every scan runs six engines in parallel. Architecture is opt-in.
   </Card>
 </CardGroup>
 
-## 10 language targets
+## 11 language targets
 
 | Language | Target | Language | Target |
 |---|---|---|---|
-| TypeScript | `typescript` | Rust | `rust` |
-| JavaScript | `javascript` | Ruby | `ruby` |
-| Expo / React Native | `expo` | PHP | `php` |
+| TypeScript | `typescript` | Ruby | `ruby` |
+| JavaScript | `javascript` | PHP | `php` |
+| Expo / React Native | `expo` | Java | `java` |
 | Python | `python` | C# | `csharp` |
 | Go | `go` | C/C++ | `cpp` |
+| Rust | `rust` | | |
 
-Built-in checks still run when optional system tools are missing. If a repository is mostly an unsupported language (Swift, Kotlin, Java), aislop withholds the score and reports `scoreable: false` instead of scoring a handful of incidental files.
+Built-in checks still run when optional system tools are missing. If a repository is mostly an unsupported language (Swift, Kotlin), aislop withholds the score and reports `scoreable: false` instead of scoring a handful of incidental files.
 
 ## Why it is safe in CI
 
@@ -101,7 +102,7 @@ Built-in checks still run when optional system tools are missing. If a repositor
   </Card>
 </CardGroup>
 
-Current CLI: **v0.18.1**. MIT licensed.
+Current CLI: **v0.19.1**. MIT licensed.
 
 ## Give this to your agent
 

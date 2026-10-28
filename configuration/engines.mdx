@@ -10,10 +10,10 @@ aislop runs six deterministic engines in parallel on every scan. Each engine tar
 
 <CardGroup cols={2}>
   <Card title="format" icon="paintbrush">
-    Formatting consistency checks. Delegates to Biome (JS/TS), ruff (Python), gofmt (Go), cargo fmt (Rust), rubocop (Ruby), php-cs-fixer (PHP), dotnet format (C#), and clang-format (C/C++). Formatter findings use mechanical score impact so house style does not dominate the score.
+    Formatting consistency checks. Delegates to Biome (JS/TS), ruff (Python), gofmt (Go), cargo fmt (Rust), rubocop (Ruby), php-cs-fixer (PHP), google-java-format (Java), dotnet format (C#), and clang-format (C/C++). Formatter findings use mechanical score impact so house style does not dominate the score.
   </Card>
   <Card title="lint" icon="magnifying-glass-code">
-    Language-specific lint rules. Uses oxlint (JS/TS), ruff (Python), golangci-lint (Go), clippy (Rust), expo-doctor (React Native), Roslynator / InspectCode (C#), and cppcheck / clang-tidy (C/C++). Set `lint.typecheck: true` to add type-aware rules in TypeScript projects.
+    Language-specific lint rules. Uses oxlint (JS/TS), ruff (Python), golangci-lint (Go), clippy (Rust), expo-doctor (React Native), PMD and Checkstyle (Java), Roslynator / InspectCode (C#), and cppcheck / clang-tidy (C/C++). Set `lint.typecheck: true` to add type-aware rules in TypeScript projects.
   </Card>
   <Card title="code-quality" icon="chart-line">
     Complexity and dead code. Tracks function length, file size, control-flow nesting depth, parameter counts, unused files, and unused dependencies (via knip).
