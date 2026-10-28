@@ -4,7 +4,7 @@ sidebarTitle: "Config File"
 description: "Learn how to create and customise the .aislop/config.yml file that controls every aislop engine, scoring weight, and CI quality gate in your project."
 ---
 
-Every aislop project is driven by a single YAML file at `.aislop/config.yml`. Run `aislop init` to generate one with sensible defaults, then edit only the keys you want to change — everything else falls back to the values documented here. The schema is versioned, so future breaking changes will bump `version` and old configs remain valid until you opt in.
+Every aislop project is driven by a single YAML file at `.aislop/config.yml`. aislop also reads the `.aislop/config.yaml` and `.aislop/rules.yaml` spellings. When both spellings exist, the `.yml` file wins. Run `aislop init` to generate one with sensible defaults, then edit only the keys you want to change — everything else falls back to the values documented here. The schema is versioned, so future breaking changes will bump `version` and old configs remain valid until you opt in.
 
 ## Creating the config file
 
@@ -58,6 +58,7 @@ quality:
   maxFileLoc: 400
   maxNesting: 5
   maxParams: 6
+  knip: auto             # always | off
 
 lint:
   typecheck: false       # enable for TypeScript type-checking lint rules
@@ -119,7 +120,7 @@ Each section controls a distinct part of the aislop run. You can add, remove, or
       Formatting checks (Biome, ruff, gofmt, cargo fmt, rubocop, php-cs-fixer).
     </ParamField>
     <ParamField body="engines.lint" type="boolean" default="true">
-      Language-specific linting (oxlint, ruff, golangci-lint, clippy, expo-doctor).
+      Language-specific linting (oxlint, ruff, golangci-lint, clippy, expo-doctor, PMD, Checkstyle).
     </ParamField>
     <ParamField body="engines.code-quality" type="boolean" default="true">
       Complexity and dead code: function/file size, deep nesting, unused files and dependencies.
@@ -149,6 +150,15 @@ Each section controls a distinct part of the aislop run. You can add, remove, or
     </ParamField>
     <ParamField body="quality.maxParams" type="number" default="6">
       Maximum number of parameters per function.
+    </ParamField>
+    <ParamField body="quality.knip" type="string" default="auto">
+      When Knip runs on JavaScript and TypeScript projects. `auto` runs it for projects that declare or configure Knip: a `knip` dependency, a knip config file (`knip.json`, `knip.jsonc`, `.knip.json`, `.knip.jsonc`, `knip.ts`, `knip.js`, `knip.config.ts`, `knip.config.js`), or a `"knip"` key in `package.json`. `always` runs aislop's bundled Knip on every JavaScript or TypeScript project. `off` never runs Knip and reports no `knip/skipped`. aislop always runs its own bundled Knip, never a copy from the scanned project.
+
+      When Knip does not run because the project has not set it up, or because it fails or times out, aislop reports a `knip/skipped` info finding. It is advisory and does not change the score.
+
+      <Warning>
+        Knip loads the project's config files, so `always` runs code from the scanned repository. Use it only on repositories you trust.
+      </Warning>
     </ParamField>
   </Accordion>
 
