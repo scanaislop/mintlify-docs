@@ -40,6 +40,22 @@ Every aislop project is driven by a single YAML file at `.aislop/config.yml`. ai
 
 ## Full default config
 
+### Opt-in post-fix project checks
+
+Project checks are off by default. Configure commands, then explicitly enable them with `aislop fix --run-checks`. A command passed with `--check` also opts in for that run. Configured checks run first, followed by command-line checks. The first failure or timeout rolls back fixer-owned changes and returns a non-zero exit.
+
+```yaml
+fix:
+  checks:
+    - pnpm typecheck
+    - pnpm test
+  checkTimeoutMs: 120000
+```
+
+Commands execute repository code. Enable them only for repositories you trust. A single string is accepted for `checks` as well as a list. The timeout is per command.
+
+### Defaults
+
 The file below shows every key with its default value. You do not need to include keys you are not changing.
 
 ```yaml

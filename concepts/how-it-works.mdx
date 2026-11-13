@@ -1,7 +1,7 @@
 ---
 title: "How aislop scans and scores your code"
 sidebarTitle: "How It Works"
-description: "Learn how aislop's six parallel engines analyze your codebase across 11 language targets and produce a deterministic 0–100 quality score in under a second."
+description: "Learn how aislop's six parallel engines analyze your codebase across 12 language targets (Scala in beta) and produce a deterministic 0–100 quality score in under a second."
 ---
 
 aislop scans your codebase by running six specialized engines in parallel (Formatting, Linting, Code Quality, AI Slop, Security, and Architecture), then combines their findings into a single 0 to 100 score. Because every engine uses regex, AST analysis, and standard tooling rather than a language model, you always get the same score for the same code. No API calls, no network round-trips, no nondeterminism.
@@ -37,7 +37,7 @@ All six engines start at the same time. aislop does not wait for one engine to f
 
 ## Supported languages
 
-aislop supports 11 language targets. The table below shows which engines apply to each one.
+aislop supports 12 language targets (Scala in beta). The table below shows which engines apply to each one.
 
 | Language | Format | Lint | Code Quality | AI Slop | Security |
 |---|---|---|---|---|---|
@@ -50,12 +50,17 @@ aislop supports 11 language targets. The table below shows which engines apply t
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
 | Java | google-java-format | PMD + Checkstyle | complexity | Imports, exceptions, comments, `System.out`, broad throws | Secrets, SQL and command injection, deserialization |
+| Scala (beta) | scalafmt (with `.scalafmt.conf`) | None | File size | Imports, braced catches, console, comments | SQL, process and deserialization patterns |
 | C# | dotnet format | Roslynator / InspectCode | complexity | All rules | Secrets, audit |
 | C/C++ | clang-format | cppcheck + clang-tidy | complexity | All rules | Secrets |
 
 <Note>
   If your repository is primarily written in an unsupported language such as Swift or Kotlin, aislop **withholds the score** rather than printing a number based on a handful of incidental files. The CLI explains why and `--json` output returns `"score": null` along with `"scoreable": false` and a `coverage` breakdown.
 </Note>
+
+## Scala support (beta)
+
+Initial support is available, with coverage and accuracy still being refined. Scala 3 indentation-based syntax and real-world scalafmt integration remain ongoing work. Scala linting and function-complexity analysis are not available yet. Unused-import advice is limited to Java namespaces; Scala imports can supply implicits without textual references. Install scalafmt on `PATH` and add a project `.scalafmt.conf` to opt into formatting.
 
 ## Deterministic by design
 

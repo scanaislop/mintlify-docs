@@ -100,6 +100,7 @@ These are the rules that make aislop unique. They specifically target the patter
 | `ai-slop/rust-non-test-unwrap` | warning | Rust `.unwrap()` calls in production code where errors should be handled or documented |
 | `ai-slop/rust-todo-stub` | warning | Rust `todo!()` stubs in production code |
 | `ai-slop/java-broad-throws` | warning | Java method declaring `throws Exception` or `throws Throwable` instead of the specific checked exceptions (`main`, `close`, `call` and tests are exempt) |
+| `ai-slop/scala-broad-catch` | warning | Scala braced catch clause handling `Throwable` or `Exception`; clauses that rethrow are exempt (beta) |
 | `ai-slop/hallucinated-import` | error | Imports of JS/TS packages not declared in the project manifest |
 
 <Tip>
@@ -162,3 +163,5 @@ The table below shows which engines and rule sets are active for each language a
 | Rust | cargo fmt | clippy | complexity | Comments | Secrets, audit |
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | — | complexity | Comments | Secrets |
+| Java | google-java-format | PMD + Checkstyle | complexity | Imports, exceptions, comments, console | Secrets, SQL/process injection, deserialization |
+| Scala (beta) | scalafmt (with `.scalafmt.conf`) | None | File size | Imports, braced catches, console, comments | Secrets, SQL/process injection, deserialization |

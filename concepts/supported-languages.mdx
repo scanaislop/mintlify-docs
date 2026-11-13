@@ -1,7 +1,7 @@
 ---
 title: "Supported languages and frameworks"
 sidebarTitle: "Languages"
-description: "See which aislop engines run across all 11 language targets, plus the framework and optional-tool rules used during scans."
+description: "See which aislop engines run across all 12 language targets (Scala in beta), plus the framework and optional-tool rules used during scans."
 ---
 
 aislop detects languages and frameworks from the files and manifests in your repository, then runs every enabled engine that applies. Missing external tools are skipped instead of failing the scan; run `aislop doctor` when you want to see exactly which engines are available on your machine.
@@ -19,6 +19,7 @@ aislop detects languages and frameworks from the files and manifests in your rep
 | Ruby | rubocop | rubocop | complexity | Exceptions, comments | Secrets |
 | PHP | php-cs-fixer | phpcs | complexity | Comments | Secrets |
 | Java | google-java-format | PMD + Checkstyle | complexity | Imports, exceptions, comments, `System.out`, broad throws | Secrets, SQL and command injection, deserialization |
+| Scala (beta) | scalafmt (with `.scalafmt.conf`) | None | File size | Imports, braced catches, console, comments | SQL, process and deserialization patterns |
 | C# | dotnet format | Roslynator / InspectCode | complexity | Full rule set | .NET package audit, secrets |
 | C/C++ | clang-format | cppcheck + clang-tidy | complexity | Full rule set | Secrets |
 
@@ -39,6 +40,7 @@ Some tools ship with aislop as package dependencies. Others are expected to be i
 | rubocop | Ruby formatting and linting | External Ruby tool |
 | phpcs / php-cs-fixer | PHP linting and formatting | External PHP tools |
 | google-java-format / PMD / Checkstyle | Java formatting and linting | External Java tools (need a JRE) |
+| scalafmt | Scala formatting (beta), with `.scalafmt.conf` | External Scala tool |
 | .NET SDK / Roslynator / InspectCode | C# formatting, linting, and package audit | External .NET tools |
 | cppcheck / clang-format / clang-tidy | C/C++ linting and formatting | External C/C++ tools |
 
@@ -53,6 +55,10 @@ lint:
   csharp:
     projectEvaluation: true
 ```
+
+## Scala support (beta)
+
+Initial support is available, with coverage and accuracy still being refined. Scala 3 indentation-based syntax and real-world scalafmt integration remain ongoing work. Scala linting and function-complexity analysis are not available yet. Unused-import advice is limited to Java namespaces; Scala imports can supply implicits without textual references. Install scalafmt on `PATH` and add a project `.scalafmt.conf` to opt into formatting.
 
 ## Framework detection
 
