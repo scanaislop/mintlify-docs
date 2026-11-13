@@ -1,155 +1,527 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Scanaislop Documentation",
-  "logo": {
-    "light": "/assets/images/scanaislop_logo.png",
-    "dark": "/assets/images/scanaislop_logo.png"
-  },
+  "theme": "luma",
+  "name": "aislop",
+  "description": "CLI quality gate for AI generated code. Scan, score, and fix slop across 12 language targets (Scala in beta). Deterministic, no LLM at runtime.",
   "colors": {
-    "primary": "#10b981",
+    "primary": "#059669",
     "light": "#10b981",
-    "dark": "#10b981"
+    "dark": "#047857"
   },
+  "background": {
+    "color": {
+      "light": "#fafaf9",
+      "dark": "#08090a"
+    }
+  },
+  "logo": {
+    "light": "/assets/logo-light.svg",
+    "dark": "/assets/logo-dark.svg",
+    "href": "https://scanaislop.com"
+  },
+  "favicon": "/assets/favicon.svg",
   "appearance": {
     "default": "system"
   },
-  "background": {
-    "decoration": "grid"
-  },
-  "seo": {
-    "indexing": "all",
-    "metatags": {
-      "title": "Scanaislop Documentation",
-      "description": "Scanaislop Documentation",
-      "image": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg"
-    }
-  },
-  "favicon": "https://media.brand.dev/60cb95e3-b026-4181-8373-c708d514bf14.svg",
   "fonts": {
     "heading": {
-      "family": "Space Grotesk"
+      "family": "Mona Sans",
+      "source": "/fonts/mona-sans.woff2",
+      "format": "woff2",
+      "weight": 600
     },
     "body": {
-      "family": "Inter"
+      "family": "Mona Sans",
+      "source": "/fonts/mona-sans.woff2",
+      "format": "woff2"
     }
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": {
+      "theme": {
+        "light": "github-light-default",
+        "dark": "vesper"
+      }
+    }
+  },
+  "thumbnails": {
+    "appearance": "dark",
+    "background": "/assets/og-image.png"
+  },
+  "search": {
+    "prompt": "Search commands, rules, flags..."
   },
   "navbar": {
+    "links": [
+      {
+        "label": "Pricing",
+        "href": "https://scanaislop.com/pricing"
+      },
+      {
+        "type": "github",
+        "label": "GitHub",
+        "href": "https://github.com/scanaislop/aislop"
+      }
+    ],
     "primary": {
-      "type": "github",
-      "href": "https://github.com/scanaislop/aislop"
+      "type": "button",
+      "label": "Scan a repo",
+      "href": "https://scanaislop.com/try/"
     }
   },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/scanaislop/aislop",
+      "x": "https://x.com/scanaislop",
+      "discord": "https://discord.gg/Mzz4A6mfj6"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Website",
+            "href": "https://scanaislop.com"
+          },
+          {
+            "label": "Pricing",
+            "href": "https://scanaislop.com/pricing"
+          },
+          {
+            "label": "CLI on GitHub",
+            "href": "https://github.com/scanaislop/aislop"
+          },
+          {
+            "label": "npm",
+            "href": "https://www.npmjs.com/package/aislop"
+          }
+        ]
+      },
+      {
+        "header": "Docs",
+        "items": [
+          {
+            "label": "Quickstart",
+            "href": "/quickstart"
+          },
+          {
+            "label": "Installation",
+            "href": "/installation"
+          },
+          {
+            "label": "Scoring",
+            "href": "/concepts/scoring"
+          },
+          {
+            "label": "For agents",
+            "href": "/agents"
+          },
+          {
+            "label": "Changelog",
+            "href": "/reference/changelog"
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/introduction",
+      "destination": "/"
+    },
+    {
+      "source": "/for-agents",
+      "destination": "/agents"
+    }
+  ],
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Get Started",
-        "groups": [
+        "language": "en",
+        "default": true,
+        "tabs": [
           {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "installation"
+            "tab": "Get started",
+            "icon": "rocket",
+            "groups": [
+              {
+                "group": "Get started",
+                "icon": "flag",
+                "pages": [
+                  "index",
+                  "quickstart",
+                  "installation",
+                  "agents"
+                ]
+              },
+              {
+                "group": "Concepts",
+                "icon": "lightbulb",
+                "pages": [
+                  "concepts/how-it-works",
+                  "concepts/scoring",
+                  "concepts/rules",
+                  "concepts/supported-languages"
+                ]
+              },
+              {
+                "group": "Guides",
+                "icon": "book-open",
+                "pages": [
+                  "guides/writing-comments"
+                ]
+              }
             ]
           },
           {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/how-it-works",
-              "concepts/scoring",
-              "concepts/rules",
-              "concepts/supported-languages"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "CLI Reference",
-        "groups": [
-          {
-            "group": "Command reference",
-            "pages": [
-              "cli/commands",
-              "cli/scan",
-              "cli/agent",
-              "cli/fix",
-              "cli/ci",
-              "cli/init",
-              "cli/doctor",
-              "cli/rules",
-              "cli/hooks",
-              "cli/badge",
-              "cli/trend",
-              "cli/update-version"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Integrations",
-        "groups": [
-          {
-            "group": "Integrations",
-            "pages": [
-              "integrations/github-actions",
-              "integrations/instant-scan",
-              "integrations/pre-commit",
-              "integrations/ci-cd",
-              "integrations/agent-skill",
-              "integrations/mcp-server",
-              "integrations/vscode"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Configuration",
-        "groups": [
-          {
-            "group": "Configuration",
-            "pages": [
-              "configuration/config-file",
-              "configuration/example-configs",
-              "configuration/engines",
-              "configuration/rule-overrides",
-              "configuration/architecture-rules",
-              "configuration/ignoring-code"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/writing-comments"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Reference",
-        "groups": [
-          {
-            "group": "Technical reference",
-            "pages": [
-              "reference/rules-reference",
-              "reference/config-schema",
-              "reference/changelog",
-              "reference/telemetry"
+            "tab": "CLI",
+            "icon": "terminal",
+            "groups": [
+              {
+                "group": "Overview",
+                "icon": "list",
+                "pages": [
+                  "cli/commands"
+                ]
+              },
+              {
+                "group": "Core commands",
+                "icon": "play",
+                "pages": [
+                  "cli/scan",
+                  "cli/fix",
+                  "cli/agent",
+                  "cli/ci",
+                  "cli/init"
+                ]
+              },
+              {
+                "group": "Utilities",
+                "icon": "wrench",
+                "pages": [
+                  "cli/doctor",
+                  "cli/rules",
+                  "cli/hooks",
+                  "cli/badge",
+                  "cli/trend",
+                  "cli/update-version"
+                ]
+              }
             ]
           },
           {
-            "group": "Research and operations",
+            "tab": "Integrations",
+            "icon": "plug",
+            "groups": [
+              {
+                "group": "CI and Git",
+                "icon": "code-branch",
+                "pages": [
+                  "integrations/github-actions",
+                  "integrations/ci-cd",
+                  "integrations/pre-commit",
+                  "integrations/instant-scan"
+                ]
+              },
+              {
+                "group": "Agents and editors",
+                "icon": "robot",
+                "pages": [
+                  "integrations/agent-skill",
+                  "integrations/mcp-server",
+                  "integrations/vscode"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Configuration",
+            "icon": "sliders",
+            "groups": [
+              {
+                "group": "Configuration",
+                "icon": "gear",
+                "pages": [
+                  "configuration/config-file",
+                  "configuration/example-configs",
+                  "configuration/engines",
+                  "configuration/rule-overrides",
+                  "configuration/architecture-rules",
+                  "configuration/ignoring-code"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Reference",
+            "icon": "book",
+            "groups": [
+              {
+                "group": "Reference",
+                "icon": "bookmark",
+                "pages": [
+                  "reference/rules-reference",
+                  "reference/config-schema",
+                  "reference/changelog",
+                  "reference/telemetry"
+                ]
+              },
+              {
+                "group": "Operations",
+                "icon": "server",
+                "pages": [
+                  "reference/research-program",
+                  "reference/oss-benchmarking",
+                  "reference/github-marketplace-action",
+                  "reference/release-checklist",
+                  "reference/fix-to-pr"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "navbar": {
+          "links": [
+            {
+              "label": "Precios",
+              "href": "https://scanaislop.com/pricing"
+            },
+            {
+              "type": "github",
+              "label": "GitHub",
+              "href": "https://github.com/scanaislop/aislop"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Escanear un repo",
+            "href": "https://scanaislop.com/try/"
+          }
+        },
+        "footer": {
+          "socials": {
+            "github": "https://github.com/scanaislop/aislop",
+            "x": "https://x.com/scanaislop",
+            "discord": "https://discord.gg/Mzz4A6mfj6"
+          },
+          "links": [
+            {
+              "header": "Producto",
+              "items": [
+                {
+                  "label": "Sitio web",
+                  "href": "https://scanaislop.com"
+                },
+                {
+                  "label": "Precios",
+                  "href": "https://scanaislop.com/pricing"
+                },
+                {
+                  "label": "CLI en GitHub",
+                  "href": "https://github.com/scanaislop/aislop"
+                },
+                {
+                  "label": "npm",
+                  "href": "https://www.npmjs.com/package/aislop"
+                }
+              ]
+            },
+            {
+              "header": "Documentación",
+              "items": [
+                {
+                  "label": "Inicio rápido",
+                  "href": "/es/quickstart"
+                },
+                {
+                  "label": "Instalación",
+                  "href": "/es/installation"
+                },
+                {
+                  "label": "Documentación completa (inglés)",
+                  "href": "/quickstart"
+                }
+              ]
+            }
+          ]
+        },
+        "groups": [
+          {
+            "group": "Primeros pasos",
             "pages": [
-              "reference/research-program",
-              "reference/oss-benchmarking",
-              "reference/github-marketplace-action",
-              "reference/release-checklist",
-              "reference/fix-to-pr"
+              "es/index",
+              "es/quickstart",
+              "es/installation"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "de",
+        "navbar": {
+          "links": [
+            {
+              "label": "Preise",
+              "href": "https://scanaislop.com/pricing"
+            },
+            {
+              "type": "github",
+              "label": "GitHub",
+              "href": "https://github.com/scanaislop/aislop"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "Repo scannen",
+            "href": "https://scanaislop.com/try/"
+          }
+        },
+        "footer": {
+          "socials": {
+            "github": "https://github.com/scanaislop/aislop",
+            "x": "https://x.com/scanaislop",
+            "discord": "https://discord.gg/Mzz4A6mfj6"
+          },
+          "links": [
+            {
+              "header": "Produkt",
+              "items": [
+                {
+                  "label": "Website",
+                  "href": "https://scanaislop.com"
+                },
+                {
+                  "label": "Preise",
+                  "href": "https://scanaislop.com/pricing"
+                },
+                {
+                  "label": "CLI auf GitHub",
+                  "href": "https://github.com/scanaislop/aislop"
+                },
+                {
+                  "label": "npm",
+                  "href": "https://www.npmjs.com/package/aislop"
+                }
+              ]
+            },
+            {
+              "header": "Dokumentation",
+              "items": [
+                {
+                  "label": "Schnellstart",
+                  "href": "/de/quickstart"
+                },
+                {
+                  "label": "Installation",
+                  "href": "/de/installation"
+                },
+                {
+                  "label": "Vollständige Doku (Englisch)",
+                  "href": "/quickstart"
+                }
+              ]
+            }
+          ]
+        },
+        "groups": [
+          {
+            "group": "Erste Schritte",
+            "pages": [
+              "de/index",
+              "de/quickstart",
+              "de/installation"
+            ]
+          }
+        ]
+      },
+      {
+        "language": "zh-Hans",
+        "navbar": {
+          "links": [
+            {
+              "label": "价格",
+              "href": "https://scanaislop.com/pricing"
+            },
+            {
+              "type": "github",
+              "label": "GitHub",
+              "href": "https://github.com/scanaislop/aislop"
+            }
+          ],
+          "primary": {
+            "type": "button",
+            "label": "扫描仓库",
+            "href": "https://scanaislop.com/try/"
+          }
+        },
+        "footer": {
+          "socials": {
+            "github": "https://github.com/scanaislop/aislop",
+            "x": "https://x.com/scanaislop",
+            "discord": "https://discord.gg/Mzz4A6mfj6"
+          },
+          "links": [
+            {
+              "header": "产品",
+              "items": [
+                {
+                  "label": "官网",
+                  "href": "https://scanaislop.com"
+                },
+                {
+                  "label": "价格",
+                  "href": "https://scanaislop.com/pricing"
+                },
+                {
+                  "label": "GitHub 上的 CLI",
+                  "href": "https://github.com/scanaislop/aislop"
+                },
+                {
+                  "label": "npm",
+                  "href": "https://www.npmjs.com/package/aislop"
+                }
+              ]
+            },
+            {
+              "header": "文档",
+              "items": [
+                {
+                  "label": "快速开始",
+                  "href": "/zh/quickstart"
+                },
+                {
+                  "label": "安装",
+                  "href": "/zh/installation"
+                },
+                {
+                  "label": "完整文档（英文）",
+                  "href": "/quickstart"
+                }
+              ]
+            }
+          ]
+        },
+        "groups": [
+          {
+            "group": "入门",
+            "pages": [
+              "zh/index",
+              "zh/quickstart",
+              "zh/installation"
             ]
           }
         ]

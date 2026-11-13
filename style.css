@@ -1,0 +1,226 @@
+/* Light polish to match scanaislop.com. Colors, fonts and backgrounds live in docs.json. */
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Register Mona Sans across its full weight axis so 450/550 render as real
+   weights instead of snapping to 400 or a synthetic bold. */
+@font-face {
+  font-family: "Mona Sans";
+  src: url("/fonts/mona-sans.woff2") format("woff2");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Legibility: body copy a step heavier than 400, nav and captions no smaller
+   than 13px, and the grey ramp shifted so secondary text is darker in light
+   mode and brighter in dark mode. Mintlify reads these as "R G B" triplets:
+   gray-500..700 colour light-mode text, gray-300/400 colour dark-mode text. */
+html:root:root {
+  --gray-300: 222 226 230;
+  --gray-400: 190 196 203;
+  --gray-500: 98 104 112;
+  --gray-600: 66 72 80;
+  --gray-700: 44 50 58;
+}
+
+body {
+  font-weight: 450;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+.mdx-content {
+  font-weight: 450;
+}
+
+html.dark .mdx-content {
+  color: rgb(214 220 228);
+}
+
+/* Brand stays #059669 (docs.json). In light mode, text and the CTA use the
+   darker brand-600 (#047857) so green text clears 4.5:1, matching the light
+   primary button on scanaislop.com. Dark mode keeps the brighter brand. */
+html:not(.dark) :is(.text-primary, .mdx-content a:not(.card):not([class*="bg-"])) {
+  color: #047857;
+}
+
+html:not(.dark) #topbar-cta-button :is(a, button) > :first-child,
+html:not(.dark) #topbar-cta-button :is(a, button) {
+  background-color: #047857;
+}
+
+#sidebar-content a,
+#table-of-contents a,
+#navbar a,
+#footer a {
+  font-weight: 500;
+}
+
+#footer a {
+  color: rgb(var(--gray-600));
+}
+
+html.dark #footer a {
+  color: rgb(var(--gray-400));
+}
+
+.sidebar-group-header,
+#sidebar .sidebar-group-header {
+  font-size: 0.8125rem;
+}
+
+.mdx-content :is(small, figcaption) {
+  font-size: 0.8125rem;
+}
+
+code,
+kbd,
+pre,
+.code-block,
+.code-group {
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "liga" 0;
+}
+
+#page-title,
+.mdx-content h1 {
+  letter-spacing: -0.03em;
+}
+
+.mdx-content h2,
+.mdx-content h3 {
+  letter-spacing: -0.02em;
+}
+
+.card {
+  border-radius: 12px;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+
+a.card:hover {
+  transform: translateY(-1px);
+}
+
+.code-block,
+.code-group,
+.callout {
+  border-radius: 8px;
+}
+
+#topbar-cta-button a,
+#topbar-cta-button button {
+  border-radius: 8px;
+}
+
+/* Mona Sans has no CJK glyphs. Put CJK system fonts ahead of the generic fallbacks
+   so Chinese text gets a proper face on every OS. Latin text still renders in Mona Sans. */
+html:root {
+  --font-family-body-custom: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-family-headings-custom: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+:lang(zh-Hans) body,
+:lang(zh) body,
+html[data-current-path^="/zh"] body {
+  font-family: "Mona Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+}
+
+:lang(zh-Hans) #page-title,
+:lang(zh) #page-title,
+:lang(zh-Hans) .mdx-content :is(h1, h2, h3),
+:lang(zh) .mdx-content :is(h1, h2, h3),
+html[data-current-path^="/zh"] #page-title,
+html[data-current-path^="/zh"] .mdx-content :is(h1, h2, h3) {
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+
+  a.card:hover {
+    transform: none;
+  }
+}
+
+/* Mobile navigation drawer: roomier tap targets, clearer groups and a
+   language control that reads as a control, matching scanaislop.com. */
+#mobile-nav #localization-select-trigger {
+  min-height: 2.75rem;
+  border-radius: 12px;
+  padding-inline: 0.875rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+#mobile-nav #localization-select-trigger::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  background: currentColor;
+  opacity: 0.6;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+#mobile-nav .sidebar-group-header {
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+
+#mobile-nav .sidebar-group + div,
+#mobile-nav div:has(> .sidebar-group-header) {
+  padding-top: 0.25rem;
+}
+
+#mobile-nav div:has(> .sidebar-group-header) + div:has(> .sidebar-group-header) {
+  margin-top: 0.75rem;
+  border-top: 1px solid rgb(127 127 127 / 0.14);
+  padding-top: 1rem;
+}
+
+#mobile-nav .sidebar-group a {
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.9375rem;
+}
+
+/* Wider reading column on large screens; the default 40.5rem leaves empty gutters. */
+@media (min-width: 1280px) {
+  :root {
+    --content-width: 46rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --content-width: 50rem;
+  }
+}
+
+/* Denser three-up cards on the overview. */
+.mdx-content .card {
+  height: 100%;
+}

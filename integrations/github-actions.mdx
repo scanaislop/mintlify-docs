@@ -1,5 +1,5 @@
 ---
-title: "Add Scanaislop to GitHub Actions as a quality gate"
+title: "Add aislop to GitHub Actions as a quality gate"
 sidebarTitle: "GitHub Actions"
 description: "Gate every pull request and push with aislop's 0–100 quality score in GitHub Actions, with optional SARIF upload to the Security tab."
 ---
@@ -58,9 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: scanaislop/aislop@v1        # or pin: @v0.14.1
+      - uses: scanaislop/aislop@v1        # or pin: @v0.21.0
         with:
-          version: latest                 # CLI version; pin e.g. "0.14.1" for reproducibility
+          version: latest                 # CLI version; pin e.g. "0.21.0" for reproducibility
 ```
 
 ### Action inputs
@@ -70,7 +70,7 @@ jobs:
 | `directory` | No | `"."` | Directory to scan. |
 | `node-version` | No | `"24"` | Node.js version to install before running aislop. |
 | `format` | No | `"json"` | Output format — `"json"` (CI-friendly) or `"human"`. |
-| `version` | No | `"latest"` | npm aislop CLI version to run, e.g. `"0.14.1"`. Independent of the action ref in `uses:`. |
+| `version` | No | Empty | Override the CLI version, e.g. `"0.21.0"` or `"latest"`. When empty, a release tag or commit SHA runs its matching CLI version; `@v1` and branches run the latest release. |
 
 ## PR-scoped gating
 

@@ -1,0 +1,252 @@
+---
+title: "In unter einer Minute mit aislop starten"
+sidebarTitle: "Schnellstart"
+description: "Scanne dein erstes Projekt, lies den Score, behebe Probleme und richte ein Quality Gate in CI ein. Ohne vorherige Konfiguration."
+---
+
+Für deinen ersten Score musst du nichts installieren. aislop läuft direkt über npx, funktioniert in jedem Projekt unabhängig von Sprache oder Framework und liefert einen gut lesbaren Bericht mit Fundstellen und einem Qualitäts-Score von 0 bis 100. Diese Anleitung bringt dich in wenigen Schritten von null zu einem Reparatur-Workflow mit Gate.
+
+<Steps>
+  <Step title="Ersten Scan ausführen">
+    Starte aislop im Root-Verzeichnis eines beliebigen Projekts, ohne es zu installieren. Der Scan dauert weniger als eine Sekunde und liefert einen Score sowie eine gruppierte Liste der Funde.
+
+    ```bash
+    npx aislop@latest scan
+    ```
+
+    Du kannst auch ein bestimmtes Verzeichnis scannen:
+
+    ```bash
+    npx aislop@latest scan ./src
+    ```
+
+    Oder den Scan auf die Dateien beschränken, die du geändert hast:
+
+    ```bash
+    npx aislop@latest scan --changes
+    npx aislop@latest scan --changes --base origin/main   # compare against a branch
+    npx aislop@latest scan --staged                       # staged files only
+    ```
+
+    <Tip>
+      Sobald du `npx aislop@latest scan` einmal ausgeführt hast, füge aislop als Dev-Dependency hinzu, damit du jedes Mal dieselbe Version nutzt. Alle Optionen für die verschiedenen Paketmanager findest du unter [Installation](/de/installation).
+    </Tip>
+  </Step>
+
+  <Step title="Score und Funde lesen">
+    aislop gibt einen Score von 0 bis 100, eine Aufschlüsselung pro Engine und eine nach Schweregrad gruppierte Liste der Funde aus. Jeder Fund enthält Dateipfad, Zeilennummer, Regel-ID und eine kurze Erklärung.
+
+    Eine typische Ausgabe sieht so aus:
+
+    ```
+    Score  74 / 100
+
+    ✖  ai-slop/narrative-comment      src/auth/login.ts:14
+       Remove comment that restates what the code already says.
+
+    ✖  ai-slop/swallowed-exception   src/utils/parse.ts:88
+       Exception is caught but not logged or re-thrown.
+
+    ✖  security/eval                  src/sandbox.js:6
+       Avoid eval(). Use a safer alternative.
+
+    ⚠  formatting/trailing-whitespace  src/index.ts:22
+
+    3 errors · 1 warning · 74/100
+    ```
+
+    Für maschinenlesbare Ausgabe in Skripten oder CI-Tools:
+
+    ```bash
+    npx aislop@latest scan --json
+    npx aislop@latest scan --sarif    # SARIF 2.1.0 for GitHub code scanning
+    ```
+
+    **Bekannte False Positives unterdrücken**: Wenn ein bestimmter Fund in deinem Kontext kein Problem ist, schalte ihn direkt im Code stumm, optional mit Begründung:
+
+    ```ts
+    // aislop-ignore-next-line ai-slop/narrative-comment -- required for API docs generation
+    // Returns the authenticated user or null if the session has expired.
+    export function getUser(): User | null { ... }
+    ```
+
+    Nutze `aislop-ignore-line` für die aktuelle Zeile, `aislop-ignore-next-line` für die folgende Zeile oder `aislop-ignore-file` an beliebiger Stelle in einer Datei, um alle Funde dieser Datei zu unterdrücken. Die Syntax funktioniert mit jedem Kommentarstil (`//`, `#`, `<!-- -->`). Unterdrückte Funde fließen nicht in den Score ein und werden am Ende des Laufs als Anzahl ausgewiesen.
+  </Step>
+
+  <Step title="Probleme beheben">
+    Nach der Installation von aislop (siehe [Installation](/de/installation)) nutzt du `aislop agent` für lokale Reparatur-Sessions mit Codex, Claude Code oder OpenCode. Standardmäßig legt aislop einen isolierten Worktree an, wendet sichere mechanische Fixes an, streamt die Session des Providers, verifiziert das Ergebnis und lässt dir den Diff zur Prüfung.
+
+    ```bash
+    aislop agent                 # auto-pick an installed provider
+    aislop agent providers       # see installed providers and setup hints
+    aislop agent connect codex   # run the provider's local login flow
+    aislop agent plan            # preview provider, worktree, findings, and apply behavior
+    ```
+
+    Für deterministisches, mechanisches Aufräumen nutzt du `aislop fix`:
+
+    ```bash
+    aislop fix              # auto-fix all mechanical issues
+    aislop fix --safe       # only reversible fixes (imports, comments, formatting)
+    aislop fix --dry-run    # print the plan without writing files
+    aislop fix --changes    # only files changed since HEAD
+    aislop fix -f           # aggressive: also prune unused deps and files
+    ```
+
+    `--safe` beschränkt den Lauf auf Fixes, die das Verhalten nicht ändern können. Nimm es, wenn du Änderungen direkt übernehmen und committen willst, ohne den Diff zu prüfen.
+
+    Für die älteren Handoff-Workflows kannst du einen strukturierten Prompt mit vollständigem Diagnosekontext ausgeben oder öffnen:
+
+    ```bash
+    aislop fix --claude    # Claude Code
+    aislop fix --cursor    # Cursor (copies prompt to clipboard)
+    aislop fix --codex     # Codex CLI
+    aislop fix --gemini    # Gemini CLI
+    aislop fix --prompt    # Print the prompt without opening an agent
+    ```
+
+    Führe nach dem Beheben erneut `aislop scan` aus, um zu prüfen, ob sich dein Score verbessert hat:
+
+    ```bash
+    aislop scan
+    ```
+
+    **Empfohlener Reparatur-Workflow**, um ein Projekt auf 100/100 zu bringen:
+
+    ```
+    aislop scan          # see all issues
+    aislop fix --safe    # apply only reversible fixes
+    aislop fix           # auto-fix formatting, lint, imports, comments
+    aislop agent plan    # preview the local repair session
+    aislop agent         # repair remaining issues with a local provider
+    aislop scan          # verify everything is resolved
+    ```
+  </Step>
+
+  <Step title="In CI einbinden">
+    Mit `aislop ci` erzwingst du bei jedem Push oder Pull Request einen Mindest-Score. Der Befehl gibt JSON aus, wendet dein Score-Gate an und beendet sich mit einem Exit-Code ungleich null, wenn der Schwellenwert nicht erreicht wird.
+
+    ```bash
+    aislop ci
+    ```
+
+    Bei Pull Requests prüfst du nur die Dateien, die der PR ändert:
+
+    ```bash
+    aislop ci --changes --base origin/main
+    ```
+
+    Den Mindest-Score legst du in `.aislop/config.yml` fest (anlegen mit `aislop init`):
+
+    ```yaml
+    ci:
+      failBelow: 70
+    ```
+
+    Der schnellste Weg zu aislop in **GitHub Actions**, ganz ohne Version, die du pflegen musst:
+
+    ```yaml
+    name: aislop
+
+    on:
+      pull_request:
+      push:
+        branches: [main]
+
+    jobs:
+      quality-gate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 24
+          - run: npx --yes aislop@latest ci
+    ```
+
+    Oder nutze die **Marketplace Action**, um für reproduzierbare Builds eine Version festzulegen:
+
+    ```yaml
+    - uses: actions/checkout@v4
+    - uses: scanaislop/aislop@v1
+      with:
+        version: latest
+    ```
+
+    <Note>
+      `aislop ci` akzeptiert dieselben Flags `--changes`, `--staged` und `--base` wie `aislop scan`. Mit `--changes --base origin/<target>` beschränkst du das Gate auf die Dateien, die ein Pull Request anfasst.
+    </Note>
+
+    **Installiere einen Hook pro Bearbeitung**, damit dein Coding-Agent nach jeder Änderung den Score sieht:
+
+    ```bash
+    aislop hook install --claude    # Claude Code
+    aislop hook install --cursor    # Cursor
+    aislop hook install --gemini    # Gemini CLI
+    ```
+
+    Mit `--quality-gate` blockierst du Bearbeitungen, die den Score unter deine Baseline drücken:
+
+    ```bash
+    aislop hook install --claude --quality-gate
+    ```
+  </Step>
+
+  <Step title="aislop an deinen Coding-Agent übergeben">
+    Installiere den Skill, damit der Agent weiß, wann er scannen soll, und lege Repo-Anweisungen ab, die er tatsächlich lädt.
+
+    ```bash
+    npx skills add scanaislop/skills
+    ```
+
+    Wenn der Agent die Einrichtung selbst übernehmen soll, füge das ein:
+
+    ```text
+    Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+    ```
+
+    Prompt zum Kopieren, AGENTS.md-Vorlage, Skill-URL und MCP-Snippet (auf Englisch): [For agents](/agents).
+  </Step>
+</Steps>
+
+## Wie es weitergeht
+
+Du hast jetzt einen Scan, einen Score, einen Reparatur-Workflow und ein CI-Gate. Im Rest der Dokumentation erfährst du, wie du aislop auf dein Projekt abstimmst. Die Referenzseiten sind auf Englisch.
+
+<CardGroup cols={2}>
+  <Card
+    title="Installation"
+    icon="download"
+    href="/de/installation"
+  >
+    Alle Installationswege: npm, Yarn, pnpm, Bun, Homebrew, pipx und GitHub Packages.
+  </Card>
+  <Card
+    title="Für Agents"
+    icon="robot"
+    href="/agents"
+  >
+    Kopiere einen Prompt oder eine URL, damit der Agent Skill, Hooks und AGENTS.md installiert.
+  </Card>
+  <Card
+    title="Referenz zum scan-Befehl"
+    icon="magnifying-glass"
+    href="/cli/scan"
+  >
+    Alle Flags, Ausgabeformate, Pfadoptionen und Konfigurationsschlüssel für `aislop scan`.
+  </Card>
+  <Card
+    title="Regeln"
+    icon="list-check"
+    href="/concepts/rules"
+  >
+    Alle über 50 Regeln nach Engine, Sprache und Schweregrad.
+  </Card>
+  <Card
+    title="Konfiguration"
+    icon="sliders"
+    href="/configuration/config-file"
+  >
+    Schwellenwerte anpassen, Schweregrade von Regeln überschreiben und projektweite Ignore-Muster festlegen.
+  </Card>
+</CardGroup>

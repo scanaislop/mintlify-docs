@@ -1,11 +1,11 @@
 {
   "projectType": "cli-tool",
-  "projectName": "Scanaislop Documentation",
-  "projectDescription": "A sub-second, deterministic static analysis CLI that scores your codebase 0–100 by catching the patterns AI coding agents leave behind — narrative comments, swallowed exceptions, dead code, unsafe type casts, and more — across 8 languages with 50+ rules.",
-  "theme": "luma",
+  "projectName": "aislop",
+  "projectDescription": "CLI quality gate for AI generated code. Six deterministic engines, 10 language targets, 50+ rules. No LLM at runtime.",
+  "theme": "maple",
   "primaryColor": "#10b981",
-  "lightColor": "#10b981",
-  "darkColor": "#10b981",
+  "lightColor": "#34d399",
+  "darkColor": "#059669",
   "styles": [
     "./styles/custom.css",
     "./styles/custom.js"
@@ -18,7 +18,7 @@
           {
             "group": "Get Started",
             "pages": [
-              "introduction",
+              "index",
               "quickstart",
               "installation"
             ]
@@ -73,7 +73,7 @@
     ]
   },
   "keyFeatures": [
-    "50+ deterministic rules across TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, and PHP",
+    "50+ deterministic rules across TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, PHP, C#, and C/C++",
     "0–100 code quality score with AI-slop-first weighting",
     "Auto-fix command that applies mechanical fixes and hands off remaining issues to any AI coding agent",
     "CI quality gate with configurable thresholds and SARIF output",
@@ -86,8 +86,11 @@
   ],
   "publicApiSurface": [
     "aislop scan [directory]",
+    "aislop agent",
     "aislop fix [directory]",
+    "aislop fix --dry-run --changes --staged",
     "aislop ci [directory]",
+    "aislop-tools",
     "aislop init [directory]",
     "aislop doctor [directory]",
     "aislop rules [directory]",

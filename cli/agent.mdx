@@ -1,5 +1,5 @@
 ---
-title: "Local repair sessions with your coding agent"
+title: "Repair code with a local coding agent"
 sidebarTitle: "Agent"
 description: "Run local repair sessions with Codex, Claude Code, or OpenCode while aislop keeps scoring, verification, worktrees, and review in charge."
 ---
@@ -7,6 +7,8 @@ description: "Run local repair sessions with Codex, Claude Code, or OpenCode whi
 `aislop agent` is the local repair workflow for findings that need judgment. It keeps the deterministic scanner in charge, creates an isolated git worktree by default, runs safe mechanical fixes, streams a headless provider session, verifies the result with `aislop scan --json`, and leaves the diff for review.
 
 Use it when `aislop fix` has cleared the obvious cleanup and the remaining findings need a coding agent to understand context.
+
+To teach the agent the aislop standard before a repair session, paste the prompt on [For agents](/agents) or run `npx skills add scanaislop/skills`.
 
 ## Basic usage
 

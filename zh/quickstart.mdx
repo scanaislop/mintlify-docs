@@ -1,0 +1,252 @@
+---
+title: "一分钟内上手 aislop"
+sidebarTitle: "快速开始"
+description: "扫描第一个项目、查看分数、修复问题，并在 CI 中添加质量门禁。无需预先配置。"
+---
+
+拿到第一个分数之前，你什么都不用安装。aislop 可以直接通过 npx 运行，适用于任何语言和框架的项目，并输出一份易读的报告，包含问题所在的位置和 0 到 100 的质量分数。本指南只需几步，就能带你从零搭建起一套带门禁的修复流程。
+
+<Steps>
+  <Step title="运行第一次扫描">
+    在任意项目的根目录下，无需安装即可运行 aislop。扫描不到一秒即可完成，并给出分数和分组后的问题列表。
+
+    ```bash
+    npx aislop@latest scan
+    ```
+
+    也可以只扫描某个目录：
+
+    ```bash
+    npx aislop@latest scan ./src
+    ```
+
+    或者只扫描你改动过的文件：
+
+    ```bash
+    npx aislop@latest scan --changes
+    npx aislop@latest scan --changes --base origin/main   # compare against a branch
+    npx aislop@latest scan --staged                       # staged files only
+    ```
+
+    <Tip>
+      运行过一次 `npx aislop@latest scan` 之后，建议把 aislop 添加为开发依赖，这样每次使用的都是同一个版本。各包管理器的安装方式见[安装](/zh/installation)。
+    </Tip>
+  </Step>
+
+  <Step title="查看分数和问题">
+    aislop 会输出 0 到 100 的分数、各引擎的得分明细，以及按严重级别分组的问题列表。每个问题都包含文件路径、行号、规则 ID 和简短说明。
+
+    典型的输出如下：
+
+    ```
+    Score  74 / 100
+
+    ✖  ai-slop/narrative-comment      src/auth/login.ts:14
+       Remove comment that restates what the code already says.
+
+    ✖  ai-slop/swallowed-exception   src/utils/parse.ts:88
+       Exception is caught but not logged or re-thrown.
+
+    ✖  security/eval                  src/sandbox.js:6
+       Avoid eval(). Use a safer alternative.
+
+    ⚠  formatting/trailing-whitespace  src/index.ts:22
+
+    3 errors · 1 warning · 74/100
+    ```
+
+    如需供脚本或 CI 工具使用的机器可读输出：
+
+    ```bash
+    npx aislop@latest scan --json
+    npx aislop@latest scan --sarif    # SARIF 2.1.0 for GitHub code scanning
+    ```
+
+    **屏蔽已知的误报**：如果你确定某个问题在当前场景下不构成问题，可以在代码中就地屏蔽，并可附上原因：
+
+    ```ts
+    // aislop-ignore-next-line ai-slop/narrative-comment -- required for API docs generation
+    // Returns the authenticated user or null if the session has expired.
+    export function getUser(): User | null { ... }
+    ```
+
+    `aislop-ignore-line` 作用于当前行，`aislop-ignore-next-line` 作用于下一行，`aislop-ignore-file` 放在文件任意位置即可屏蔽该文件的全部问题。这套语法适用于任何注释风格（`//`、`#`、`<!-- -->`）。被屏蔽的问题不计入分数，只在运行结束时显示数量。
+  </Step>
+
+  <Step title="修复问题">
+    安装 aislop 之后（见[安装](/zh/installation)），可以用 `aislop agent` 配合 Codex、Claude Code 或 OpenCode 进行本地修复。默认情况下，aislop 会创建一个隔离的 worktree，先应用安全的机械性修复，再实时输出助手会话，最后验证结果，并保留 diff 供你审查。
+
+    ```bash
+    aislop agent                 # auto-pick an installed provider
+    aislop agent providers       # see installed providers and setup hints
+    aislop agent connect codex   # run the provider's local login flow
+    aislop agent plan            # preview provider, worktree, findings, and apply behavior
+    ```
+
+    用 `aislop fix` 进行确定性的机械性清理：
+
+    ```bash
+    aislop fix              # auto-fix all mechanical issues
+    aislop fix --safe       # only reversible fixes (imports, comments, formatting)
+    aislop fix --dry-run    # print the plan without writing files
+    aislop fix --changes    # only files changed since HEAD
+    aislop fix -f           # aggressive: also prune unused deps and files
+    ```
+
+    `--safe` 只执行不会改变程序行为的修复。如果你想不审查 diff 就直接应用并提交，就用它。
+
+    对于旧版的交接流程，可以输出或打开一份包含完整诊断上下文的结构化提示词：
+
+    ```bash
+    aislop fix --claude    # Claude Code
+    aislop fix --cursor    # Cursor (copies prompt to clipboard)
+    aislop fix --codex     # Codex CLI
+    aislop fix --gemini    # Gemini CLI
+    aislop fix --prompt    # Print the prompt without opening an agent
+    ```
+
+    修复后再次运行 `aislop scan`，确认分数有所提升：
+
+    ```bash
+    aislop scan
+    ```
+
+    把项目提升到 100/100 的**推荐修复流程**：
+
+    ```
+    aislop scan          # see all issues
+    aislop fix --safe    # apply only reversible fixes
+    aislop fix           # auto-fix formatting, lint, imports, comments
+    aislop agent plan    # preview the local repair session
+    aislop agent         # repair remaining issues with a local provider
+    aislop scan          # verify everything is resolved
+    ```
+  </Step>
+
+  <Step title="接入 CI">
+    使用 `aislop ci` 在每次 push 或 pull request 时强制要求最低分数。它会输出 JSON、应用分数门禁，未达到阈值时以非零退出码结束。
+
+    ```bash
+    aislop ci
+    ```
+
+    对于 pull request，只检查该 PR 改动的文件：
+
+    ```bash
+    aislop ci --changes --base origin/main
+    ```
+
+    在 `.aislop/config.yml` 中设置最低分数阈值（可用 `aislop init` 生成该文件）：
+
+    ```yaml
+    ci:
+      failBelow: 70
+    ```
+
+    接入 **GitHub Actions** 最快的方式，无需维护版本号：
+
+    ```yaml
+    name: aislop
+
+    on:
+      pull_request:
+      push:
+        branches: [main]
+
+    jobs:
+      quality-gate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 24
+          - run: npx --yes aislop@latest ci
+    ```
+
+    也可以使用 **Marketplace Action** 锁定版本，确保构建可复现：
+
+    ```yaml
+    - uses: actions/checkout@v4
+    - uses: scanaislop/aislop@v1
+      with:
+        version: latest
+    ```
+
+    <Note>
+      `aislop ci` 支持与 `aislop scan` 相同的 `--changes`、`--staged` 和 `--base` 参数。使用 `--changes --base origin/<target>` 可以让门禁只检查 pull request 涉及的文件。
+    </Note>
+
+    **安装逐次编辑 hook**，让编程助手在每次改动后都能看到分数：
+
+    ```bash
+    aislop hook install --claude    # Claude Code
+    aislop hook install --cursor    # Cursor
+    aislop hook install --gemini    # Gemini CLI
+    ```
+
+    加上 `--quality-gate`，可以阻止让分数跌破基线的编辑：
+
+    ```bash
+    aislop hook install --claude --quality-gate
+    ```
+  </Step>
+
+  <Step title="把 aislop 交给编程助手">
+    安装 skill，让助手知道什么时候该扫描，再放入它真正会读取的仓库说明。
+
+    ```bash
+    npx skills add scanaislop/skills
+    ```
+
+    如果想让助手自己完成配置，把这段话粘贴给它：
+
+    ```text
+    Read https://docs.scanaislop.com/agents and set up aislop for this repo: install the skill, install hooks, write AGENTS.md, then scan.
+    ```
+
+    可复制的提示词、AGENTS.md 模板、skill URL 和 MCP 配置片段：[For agents（英文）](/agents)。
+  </Step>
+</Steps>
+
+## 接下来
+
+现在你已经有了扫描、分数、修复流程和 CI 门禁。浏览文档的其他部分，根据项目情况调整 aislop。参考类页面目前只有英文版。
+
+<CardGroup cols={2}>
+  <Card
+    title="安装"
+    icon="download"
+    href="/zh/installation"
+  >
+    所有安装渠道：npm、Yarn、pnpm、Bun、Homebrew、pipx 和 GitHub Packages。
+  </Card>
+  <Card
+    title="面向编程助手（英文）"
+    icon="robot"
+    href="/agents"
+  >
+    复制提示词或 URL，让编程助手自动安装 skill、hooks 和 AGENTS.md。
+  </Card>
+  <Card
+    title="scan 命令参考（英文）"
+    icon="magnifying-glass"
+    href="/cli/scan"
+  >
+    `aislop scan` 的全部参数、输出格式、路径范围选项和配置项。
+  </Card>
+  <Card
+    title="规则（英文）"
+    icon="list-check"
+    href="/concepts/rules"
+  >
+    按引擎、语言和严重级别浏览 50 多条规则。
+  </Card>
+  <Card
+    title="配置（英文）"
+    icon="sliders"
+    href="/configuration/config-file"
+  >
+    调整阈值、覆盖规则严重级别，并设置项目级的忽略模式。
+  </Card>
+</CardGroup>
