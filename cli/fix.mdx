@@ -67,6 +67,26 @@ Work through the stages in order to reach 100/100 with the least disruption to y
 
 ## Flags
 
+<ParamField query="--check" type="string">
+  Run a project command after fixes. Repeat the flag to run commands in order. The first failure or timeout triggers rollback of fixer-owned changes, preserves pre-existing edits and returns a non-zero exit. Commands execute repository code; enable them for repositories you trust.
+
+  ```bash
+  aislop fix --check "pnpm typecheck" --check "pnpm test"
+  ```
+</ParamField>
+
+<ParamField query="--run-checks" type="boolean">
+  Explicitly enable commands configured in `fix.checks`. Config alone never runs project commands. Configured commands run before any `--check` commands.
+
+  ```bash
+  aislop fix --run-checks
+  ```
+</ParamField>
+
+<ParamField query="--check-timeout" type="number" default="120000">
+  Timeout in milliseconds for each opted-in project check. A timed-out process tree is terminated before rollback starts.
+</ParamField>
+
 <ParamField query="-d, --verbose" type="boolean">
   Show detailed progress for each fix operation as it runs, including which files are modified and which rules are being resolved.
 </ParamField>

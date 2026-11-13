@@ -21,6 +21,24 @@ npx aislop@latest scan
 
 ## Flags
 
+<ParamField query="--ignore" type="string">
+  Disable rule IDs for this invocation without changing config. Repeat the flag or separate IDs with commas. These ignores also apply when a file override enables the rule.
+
+  ```bash
+  aislop scan --ignore ai-slop/python-print-debug
+  aislop scan --ignore ai-slop/python-print-debug,ai-slop/todo-stub
+  ```
+</ParamField>
+
+<ParamField query="--explain-scope" type="boolean">
+  Explain effective file selection and exclusions, then exit without running detection engines. Reports the scan mode, resolved base ref, language counts and exclusion groups. Add `--verbose` for relative path examples or `--json` for versioned machine-readable output. Skipped directories and excluded files are counted separately.
+
+  ```bash
+  aislop scan --explain-scope
+  aislop scan --changes --base origin/main --explain-scope --json
+  ```
+</ParamField>
+
 <ParamField query="--changes" type="boolean">
   Only scan files that have changed since the last commit (diffs against `HEAD` by default). Combine with `--base` to diff against a different ref, such as a PR target branch.
 </ParamField>
@@ -116,8 +134,8 @@ When you pass `--json` (or `--format json`), aislop prints a single JSON object 
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.19.1",
-  "version": "0.19.1",
+  "cliVersion": "0.21.0",
+  "version": "0.21.0",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -170,7 +188,7 @@ Pass `--sarif` to produce a SARIF 2.1.0 report, then upload it with the GitHub c
 
 ## Unsupported-language repos
 
-aislop analyses 10 language targets: TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, PHP, Java, C#, and C/C++. If your repository is primarily written in an unsupported language such as Swift or Kotlin, scoring a handful of incidental files would misrepresent the codebase.
+aislop analyses 12 language targets (Scala in beta): TypeScript, JavaScript, Expo/React Native, Python, Go, Rust, Ruby, PHP, Java, Scala (beta), C#, and C/C++. If your repository is primarily written in an unsupported language such as Swift or Kotlin, scoring a handful of incidental files would misrepresent the codebase.
 
 In that case aislop **withholds the score** and explains why rather than printing a misleading number. When you use `--json`, the response includes `"score": null` and `"scoreable": false` alongside a `coverage` breakdown showing which files were and were not analysed.
 
