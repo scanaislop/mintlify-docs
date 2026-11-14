@@ -225,3 +225,14 @@ npx aislop@latest badge    # generate badge markdown for your repo
     Tune score thresholds, override rule severity, and manage project-wide ignores.
   </Card>
 </CardGroup>
+
+
+## Optional Java and Scala security
+
+With JDK 21+, install the optional JVM analyzers. Configure compiled artifacts or existing reports, then explicitly enable live checks with `aislop scan --jvm-security`. Scala remains in beta.
+
+```bash
+aislop-tools --jvm-security
+```
+
+[Java and Scala analysis guide](/guides/jvm-analysis)

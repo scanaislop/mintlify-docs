@@ -165,3 +165,8 @@ The table below shows which engines and rule sets are active for each language a
 | PHP | php-cs-fixer | — | complexity | Comments | Secrets |
 | Java | google-java-format | PMD + Checkstyle | complexity | Imports, exceptions, comments, console | Secrets, SQL/process injection, deserialization |
 | Scala (beta) | scalafmt (with `.scalafmt.conf`) | None | File size | Imports, braced catches, console, comments | Secrets, SQL/process injection, deserialization |
+
+
+## JVM analysis
+
+`spotbugs/<rule-id>` reports compiled Java and Scala findings. `security/vulnerable-dependency` includes OWASP Dependency-Check findings for resolved JVM dependencies. `security/jvm-analysis-failed` is an error when an enabled tool or report import cannot complete. See [JVM analysis](/guides/jvm-analysis).

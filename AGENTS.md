@@ -14,7 +14,7 @@ Check behavior against `scanaislop/aislop` (CLI) before changing commands, flags
 
 Current product facts:
 
-- CLI version: 0.22.0
+- CLI version: 0.22.1
 - 12 language targets: TypeScript, JavaScript, Expo / React Native, Python, Go, Rust, Ruby, PHP, Java, Scala (beta), C#, C/C++
 - Six engines: format, lint, code-quality, ai-slop, security, architecture (opt-in)
 - Deterministic: no LLM in the runtime path

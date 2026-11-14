@@ -224,3 +224,14 @@ npx aislop@latest badge    # generate badge markdown for your repo
     Ajusta umbrales de puntuación, cambia la severidad de las reglas y gestiona exclusiones para todo el proyecto.
   </Card>
 </CardGroup>
+
+
+## Seguridad opcional para Java y Scala
+
+Con JDK 21+, instala los analizadores JVM opcionales. Configura los artefactos compilados o los informes existentes y activa las comprobaciones con `aislop scan --jvm-security`. Scala sigue en beta.
+
+```bash
+aislop-tools --jvm-security
+```
+
+[Guía de análisis de Java y Scala](/guides/jvm-analysis)

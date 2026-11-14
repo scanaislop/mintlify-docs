@@ -134,8 +134,8 @@ When you pass `--json` (or `--format json`), aislop prints a single JSON object 
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.22.0",
-  "version": "0.22.0",
+  "cliVersion": "0.22.1",
+  "version": "0.22.1",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -232,3 +232,8 @@ aislop scan --include "packages/api/**"
 # Exclude generated files
 aislop scan --exclude "src/generated,**/*.snap"
 ```
+
+
+## JVM security consent
+
+Use `--jvm-security` to run the analyzers enabled in `security.jvm` on trusted compiled Java or Scala artifacts. Repository configuration alone cannot authorize tool execution. Existing reports can be imported read-only. See [JVM analysis](/guides/jvm-analysis).

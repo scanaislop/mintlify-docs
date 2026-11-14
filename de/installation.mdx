@@ -224,3 +224,14 @@ npx aislop@latest badge    # generate badge markdown for your repo
     Score-Schwellenwerte anpassen, Schweregrade überschreiben und projektweite Ignores verwalten.
   </Card>
 </CardGroup>
+
+
+## Optionale Sicherheit für Java und Scala
+
+Installiere mit JDK 21+ die optionalen JVM-Analysetools. Konfiguriere kompilierte Artefakte oder vorhandene Berichte und aktiviere die Prüfungen mit `aislop scan --jvm-security`. Scala bleibt in der Beta-Phase.
+
+```bash
+aislop-tools --jvm-security
+```
+
+[Leitfaden für Java- und Scala-Analyse](/guides/jvm-analysis)

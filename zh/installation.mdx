@@ -224,3 +224,14 @@ npx aislop@latest badge    # generate badge markdown for your repo
     调整分数阈值、覆盖规则严重级别，并管理项目级的忽略规则。
   </Card>
 </CardGroup>
+
+
+## 可选 Java 和 Scala 安全检查
+
+使用 JDK 21+ 安装可选的 JVM 分析工具。配置已编译的产物或现有报告，然后通过 `aislop scan --jvm-security` 显式启用检查。Scala 仍处于 Beta 阶段。
+
+```bash
+aislop-tools --jvm-security
+```
+
+[Java 和 Scala 分析指南](/guides/jvm-analysis)
