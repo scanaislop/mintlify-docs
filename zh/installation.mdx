@@ -137,6 +137,18 @@ npx --yes --package=aislop@latest aislop-tools
 | [ruff](https://docs.astral.sh/ruff/) | Lint + 格式化 | Python | `aislop-tools` |
 | [golangci-lint](https://golangci-lint.run/) | Lint | Go | `aislop-tools` |
 
+## 可选 Java 工具
+
+将 JDK 21 或更高版本加入 `PATH` 后，可以安装固定版本并经过校验和验证的 google-java-format、PMD 和 Checkstyle：
+
+```bash
+aislop-tools --java
+# 或使用 npx：
+npx --yes --package=aislop@latest aislop-tools --java
+```
+
+系统中已经安装的可执行工具优先。Java 格式化需要在构建文件中启用，Checkstyle 使用项目配置。运行 `aislop doctor` 检查工具是否可用。
+
 ## 外部工具
 
 部分引擎依赖本机已安装的工具。这些工具本身就需要对应语言的工具链，所以没有内置。

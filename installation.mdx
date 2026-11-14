@@ -137,6 +137,18 @@ The command exits non-zero if a supported binary cannot be installed. Skip it in
 | [ruff](https://docs.astral.sh/ruff/) | Linting + formatting | Python | `aislop-tools` |
 | [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
 
+## Optional Java tools
+
+With JDK 21 or newer on `PATH`, install pinned, checksum-verified google-java-format, PMD, and Checkstyle distributions:
+
+```bash
+aislop-tools --java
+# Or with npx:
+npx --yes --package=aislop@latest aislop-tools --java
+```
+
+Existing executable system installations take precedence. Java formatting requires a build-file opt-in, and Checkstyle uses your project's configuration. Run `aislop doctor` to check availability.
+
 ## External tools
 
 Some engines depend on tools that must already be installed on your machine. These are not bundled because they require language toolchains to be present anyway.
