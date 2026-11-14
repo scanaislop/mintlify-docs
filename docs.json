@@ -179,7 +179,8 @@
                 "group": "Guides",
                 "icon": "book-open",
                 "pages": [
-                  "guides/writing-comments"
+                  "guides/writing-comments",
+                  "guides/jvm-analysis"
                 ]
               }
             ]

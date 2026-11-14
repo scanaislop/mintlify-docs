@@ -94,8 +94,8 @@ aislop ci --changes --base FETCH_HEAD
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.22.0",
-  "version": "0.22.0",
+  "cliVersion": "0.22.1",
+  "version": "0.22.1",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -169,7 +169,7 @@ ci:
     - uses: actions/checkout@v4
     - uses: scanaislop/aislop@v1
       with:
-        version: latest   # or pin, e.g. "0.22.0", for reproducible builds
+        version: latest   # or pin, e.g. "0.22.1", for reproducible builds
     ```
   </Tab>
   <Tab title="GitLab CI">
@@ -241,3 +241,8 @@ npx aislop@latest init --strict
 |---|---|
 | `0` | Score is at or above `failBelow` and no error-severity findings |
 | `1` | Score is below `failBelow`, or at least one error-severity diagnostic is present |
+
+
+## JVM security consent
+
+Use `--jvm-security` to run the analyzers enabled in `security.jvm` on trusted compiled Java or Scala artifacts. Repository configuration alone cannot authorize tool execution. Existing reports can be imported read-only. See [JVM analysis](/guides/jvm-analysis).
