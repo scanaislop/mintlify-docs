@@ -137,6 +137,18 @@ Der Befehl endet mit einem Exit-Code ungleich null, wenn sich ein unterstütztes
 | [ruff](https://docs.astral.sh/ruff/) | Linting + Formatierung | Python | `aislop-tools` |
 | [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
 
+## Optionale Java-Tools
+
+Mit JDK 21 oder neuer in `PATH` installierst du festgelegte Versionen von google-java-format, PMD und Checkstyle mit Prüfsummenprüfung:
+
+```bash
+aislop-tools --java
+# Oder mit npx:
+npx --yes --package=aislop@latest aislop-tools --java
+```
+
+Bereits installierte ausführbare Systemtools haben Vorrang. Java-Formatierung muss in der Build-Datei aktiviert sein; Checkstyle verwendet die Projektkonfiguration. Prüfe die Verfügbarkeit mit `aislop doctor`.
+
 ## Externe Tools
 
 Einige Engines setzen Tools voraus, die bereits auf deinem Rechner installiert sein müssen. Sie werden nicht mitgeliefert, weil sie ohnehin die jeweilige Toolchain der Sprache voraussetzen.

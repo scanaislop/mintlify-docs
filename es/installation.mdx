@@ -137,6 +137,18 @@ El comando termina con un código distinto de cero si no puede instalar un binar
 | [ruff](https://docs.astral.sh/ruff/) | Linting + formato | Python | `aislop-tools` |
 | [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
 
+## Herramientas opcionales para Java
+
+Con JDK 21 o posterior en `PATH`, instala versiones fijadas de google-java-format, PMD y Checkstyle con verificación de sumas de comprobación:
+
+```bash
+aislop-tools --java
+# O con npx:
+npx --yes --package=aislop@latest aislop-tools --java
+```
+
+Las herramientas ejecutables ya instaladas en el sistema tienen prioridad. El formato de Java debe activarse en el archivo de compilación, y Checkstyle usa la configuración del proyecto. Comprueba la disponibilidad con `aislop doctor`.
+
 ## Herramientas externas
 
 Algunos motores dependen de herramientas que ya deben estar instaladas en tu máquina. No se incluyen porque, de todos modos, requieren tener presente la toolchain del lenguaje.
