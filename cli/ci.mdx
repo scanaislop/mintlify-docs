@@ -1,10 +1,10 @@
 ---
 title: "Quality gates for pull requests and pipelines"
 sidebarTitle: "CI"
-description: "Run aislop as a quality gate in any CI provider. Exits non-zero when the score drops below your threshold or an error-severity finding is present."
+description: "Run aislop as a quality gate in any CI provider. Returns a failing status for incomplete checks, error findings, or scores below your threshold."
 ---
 
-`aislop ci` is the same scan engine as `aislop scan`, wrapped in a gate. It prints structured JSON, then exits with code `1` if the score falls below your configured threshold or if any error-severity diagnostic is present. Because it always emits JSON by default, it slots into any CI provider without extra parsing or configuration—just run it and let the exit code do the work.
+`aislop ci` is the same scan engine as `aislop scan`, wrapped in a gate. It prints JSON and returns a nonzero status when the scan fails a gate. If an engine fails, the score is withheld and findings from completed checks remain available.
 
 The simplest set-and-forget form always pulls the latest published CLI, so there is nothing to pin or bump:
 
@@ -94,8 +94,8 @@ aislop ci --changes --base FETCH_HEAD
 ```json
 {
   "schemaVersion": "1",
-  "cliVersion": "0.22.1",
-  "version": "0.22.1",
+  "cliVersion": "0.22.2",
+  "version": "0.22.2",
   "score": 87,
   "label": "Healthy",
   "engines": {
@@ -128,8 +128,9 @@ ci:
   format: json
 ```
 
-`aislop ci` exits `1` when either condition is true:
+`aislop ci` exits `1` when any of these conditions applies:
 
+- An engine failed to complete
 - The score is below `failBelow`
 - Any diagnostic with `error` severity is present
 
@@ -169,7 +170,7 @@ ci:
     - uses: actions/checkout@v4
     - uses: scanaislop/aislop@v1
       with:
-        version: latest   # or pin, e.g. "0.22.1", for reproducible builds
+        version: latest   # or pin, e.g. "0.22.2", for reproducible builds
     ```
   </Tab>
   <Tab title="GitLab CI">
@@ -239,8 +240,8 @@ npx aislop@latest init --strict
 
 | Exit code | Reason |
 |---|---|
-| `0` | Score is at or above `failBelow` and no error-severity findings |
-| `1` | Score is below `failBelow`, or at least one error-severity diagnostic is present |
+| `0` | The scan completed and passed the configured gates |
+| `1` | An engine failed or the scan failed a configured gate |
 
 
 ## JVM security consent

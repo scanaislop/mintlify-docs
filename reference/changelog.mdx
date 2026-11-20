@@ -4,6 +4,13 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.22.2
+
+When a Go or JavaScript linter fails, the CLI reports the failure, withholds the score, and exits with status 1. Findings from other linters are still available. Go projects can use golangci-lint v1 or v2.
+
+- Scala beta checks handle nested catch clauses and triple-quoted strings more accurately. A scalafmt failure prevents the incomplete scan from becoming a baseline.
+- CLI telemetry is limited to 200 events per installation per UTC day across concurrent processes. Events are sent without creating person profiles.
+
 ## 0.22.1 (2026-11-14)
 
 Expanded Java and Scala project analysis, with explicit opt-in JVM tools and clearer coverage failures. Scala remains in beta.
