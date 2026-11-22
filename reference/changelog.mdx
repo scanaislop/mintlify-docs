@@ -4,6 +4,12 @@ sidebarTitle: "Changelog"
 description: "Recent aislop releases and the user-facing changes they introduced."
 ---
 
+## 0.22.3 (2026-11-22)
+
+Python scans now recognize when `logger.exception` preserves a traceback even if a nested helper receives `exc_info=False` or a continued log message mentions that option. Passing `exc_info=False` directly to the logging call still flags the lost traceback.
+
+The README demo shows a Python scan, four automatic fixes, and a clean rescan. This patch also updates oxlint, expo-doctor, and tar.
+
 ## 0.22.2 (2026-11-20)
 
 When a Go or JavaScript linter fails, the CLI reports the failure, withholds the score, and exits with status 1. Findings from other linters are still available. Go projects can use golangci-lint v1 or v2.
