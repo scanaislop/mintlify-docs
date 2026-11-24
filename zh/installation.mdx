@@ -114,7 +114,7 @@ npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
 
 oxlint、Biome、knip 和 expo-doctor 作为包依赖一起发布。安装过程不会执行依赖的生命周期脚本，因此核心扫描器在 npm 默认的安全安装设置下也能正常工作。
 
-如需使用内置的 **ruff** 和 **golangci-lint** 覆盖，在安装 aislop 后单独运行一次工具安装命令：
+CLI 已包含 Python 分析引擎。要检查 Go 代码，可使用可选安装工具安装 **golangci-lint**。
 
 ```bash
 aislop-tools
@@ -134,7 +134,7 @@ npx --yes --package=aislop@latest aislop-tools
 | [Biome](https://biomejs.dev/) | 格式化 + Lint | TypeScript、JavaScript | 包依赖 |
 | [knip](https://knip.dev/) | 死代码 + 未使用的依赖 | TypeScript、JavaScript | 包依赖 |
 | [expo-doctor](https://docs.expo.dev/) | 框架检查 | Expo / React Native | 包依赖 |
-| [ruff](https://docs.astral.sh/ruff/) | Lint + 格式化 | Python | `aislop-tools` |
+| aislop Python | Lint + 格式化 | Python | 随 CLI 提供 |
 | [golangci-lint](https://golangci-lint.run/) | Lint | Go | `aislop-tools` |
 
 ## 可选 Java 工具

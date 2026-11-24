@@ -32,7 +32,7 @@ Some tools ship with aislop as package dependencies. Others are expected to be i
 | Biome | JS/TS formatting | Bundled |
 | oxlint | JS/TS linting | Bundled |
 | knip | JS/TS dead files, exports, deps | Bundled |
-| ruff | Python formatting and linting | Downloaded by installer |
+| aislop Python | Python formatting and linting | Included in the CLI |
 | golangci-lint | Go linting | Downloaded by installer |
 | gofmt | Go formatting | External Go toolchain |
 | govulncheck | Go dependency audit | External Go toolchain |
@@ -45,7 +45,7 @@ Some tools ship with aislop as package dependencies. Others are expected to be i
 | cppcheck / clang-format / clang-tidy | C/C++ linting and formatting | External C/C++ tools |
 
 <Tip>
-  Package install does not download Ruff or golangci-lint. Run `aislop-tools` once after installing aislop, or install those binaries yourself and confirm coverage with `aislop doctor`.
+  The CLI includes its Python engine. For Go linting, install golangci-lint with `aislop-tools` and confirm coverage with `aislop doctor`.
 </Tip>
 
 Built-in C# and C/C++ text, complexity, and AI-slop checks run without external tools. C# project evaluation is opt-in for repositories you trust:
