@@ -114,7 +114,7 @@ npm install --save-dev @scanaislop/aislop --registry=https://npm.pkg.github.com
 
 oxlint, Biome, knip y expo-doctor se distribuyen como dependencias del paquete. La instalación del paquete no ejecuta scripts de ciclo de vida de las dependencias, así que el escáner principal funciona con la configuración de instalación segura de npm.
 
-Para la cobertura incluida de **ruff** y **golangci-lint**, ejecuta una vez el instalador explícito de herramientas después de instalar aislop:
+El motor de Python viene incluido. Para analizar Go, instala **golangci-lint** con el instalador opcional.
 
 ```bash
 aislop-tools
@@ -134,7 +134,7 @@ El comando termina con un código distinto de cero si no puede instalar un binar
 | [Biome](https://biomejs.dev/) | Formato + linting | TypeScript, JavaScript | Dependencia del paquete |
 | [knip](https://knip.dev/) | Código muerto + dependencias sin usar | TypeScript, JavaScript | Dependencia del paquete |
 | [expo-doctor](https://docs.expo.dev/) | Comprobaciones del framework | Expo / React Native | Dependencia del paquete |
-| [ruff](https://docs.astral.sh/ruff/) | Linting + formato | Python | `aislop-tools` |
+| aislop Python | Linting + formato | Python | Incluido en la CLI |
 | [golangci-lint](https://golangci-lint.run/) | Linting | Go | `aislop-tools` |
 
 ## Herramientas opcionales para Java
